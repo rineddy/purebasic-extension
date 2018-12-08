@@ -1,13 +1,13 @@
 {
-	"name": "purebasic-sample-client",
-	"description": "VSCode part of a language server",
-	"author": "eddy-r",
+	"name": "purebasic-language-client",
+	"description": "PureBasic language client",
+	"version": "1.0.0",
+	"author": "Eddy R.",
+	"publisher": "eddy-r",
 	"license": "MIT",
-	"version": "0.0.1",
-	"publisher": "vscode",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/rineddy/pb-test"
+		"url": "https://github.com/rineddy/purebasic-extension"
 	},
 	"engines": {
 		"vscode": "^1.23.0"

@@ -1,15 +1,15 @@
 {
-	"name": "purebasic-sample-server",
-	"description": "Example implementation of a language server in node.",
+	"name": "purebasic-language-server",
+	"description": "PureBasic language server",
 	"version": "1.0.0",
-	"author": "eddy-r",
+	"author": "Eddy R.",
 	"license": "MIT",
-	"engines": {
-		"node": "*"
-	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/rineddy/pb-test"
+		"url": "https://github.com/rineddy/purebasic-extension"
+	},
+	"engines": {
+		"node": "*"
 	},
 	"dependencies": {
 		"vscode-languageserver": "^4.1.3"

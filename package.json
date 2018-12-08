@@ -1,23 +1,24 @@
 {
-	"name": "purebasic-sample",
-	"description": "A language server example",
-	"author": "eddy-r",
-	"license": "MIT",
+	"name": "purebasic-extension",
+	"displayName": "PureBasic Extension",
+	"description": "PureBasic extension for Visual Studio Code",
 	"version": "1.0.0",
+	"author": "Eddy R.",
+	"publisher": "eddy-r",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/rineddy/pb-test"
+		"url": "https://github.com/rineddy/purebasic-extension"
 	},
-	"publisher": "eddy-r",
+	"engines": {
+		"vscode": "^1.23.0"
+	},
 	"categories": [],
 	"keywords": [
 		"multi-root ready"
 	],
-	"engines": {
-		"vscode": "^1.23.0"
-	},
 	"activationEvents": [
-		"onLanguage:plaintext"
+		"onLanguage:purebasic"
 	],
 	"main": "./client/out/extension",
 	"contributes": {
