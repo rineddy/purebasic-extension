@@ -3,12 +3,13 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
-import * as vscode from 'vscode';
 import * as assert from 'assert';
-import { getDocUri, activate } from './helper';
+import * as vscode from 'vscode';
+
+import { activate, getDocUri } from './helper';
 
 describe('Should do completion', () => {
-	const docUri = getDocUri('completion.txt');
+	const docUri = getDocUri('completion.pb');
 
 	it('Completes JS/TS in txt file', async () => {
 		await testCompletion(docUri, new vscode.Position(0, 0), {
@@ -37,7 +38,7 @@ async function testCompletion(
 	assert.equal(actualCompletionList.items.length, expectedCompletionList.items.length);
 	expectedCompletionList.items.forEach((expectedItem, i) => {
 		const actualItem = actualCompletionList.items[i];
-		assert.equal(actualItem.label, expectedItem.label);
-		assert.equal(actualItem.kind, expectedItem.kind);
+		assert.equal(actualItem.label, expectedItem.label); // TODO fixed later
+		assert.equal(actualItem.kind, expectedItem.kind); // TODO fixed later
 	});
 }
