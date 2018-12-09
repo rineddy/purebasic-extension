@@ -106,8 +106,8 @@
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
 		"test": "sh ./client/scripts/e2e.sh",
-		"vscode:prepublish": "rimraf \"*.vsix\" \"**/out\" && cd client && npm run update-vscode && cd .. && npm run compile",
-		"publish": "npm version patch"
+		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
+		"deploy": "rimraf \"*.vsix\" \"**/out\" && npm version patch && vsce publish"
 	},
 	"devDependencies": {
 		"@types/mocha": "^5.2.0",
