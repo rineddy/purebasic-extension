@@ -4,17 +4,17 @@
  * ------------------------------------------------------------------------------------------ */
 
 import {
-	createConnection,
-	TextDocuments,
-	TextDocument,
-	Diagnostic,
-	DiagnosticSeverity,
-	ProposedFeatures,
-	InitializeParams,
-	DidChangeConfigurationNotification,
 	CompletionItem,
 	CompletionItemKind,
-	TextDocumentPositionParams
+	Diagnostic,
+	DiagnosticSeverity,
+	DidChangeConfigurationNotification,
+	InitializeParams,
+	ProposedFeatures,
+	TextDocument,
+	TextDocumentPositionParams,
+	TextDocuments,
+	createConnection
 } from 'vscode-languageserver';
 
 // Create a connection for the server. The connection uses Node's IPC as a transport.
@@ -38,8 +38,8 @@ connection.onInitialize((params: InitializeParams) => {
 	hasWorkspaceFolderCapability = !!(capabilities.workspace && !!capabilities.workspace.workspaceFolders);
 	hasDiagnosticRelatedInformationCapability =
 		!!(capabilities.textDocument &&
-		capabilities.textDocument.publishDiagnostics &&
-		capabilities.textDocument.publishDiagnostics.relatedInformation);
+			capabilities.textDocument.publishDiagnostics &&
+			capabilities.textDocument.publishDiagnostics.relatedInformation);
 
 	return {
 		capabilities: {
@@ -69,13 +69,15 @@ connection.onInitialized(() => {
 
 // The example settings
 interface ExampleSettings {
-	maxNumberOfProblems: number;
+	diagnostics: {
+		maxNumberOfProblems: number;
+	};
 }
 
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
 // Please note that this is not the case when using this server with the client provided in this example
 // but could happen with other clients.
-const defaultSettings: ExampleSettings = { maxNumberOfProblems: 1000 };
+const defaultSettings: ExampleSettings = { diagnostics: { maxNumberOfProblems: 1000 } };
 let globalSettings: ExampleSettings = defaultSettings;
 
 // Cache the settings of all open documents
@@ -132,7 +134,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
 	let problems = 0;
 	let diagnostics: Diagnostic[] = [];
-	while ((m = pattern.exec(text)) && problems < settings.maxNumberOfProblems) {
+	while ((m = pattern.exec(text)) && problems < settings.diagnostics.maxNumberOfProblems) {
 		problems++;
 		let diagnosic: Diagnostic = {
 			severity: DiagnosticSeverity.Warning,

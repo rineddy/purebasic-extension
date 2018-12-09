@@ -13,26 +13,39 @@
 	"engines": {
 		"vscode": "^1.23.0"
 	},
-	"categories": [],
+	"categories": [
+		"Programming Languages",
+		"Debuggers",
+		"Formatters",
+		"Linters"
+	],
 	"keywords": [
-		"multi-root ready"
+		"multi-root ready",
+		"code beautifier"
 	],
-	"activationEvents": [
-		"onLanguage:purebasic"
-	],
-	"main": "./client/out/extension",
 	"contributes": {
+		"configurationDefaults": {
+			"[purebasic]": {
+				"editor.insertSpaces": false,
+				"editor.formatOnSave": true,
+				"editor.formatOnType": true,
+				"editor.detectIndentation": false,
+				"editor.autoIndent": true,
+				"editor.tabSize": 3
+			}
+		},
 		"configuration": {
 			"type": "object",
-			"title": "Example configuration",
+			"title": "PureBasic Configuration",
 			"properties": {
-				"languageServerExample.maxNumberOfProblems": {
+				"purebasicLanguage.diagnostics.maxNumberOfProblems": {
+					"description": "Controls the maximum number of problems produced by the language server.",
 					"scope": "resource",
 					"type": "number",
-					"default": 100,
-					"description": "Controls the maximum number of problems produced by the server."
+					"default": 100
 				},
-				"languageServerExample.trace.server": {
+				"purebasicLanguage.trace.server": {
+					"description": "Traces the communication between VS Code and the language server.",
 					"scope": "window",
 					"type": "string",
 					"enum": [
@@ -40,12 +53,52 @@
 						"messages",
 						"verbose"
 					],
-					"default": "off",
-					"description": "Traces the communication between VS Code and the language server."
+					"default": "off"
+				},
+				"purebasicLanguage.indentationRules": {
+					"description": "Determines how to indent the source code.",
+					"scope": "resource",
+					"type": "array",
+					"default": [
+						{
+							"regex": "\\b(While|Repeat|ForEach|For|With|Structure|StructureUnion|Macro|Import|ImportC|Interface|Procedure|ProcedureDLL|ProcedureCDLL|ProcedureC|If|CompilerIf|DataSection|DeclareModule|Module|Enumeration|EnumerationBinary)\\b",
+							"flags": "i",
+							"before": 0,
+							"after": 1
+						},
+						{
+							"regex": "\\b(Wend|Until|ForEver|Next|EndWith|EndStructure|EndStructureUnion|EndMacro|EndImport|EndInterface|EndProcedure|EndIf|CompilerEndIf|EndDataSection|EndDeclareModule|EndModule|EndEnumeration)\\b",
+							"flags": "i",
+							"before": -1,
+							"after": 0
+						},
+						{
+							"regex": "\\b(Else|ElseIf|Case|Default|CompilerElse|CompilerElseIf|CompilerCase|CompilerDefault)\\b",
+							"flags": "i",
+							"before": -1,
+							"after": 1
+						},
+						{
+							"regex": "\\b(Select|CompilerSelect)\\b",
+							"flags": "i",
+							"before": 0,
+							"after": 2
+						},
+						{
+							"regex": "\\b(EndSelect|CompilerEndSelect)\\b",
+							"flags": "i",
+							"before": -2,
+							"after": 0
+						}
+					]
 				}
 			}
 		}
 	},
+	"main": "./client/out/extension",
+	"activationEvents": [
+		"onLanguage:purebasic"
+	],
 	"scripts": {
 		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
 		"compile": "tsc -b",
