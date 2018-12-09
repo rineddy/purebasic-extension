@@ -5,9 +5,17 @@
 		"moduleResolution": "node",
 		"sourceMap": true,
 		"outDir": "out",
-		"rootDir": "src",
-		"lib": ["es6"]
+		"rootDir": ".",
+		"lib": [
+			"es6"
+		]
 	},
-	"include": ["src"],
-	"exclude": ["node_modules", ".vscode-test"]
+	"include": [
+		"."
+	],
+	"exclude": [
+		"node_modules",
+		"out",
+		".vscode-test"
+	]
 }
