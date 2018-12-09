@@ -1,6 +1,6 @@
 {
-	"name": "purebasic-language-client",
-	"description": "PureBasic language client",
+	"name": "purebasic-extension-client",
+	"description": "PureBasic extension client",
 	"version": "1.0.0",
 	"author": "Eddy R.",
 	"publisher": "eddy-r",

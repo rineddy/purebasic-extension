@@ -1,8 +1,9 @@
 {
-	"name": "purebasic-language-server",
-	"description": "PureBasic language server",
+	"name": "purebasic-extension-server",
+	"description": "PureBasic extension server",
 	"version": "1.0.0",
 	"author": "Eddy R.",
+	"publisher": "eddy-r",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
