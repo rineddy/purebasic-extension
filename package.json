@@ -2,7 +2,7 @@
 	"name": "purebasic-extension",
 	"displayName": "PureBasic Extension",
 	"description": "PureBasic extension for Visual Studio Code",
-	"version": "1.0.0",
+	"version": "0.0.1",
 	"author": "Eddy R.",
 	"publisher": "eddy-r",
 	"license": "MIT",
@@ -23,6 +23,7 @@
 		"multi-root ready",
 		"code beautifier"
 	],
+	"icon": "images/purebasic.png",
 	"contributes": {
 		"configurationDefaults": {
 			"[purebasic]": {
@@ -104,11 +105,12 @@
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
 		"test": "sh ./client/scripts/e2e.sh",
-		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile"
+		"vscode:prepublish": "rimraf \"*.vsix\" \"**/out\" && cd client && npm run update-vscode && cd .. && npm run compile"
 	},
 	"devDependencies": {
 		"@types/mocha": "^5.2.0",
 		"@types/node": "^8.0.0",
+		"rimraf": "^2.6.2",
 		"tslint": "^5.11.0",
 		"typescript": "^3.1.3"
 	}
