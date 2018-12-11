@@ -17,7 +17,9 @@ pb.connection.onInitialize((params: InitializeParams) => {
 	return {
 		capabilities: {
 			textDocumentSync: TextDocumentSyncKind.Full,
-			completionProvider: { resolveProvider: true }, 	// Tell the client that the server supports code completion
+			completionProvider: { resolveProvider: true }, 	// Tell the client that the server provides code completion
+			workspaceSymbolProvider: true,					// Tell the client that the server provides workspace symbols
+			documentSymbolProvider: true,				 	// Tell the client that the server provides document symbols
 			documentRangeFormattingProvider: true,			// Tell the client that the server supports formatting
 			documentFormattingProvider: true, 				// Tell the client that the server supports formatting
 			documentOnTypeFormattingProvider: {				// Tell the client that the server supports formatting
@@ -30,14 +32,12 @@ pb.connection.onInitialize((params: InitializeParams) => {
 			// codeLensProvider: undefined,
 			// documentLinkProvider: undefined,
 			// documentHighlightProvider: true,
-			// documentSymbolProvider: true,
 			// colorProvider: undefined,
 			// referencesProvider: undefined,
 			// signatureHelpProvider: undefined,
 			// executeCommandProvider: undefined,
 			// hoverProvider: undefined,
 			// renameProvider: undefined,
-			// workspaceSymbolProvider: undefined
 		}
 	};
 });
@@ -81,6 +81,8 @@ pb.connection.onCompletionResolve(pb.completion.getCompletionDescription);
 pb.connection.onDocumentFormatting(pb.formatter.formatAll);
 pb.connection.onDocumentRangeFormatting(pb.formatter.formatRange);
 pb.connection.onDocumentOnTypeFormatting(pb.formatter.formatOnType);
+pb.connection.onDocumentSymbol(pb.parser.getDocumentSymbols);
+pb.connection.onWorkspaceSymbol(pb.parser.getWorkspaceSymbols);
 
 pb.connection.listen(); 				// Listen on the pb.connection
 pb.documentation.listen(pb.connection); // Make the text document manager listen on the pb.connection (for open, change and close text document events)

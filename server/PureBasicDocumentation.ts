@@ -4,6 +4,7 @@ import {
 	TextDocument,
 	TextDocumentIdentifier,
 	TextDocuments,
+	SymbolInformation,
 } from 'vscode-languageserver';
 
 export class PureBasicDocumentation extends TextDocuments {
