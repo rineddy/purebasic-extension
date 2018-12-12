@@ -66,6 +66,9 @@ pb.documentation.onDidClose(e => {
 pb.documentation.onDidChangeContent(change => {
 	pb.validation.validate(change.document);
 });
+pb.connection.onDidChangeTextDocument(change => {
+	//
+});
 
 pb.connection.onDidChangeConfiguration(changes => {
 	pb.settings.change(changes);
