@@ -8,7 +8,7 @@ import {
 
 import { pb } from './PureBasicAPI';
 
-export class PureBasicParser {
+export class PureBasicSymbols {
 	public getDocumentSymbols(params: DocumentSymbolParams): SymbolInformation[] {
 		return [
 			SymbolInformation.create('module', SymbolKind.Module, Range.create(0, 1, 5, 1), params.textDocument.uri),
