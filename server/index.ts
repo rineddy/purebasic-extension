@@ -84,8 +84,8 @@ pb.connection.onCompletionResolve(pb.completion.getCompletionDescription);
 pb.connection.onDocumentFormatting(pb.formatter.formatAll);
 pb.connection.onDocumentRangeFormatting(pb.formatter.formatRange);
 pb.connection.onDocumentOnTypeFormatting(pb.formatter.formatOnType);
-pb.connection.onDocumentSymbol(pb.parser.getDocumentSymbols);
-pb.connection.onWorkspaceSymbol(pb.parser.getWorkspaceSymbols);
+pb.connection.onDocumentSymbol(pb.symbols.getDocumentSymbols);
+pb.connection.onWorkspaceSymbol(pb.symbols.getWorkspaceSymbols);
 
 pb.connection.listen(); 				// Listen on the pb.connection
 pb.documentation.listen(pb.connection); // Make the text document manager listen on the pb.connection (for open, change and close text document events)

@@ -7,8 +7,8 @@ import { PureBasicCompletion } from './PureBasicCompletion';
 import { PureBasicDocumentation } from './PureBasicDocumentation';
 import { PureBasicFormatter } from './PureBasicFormatter';
 import { PureBasicIndentation } from './PureBasicIndentation';
-import { PureBasicParser } from './PureBasicParser';
 import { PureBasicSettings } from './PureBasicSettings';
+import { PureBasicSymbols } from './PureBasicSymbols';
 import { PureBasicText } from './PureBasicText';
 import { PureBasicValidation } from './PureBasicValidation';
 
@@ -41,7 +41,7 @@ export namespace pb {
 	/**
 	 * Provide functions used to collect symbols (variables, functions, types...) from document or workspace by parsing some texts
 	 */
-	export const parser = new PureBasicParser();
+	export const symbols = new PureBasicSymbols();
 	/**
 	 * Create a simple text document manager. The text document manager
 	 * supports full document sync only
