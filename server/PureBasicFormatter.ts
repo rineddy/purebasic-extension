@@ -29,24 +29,27 @@ export class PureBasicFormatter {
 
 	/**
 	 * Format whole doc
+	 * @param formatting
 	 */
-	public async formatAll(params: DocumentFormattingParams): Promise<TextEdit[]> {
-		const doc = await pb.documentation.find(params.textDocument.uri);
-		return pb.formatter.formatLineByLine(doc, params.options, 0, doc.lineCount - 1);
+	public async formatAll(formatting: DocumentFormattingParams): Promise<TextEdit[]> {
+		const doc = await pb.documentation.find(formatting.textDocument.uri);
+		return pb.formatter.formatLineByLine(doc, formatting.options, 0, doc.lineCount - 1);
 	}
 	/**
 	 * Format doc when user is selecting text
+	 * @param formatting
 	 */
-	public async formatRange(params: DocumentRangeFormattingParams): Promise<TextEdit[]> {
-		const doc = await pb.documentation.find(params.textDocument.uri);
-		return pb.formatter.formatLineByLine(doc, params.options, params.range.start.line, params.range.end.line, params.range.end.character);
+	public async formatRange(formatting: DocumentRangeFormattingParams): Promise<TextEdit[]> {
+		const doc = await pb.documentation.find(formatting.textDocument.uri);
+		return pb.formatter.formatLineByLine(doc, formatting.options, formatting.range.start.line, formatting.range.end.line, formatting.range.end.character);
 	}
 	/**
 	 * Format doc when user is typing
+	 * @param formatting
 	 */
-	public async formatOnType(params: DocumentOnTypeFormattingParams): Promise<TextEdit[]> {
-		const doc = await pb.documentation.find(params.textDocument.uri);
-		return pb.formatter.formatLineByLine(doc, params.options, params.position.line - 1, params.position.line, params.position.character);
+	public async formatOnType(formatting: DocumentOnTypeFormattingParams): Promise<TextEdit[]> {
+		const doc = await pb.documentation.find(formatting.textDocument.uri);
+		return pb.formatter.formatLineByLine(doc, formatting.options, formatting.position.line - 1, formatting.position.line, formatting.position.character);
 	}
 	/**
 	 * Format doc line by line

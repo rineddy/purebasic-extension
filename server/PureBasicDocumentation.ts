@@ -1,15 +1,18 @@
-import { ICustomReadLine, pb } from './PureBasicAPI';
 import {
+	DidChangeTextDocumentParams,
+	DidOpenTextDocumentParams,
 	Range,
+	SymbolInformation,
 	TextDocument,
 	TextDocumentIdentifier,
 	TextDocuments,
-	SymbolInformation,
 } from 'vscode-languageserver';
+import { ICustomReadLine, pb } from './PureBasicAPI';
 
 export class PureBasicDocumentation extends TextDocuments {
 	/**
 	 * Find instance of existing text document identified by `docInfo`
+	 * @param docInfo
 	 */
 	public find(docInfo: TextDocument | TextDocumentIdentifier | string): Thenable<TextDocument> {
 		let doc: TextDocument | undefined;
@@ -39,5 +42,11 @@ export class PureBasicDocumentation extends TextDocuments {
 			lineCutRange: rgCut,
 			lineCutText: rgCut ? doc.getText(rgCut) : undefined,
 		};
+	}
+	public change(changed: DidChangeTextDocumentParams) {
+		throw new Error('Method not implemented.');
+	}
+	public open(opened: DidOpenTextDocumentParams) {
+		throw new Error('Method not implemented.');
 	}
 }

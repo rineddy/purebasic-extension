@@ -68,11 +68,12 @@ export class PureBasicSettings {
 	}
 	/**
 	 * Reset all cached document settings
+	 * @param changed
 	 */
-	public change(change: DidChangeConfigurationParams) {
+	public change(changed: DidChangeConfigurationParams) {
 		this.documentSettings.clear();
 		if (!this.hasWorkspaceConfigCapability) {
-			let globalSettings = Promise.resolve(<ICustomSettings>(change.settings.purebasicLanguage || pb.settings.DEFAULT_SETTINGS));
+			let globalSettings = Promise.resolve(<ICustomSettings>(changed.settings.purebasicLanguage || pb.settings.DEFAULT_SETTINGS));
 			this.saveDocumentSettings('', globalSettings);
 		}
 	}

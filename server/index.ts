@@ -66,9 +66,6 @@ pb.documentation.onDidClose(e => {
 pb.documentation.onDidChangeContent(change => {
 	pb.validation.validate(change.document);
 });
-pb.connection.onDidChangeTextDocument(change => {
-	//
-});
 
 pb.connection.onDidChangeConfiguration(changes => {
 	pb.settings.change(changes);
@@ -79,6 +76,9 @@ pb.connection.onDidChangeWatchedFiles(() => {
 	// Monitored files have change in VSCode
 	pb.connection.console.log('We received an file change event');
 });
+
+pb.connection.onDidOpenTextDocument(pb.documentation.open);
+pb.connection.onDidChangeTextDocument(pb.documentation.change);
 pb.connection.onCompletion(pb.completion.getCompletionItems);
 pb.connection.onCompletionResolve(pb.completion.getCompletionDescription);
 pb.connection.onDocumentFormatting(pb.formatter.formatAll);
