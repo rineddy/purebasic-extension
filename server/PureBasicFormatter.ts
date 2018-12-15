@@ -32,7 +32,7 @@ export class PureBasicFormatter {
 	 * @param formatting
 	 */
 	public async formatAll(formatting: DocumentFormattingParams): Promise<TextEdit[]> {
-		const doc = await pb.documentation.find(formatting.textDocument.uri);
+		const doc = await pb.documentation.find(formatting.textDocument);
 		return pb.formatter.formatLineByLine(doc, formatting.options, 0, doc.lineCount - 1);
 	}
 	/**
@@ -40,7 +40,7 @@ export class PureBasicFormatter {
 	 * @param formatting
 	 */
 	public async formatRange(formatting: DocumentRangeFormattingParams): Promise<TextEdit[]> {
-		const doc = await pb.documentation.find(formatting.textDocument.uri);
+		const doc = await pb.documentation.find(formatting.textDocument);
 		return pb.formatter.formatLineByLine(doc, formatting.options, formatting.range.start.line, formatting.range.end.line, formatting.range.end.character);
 	}
 	/**
@@ -48,7 +48,7 @@ export class PureBasicFormatter {
 	 * @param formatting
 	 */
 	public async formatOnType(formatting: DocumentOnTypeFormattingParams): Promise<TextEdit[]> {
-		const doc = await pb.documentation.find(formatting.textDocument.uri);
+		const doc = await pb.documentation.find(formatting.textDocument);
 		return pb.formatter.formatLineByLine(doc, formatting.options, formatting.position.line - 1, formatting.position.line, formatting.position.character);
 	}
 	/**
