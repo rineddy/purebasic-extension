@@ -11,19 +11,16 @@ import { ICustomReadLine, pb } from './PureBasicAPI';
 
 export class PureBasicDocumentation extends TextDocuments {
 	/**
-	 * Find instance of existing text document identified by `docInfo`
+	 * Find doc instance identified by `docInfo`
 	 * @param docInfo
 	 */
-	public find(docInfo: TextDocument | TextDocumentIdentifier | string): Thenable<TextDocument> {
+	public find(docInfo: TextDocumentIdentifier | string): Thenable<TextDocument> {
 		let doc: TextDocument | undefined;
 		if (typeof (docInfo) === 'string') {
 			doc = pb.documentation.get(docInfo);
 		}
-		else if (TextDocumentIdentifier.is(docInfo)) {
+		else {
 			doc = pb.documentation.get(docInfo.uri);
-		}
-		else if (TextDocument.is(docInfo)) {
-			doc = docInfo;
 		}
 		return doc ? Promise.resolve(doc) : Promise.reject(`Invalid docInfo: ${docInfo.toString()}`);
 	}
@@ -42,11 +39,5 @@ export class PureBasicDocumentation extends TextDocuments {
 			lineCutRange: rgCut,
 			lineCutText: rgCut ? doc.getText(rgCut) : undefined,
 		};
-	}
-	public change(changed: DidChangeTextDocumentParams) {
-		throw new Error('Method not implemented.');
-	}
-	public open(opened: DidOpenTextDocumentParams) {
-		throw new Error('Method not implemented.');
 	}
 }
