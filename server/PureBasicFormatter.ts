@@ -72,7 +72,7 @@ export class PureBasicFormatter {
 		}
 		for (let line = startLine; line <= endLine; line++) {
 			const { lineRange, lineText, lineCutText, lineCutRange } = pb.documentation.readLine(doc, line, line === endLine ? endLineCharacter : undefined);
-			const formattedText = pb.text.restructure(lineText, lineStruct => {
+			const formattedText = pb.text.reconstruct(lineText, lineStruct => {
 				pb.indentation.update(lineStruct, indenting);
 				pb.text.beautify(lineStruct, pb.formatter.FORMATTING_RULES);
 				if (lineCutRange && lineCutText) {

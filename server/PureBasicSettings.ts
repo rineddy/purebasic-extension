@@ -67,10 +67,11 @@ export class PureBasicSettings {
 		}
 	}
 	/**
-	 * Reset all cached document settings
+	 * Reset settings
 	 * @param changed
 	 */
-	public change(changed: DidChangeConfigurationParams) {
+	public reset(changed: DidChangeConfigurationParams) {
+		// Clear cached document settings
 		this.documentSettings.clear();
 		if (!this.hasWorkspaceConfigCapability) {
 			let globalSettings = Promise.resolve(<ICustomSettings>(changed.settings.purebasicLanguage || pb.settings.DEFAULT_SETTINGS));
@@ -93,7 +94,7 @@ export class PureBasicSettings {
 	 * Delete settings before closing document
 	 * @param doc
 	 */
-	public remove(doc: TextDocument) {
+	public delete(doc: TextDocument) {
 		this.documentSettings.delete(doc.uri);
 	}
 	/**

@@ -1,5 +1,6 @@
 import {
 	DidChangeConfigurationNotification,
+	DidChangeTextDocumentNotification,
 	InitializeParams,
 	TextDocumentSyncKind,
 } from 'vscode-languageserver';
@@ -45,7 +46,7 @@ pb.connection.onInitialize((params: InitializeParams) => {
 pb.connection.onInitialized(() => {
 	if (pb.settings.hasWorkspaceConfigCapability) {
 		// Register for all configuration changes.
-		pb.connection.client.register(DidChangeConfigurationNotification.type, undefined);
+		pb.connection.client.register(DidChangeConfigurationNotification.type);
 	}
 	if (pb.settings.hasWorkspaceFolderCapability) {
 		pb.connection.workspace.onDidChangeWorkspaceFolders(_event => {
@@ -55,30 +56,13 @@ pb.connection.onInitialized(() => {
 
 });
 
-pb.documentation.onDidOpen(async () => {
-});
-// Only keep settings for open pb.documents
-pb.documentation.onDidClose(e => {
-	pb.settings.remove(e.document);
-});
-// The content of a text document has changed. This event is emitted
-// when the text document first opened or when its content has changed.
-pb.documentation.onDidChangeContent(change => {
-	pb.validation.validate(change.document);
-});
-
-pb.connection.onDidChangeConfiguration(changes => {
-	pb.settings.change(changes);
-	// Revalidate all open text pb.documents
+pb.connection.onDidChangeConfiguration(changed => {
+	pb.settings.reset(changed);
 	pb.documentation.all().forEach(pb.validation.validate);
 });
 pb.connection.onDidChangeWatchedFiles(() => {
-	// Monitored files have change in VSCode
 	pb.connection.console.log('We received an file change event');
 });
-
-pb.connection.onDidOpenTextDocument(pb.documentation.open);
-pb.connection.onDidChangeTextDocument(pb.documentation.change);
 pb.connection.onCompletion(pb.completion.getCompletionItems);
 pb.connection.onCompletionResolve(pb.completion.getCompletionDescription);
 pb.connection.onDocumentFormatting(pb.formatter.formatAll);
@@ -86,6 +70,16 @@ pb.connection.onDocumentRangeFormatting(pb.formatter.formatRange);
 pb.connection.onDocumentOnTypeFormatting(pb.formatter.formatOnType);
 pb.connection.onDocumentSymbol(pb.symbols.getDocumentSymbols);
 pb.connection.onWorkspaceSymbol(pb.symbols.getWorkspaceSymbols);
+
+pb.documentation.onDidOpen(() => {
+});
+pb.documentation.onDidClose(closed => {
+	pb.settings.delete(closed.document);
+});
+pb.documentation.onDidChangeContent(changed => {
+	pb.symbols.collect(changed.document);
+	pb.validation.validate(changed.document);
+});
 
 pb.connection.listen(); 				// Listen on the pb.connection
 pb.documentation.listen(pb.connection); // Make the text document manager listen on the pb.connection (for open, change and close text document events)

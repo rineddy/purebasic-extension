@@ -13,23 +13,26 @@ export class PureBasicText {
 	 */
 	private readonly EXTRACTS_WORDS = /[$]?\b[_a-z]\w*\b[$]?/gi;
 	/**
-	 * Finds strings, comment and end spaces in text
+	 * Finds strings, comment and end spaces from line text
 	 */
 	private readonly FINDS_STRINGS_COMMENT_ENDSPACES = /(")(?:[^"\\]|\\.)*"?|(')[^']*'?|(;).*?(?=\s*$)|(\s)\s*$/g;
-
+	/**
+	 * Finds strings, comments from document text
+	 */
+	private readonly FINDS_STRINGS_COMMENTS = /"(?:[^"\r\n\\]|\\.)*"?|'[^\r\n']*'?|;.*?$/gm;
 
 	/**
-	 * Retrieves line text after modifying its structure data
+	 * Retrieves line text after some structure data modifications
 	 * @param lineText original text to parse
 	 * @param modifyStruct function to modify line structure data
 	 * @returns output text
 	 */
-	public restructure(lineText: string, modifyStruct: (lineStruct: ICustomLineStruct) => void): string {
+	public reconstruct(lineText: string, modifyStruct: (lineStruct: ICustomLineStruct) => void): string {
 		let lineStruct = this.deconstruct(lineText);
 		if (modifyStruct) {
 			modifyStruct(lineStruct);
 		}
-		return this.reconstruct(lineStruct);
+		return this.construct(lineStruct);
 	}
 	/**
 	 * Retrieves line structure data from `linetext` by extracting indents, content, strings, words and comment
@@ -64,11 +67,11 @@ export class PureBasicText {
 		};
 	}
 	/**
-	 * Retrieves line text from `lineStruct` by combining indents, content, strings and comment
+	 * Retrieves line text by combining indents, content, strings and comment from `lineStruct`
 	 * @param lineStruct
 	 * @returns output text
 	 */
-	public reconstruct(lineStruct: ICustomLineStruct): string {
+	public construct(lineStruct: ICustomLineStruct): string {
 		const { indents, content, strings, comment, endSpaces } = lineStruct;
 		const lineText = indents + content.replace(pb.text.FINDS_STRINGS_COMMENT_ENDSPACES, (match: string) => {
 			return match[0] === ';' ? comment : strings.shift() || '';
@@ -84,5 +87,11 @@ export class PureBasicText {
 		for (const replacer of replacers) {
 			lineStruct.content = lineStruct.content.replace(replacer[0], replacer[1]);
 		}
+	}
+	public simplify(text: string): string {
+		const simplifiedText = text.replace(pb.text.FINDS_STRINGS_COMMENTS, match => {
+			return match.length > 1 ? match[0] + '-'.repeat(match.length - 2) + match[0] : match[0]; // simplified string or comment
+		});
+		return simplifiedText;
 	}
 }
