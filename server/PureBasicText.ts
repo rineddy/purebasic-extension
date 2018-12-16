@@ -11,7 +11,7 @@ export class PureBasicText {
 	 * Extracts words from text (ex: _Word123,$myWord,OtherW0rd$)
 	 * @example let words = thisText.match(pb.text.EXTRACTS_WORDS)
 	 */
-	private readonly EXTRACTS_WORDS = /[$]?\b[_a-z]\w*\b[$]?/gi;
+	private readonly EXTRACTS_WORDS = /[$]?\b\w+\b[$]?/gi;
 	/**
 	 * Finds strings, comment and end spaces from line text
 	 */

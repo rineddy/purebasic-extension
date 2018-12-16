@@ -34,7 +34,7 @@ export class PureBasicIndentation {
 		indenting.current = indenting.next;
 		// calculate current and next indents
 		let isIndentingCurrentLine = true;
-		lineStruct.words.forEach(word => {
+		lineStruct.words.filter(w => !w.includes('$')).forEach(word => {
 			const indentRule = settings.indentationRules.find(indentRule => word.match(indentRule.regex) != null);
 			if (indentRule) {
 				if (isIndentingCurrentLine) {
