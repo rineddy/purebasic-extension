@@ -2,9 +2,32 @@ import {
 	FormattingOptions,
 	TextDocument
 } from 'vscode-languageserver';
-import { ICustomIndenting, ICustomLineStruct, pb } from './PureBasicAPI';
+import { ICustomIndentRule, ICustomIndenting, ICustomLineStruct, pb } from './PureBasicAPI';
 
 export class PureBasicIndentation {
+	public readonly INDENTATION_RULES: ICustomIndentRule[] = [
+		{
+			regex: /^(While|Repeat|ForEach|For|With|Structure|StructureUnion|Macro|Import|ImportC|Interface|Procedure|ProcedureDLL|ProcedureCDLL|ProcedureC|If|CompilerIf|DataSection|DeclareModule|Module|Enumeration|EnumerationBinary)$/i,
+			before: 0, after: 1
+		},
+		{
+			regex: /^(Wend|Until|ForEver|Next|EndWith|EndStructure|EndStructureUnion|EndMacro|EndImport|EndInterface|EndProcedure|EndIf|CompilerEndIf|EndDataSection|EndDeclareModule|EndModule|EndEnumeration)$/i,
+			before: -1, after: 0
+		},
+		{
+			regex: /^(Else|ElseIf|Case|Default|CompilerElse|CompilerElseIf|CompilerCase|CompilerDefault)$/i,
+			before: -1, after: 1
+		},
+		{
+			regex: /^(Select|CompilerSelect)$/i,
+			before: 0, after: 2
+		},
+		{
+			regex: /^(EndSelect|CompilerEndSelect)$/i,
+			before: -2, after: 0
+		},
+	];
+
 	/**
 	 * create indenting context
 	 * @param doc
@@ -16,7 +39,7 @@ export class PureBasicIndentation {
 			current: 0,
 			next: 0,
 			options: options,
-			settings: settings,
+			indentationRules: pb.indentation.INDENTATION_RULES.concat(settings.indentationRules),
 			oneIndent: (options.insertSpaces ? ' '.repeat(options.tabSize) : '\t'),
 			tabSpaces: ' '.repeat(options.tabSize)
 		};
@@ -28,14 +51,14 @@ export class PureBasicIndentation {
 	 * @param indenting current indenting context
 	 */
 	public update(lineStruct: ICustomLineStruct, indenting: ICustomIndenting) {
-		const { settings, oneIndent } = indenting;
+		const { indentationRules, oneIndent } = indenting;
 		// reset current indents
 		if (indenting.next < 0) indenting.next = 0;
 		indenting.current = indenting.next;
 		// calculate current and next indents
 		let isIndentingCurrentLine = true;
-		lineStruct.words.filter(w => !w.includes('$')).forEach(word => {
-			const indentRule = settings.indentationRules.find(indentRule => word.match(indentRule.regex) != null);
+		lineStruct.words.concat(lineStruct.comment).forEach(word => {
+			const indentRule = indentationRules.find(indentRule => word.match(indentRule.regex) != null);
 			if (indentRule) {
 				if (isIndentingCurrentLine) {
 					if (indentRule.before) {
@@ -63,12 +86,12 @@ export class PureBasicIndentation {
 	 * @returns True if line indentation is picked
 	 */
 	public pick(lineStruct: ICustomLineStruct, indenting: ICustomIndenting): boolean {
-		const { settings, options, tabSpaces } = indenting;
+		const { indentationRules, options, tabSpaces } = indenting;
 		let isIndentingCurrentLine = true;
 		let isIndentingPicked = false;
 		indenting.next = lineStruct.indents.replace(/\t/g, tabSpaces).length / options.tabSize;
-		lineStruct.words.forEach(word => {
-			const indentRule = settings.indentationRules.find(indentRule => word.match(indentRule.regex) != null);
+		lineStruct.words.concat(lineStruct.comment).forEach(word => {
+			const indentRule = indentationRules.find(indentRule => word.match(indentRule.regex) != null);
 			if (indentRule) {
 				isIndentingPicked = true;
 				if (isIndentingCurrentLine) {

@@ -22,25 +22,13 @@ export class PureBasicSettings {
 		},
 		indentationRules: [
 			{
-				regex: /\b(Procedure|If|CompilerIf|DataSection|DeclareModule|Enumeration)\b/i,
+				regex: /^;>\s*/i,
 				before: 0, after: 1
 			},
 			{
-				regex: /\b(EndProcedure|EndIf|CompilerEndIf|EndDataSection|EndDeclareModule|EndEnumeration)\b/i,
+				regex: /^;<\s*/i,
 				before: -1, after: 0
-			},
-			{
-				regex: /\b(Else|ElseIf|Case|Default|CompilerElse|CompilerElseIf|CompilerCase|CompilerDefault)\b/i,
-				before: -1, after: 1
-			},
-			{
-				regex: /\b(Select|CompilerSelect)\b/i,
-				before: 0, after: 2
-			},
-			{
-				regex: /\b(EndSelect|CompilerEndSelect)\b/i,
-				before: -2, after: 0
-			},
+			}
 		]
 	};
 	/**
