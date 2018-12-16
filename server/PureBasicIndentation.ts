@@ -57,22 +57,19 @@ export class PureBasicIndentation {
 		indenting.current = indenting.next;
 		// calculate current and next indents
 		let isIndentingCurrentLine = true;
-		lineStruct.words.concat(lineStruct.comment).forEach(word => {
-			const indentRule = indentationRules.find(indentRule => word.match(indentRule.regex) != null);
-			if (indentRule) {
-				if (isIndentingCurrentLine) {
-					if (indentRule.before) {
-						indenting.current += indentRule.before;
-						indenting.next = indenting.current;
-					}
-					if (indentRule.after) {
-						indenting.next += indentRule.after;
-						isIndentingCurrentLine = false;
-					}
+		this.searchIdentRules(lineStruct, indentationRules).forEach(indentRule => {
+			if (isIndentingCurrentLine) {
+				if (indentRule.before) {
+					indenting.current += indentRule.before;
+					indenting.next = indenting.current;
 				}
-				else {
-					indenting.next += indentRule.before + indentRule.after;
+				if (indentRule.after) {
+					indenting.next += indentRule.after;
+					isIndentingCurrentLine = false;
 				}
+			}
+			else {
+				indenting.next += indentRule.before + indentRule.after;
 			}
 		});
 		// apply current indents on current line
@@ -90,21 +87,28 @@ export class PureBasicIndentation {
 		let isIndentingCurrentLine = true;
 		let isIndentingPicked = false;
 		indenting.next = lineStruct.indents.replace(/\t/g, tabSpaces).length / options.tabSize;
-		lineStruct.words.concat(lineStruct.comment).forEach(word => {
-			const indentRule = indentationRules.find(indentRule => word.match(indentRule.regex) != null);
-			if (indentRule) {
-				isIndentingPicked = true;
-				if (isIndentingCurrentLine) {
-					if (indentRule.after) {
-						indenting.next += indentRule.after;
-						isIndentingCurrentLine = false;
-					}
+		this.searchIdentRules(lineStruct, indentationRules).forEach(indentRule => {
+			isIndentingPicked = true;
+			if (isIndentingCurrentLine) {
+				if (indentRule.after) {
+					indenting.next += indentRule.after;
+					isIndentingCurrentLine = false;
 				}
-				else {
-					indenting.next += indentRule.before + indentRule.after;
-				}
+			}
+			else {
+				indenting.next += indentRule.before + indentRule.after;
 			}
 		});
 		return isIndentingPicked;
+	}
+	/**
+	 * Search indentation rules to apply for each word or comment from line structure data
+	 * @param lineStruct line structure to analyze
+	 * @param indentationRules
+	 */
+	private searchIdentRules(lineStruct: ICustomLineStruct, indentationRules: ICustomIndentRule[]): ICustomIndentRule[] {
+		return lineStruct.words.concat(lineStruct.comment).map(word => {
+			return indentationRules.find(indentRule => word.match(indentRule.regex) != null);
+		}).filter(r => r);
 	}
 }
