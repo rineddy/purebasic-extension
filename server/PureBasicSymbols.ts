@@ -10,6 +10,7 @@ import {
 import { pb } from './PureBasicAPI';
 
 export class PureBasicSymbols {
+	public readonly CAPTURE_PROCEDURE = /(?:(?:^|:)[\t ]*ProcedureC?(?:DLL)?)\s+(\w+)[\s\S]*?(?:(?:^|:)[\t ]*EndProcedure|Z)/gmi;
 	/**
 	 *
 	 * @param document
@@ -43,21 +44,10 @@ export class PureBasicSymbols {
 	}
 	/**
 	 *
+	 *
 	 * @param params
 	 */
 	public getWorkspaceSymbols(params: WorkspaceSymbolParams): SymbolInformation[] {
-		let m = SymbolInformation.create('Module::', SymbolKind.Struct, Range.create(0, 1, 3, 1));
-		let a = SymbolInformation.create('a', SymbolKind.Field, Range.create(14, 2, 14, 3)),
-			b = SymbolInformation.create('b', SymbolKind.Constant, Range.create(15, 2, 15, 3)),
-			c = SymbolInformation.create('c', SymbolKind.Namespace, Range.create(8, 1, 9, 1));
-		a.containerName = m.name;
-		b.containerName = m.name;
-		c.containerName = m.name;
-
-		return [
-			m,
-			a, b, c
-		];
 		return [];
 	}
 }

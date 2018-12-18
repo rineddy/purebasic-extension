@@ -80,6 +80,9 @@ export class PureBasicFormatter {
 						textEdits.push(TextEdit.replace(lineCutRange, lineCutText.trimLeft()));
 					}
 				}
+				else if (lineStruct.isBlank) {
+					lineStruct.indents = '';
+				}
 				else {
 					lineStruct.endSpaces = '';
 				}
