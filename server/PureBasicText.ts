@@ -88,6 +88,18 @@ export class PureBasicText {
 			lineStruct.content = lineStruct.content.replace(replacer[0], replacer[1]);
 		}
 	}
+	/**
+	 * Trim end line spaces
+	 * @param lineStruct
+	 */
+	public trimEnd(lineStruct: ICustomLineStruct): any {
+		if (lineStruct.isBlank) {
+			lineStruct.indents = '';
+		}
+		else {
+			lineStruct.endSpaces = '';
+		}
+	}
 	public simplify(text: string): string {
 		const simplifiedText = text.replace(pb.text.FINDS_STRINGS_COMMENTS, match => {
 			return match.length > 1 ? match[0] + '-'.repeat(match.length - 2) + match[0] : match[0]; // simplified string or comment
