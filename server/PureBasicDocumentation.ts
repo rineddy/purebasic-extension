@@ -31,8 +31,8 @@ export class PureBasicDocumentation extends TextDocuments {
 	 * @param lineCharacter line last character position ( or end of line position if 'undefined' )
 	 */
 	public readLine(doc: TextDocument, line: number, lineCharacter?: number): ICustomReadLine {
-		const rg = Range.create(line, 0, line, lineCharacter ? lineCharacter : Number.MAX_SAFE_INTEGER);
-		const rgCut = lineCharacter ? Range.create(line, lineCharacter, line, Number.MAX_SAFE_INTEGER) : undefined;
+		const rg = Range.create(line, 0, line, lineCharacter !== undefined ? lineCharacter : Number.MAX_SAFE_INTEGER);
+		const rgCut = lineCharacter !== undefined ? Range.create(line, lineCharacter, line, Number.MAX_SAFE_INTEGER) : undefined;
 		return {
 			lineRange: rg,
 			lineText: doc.getText(rg),
