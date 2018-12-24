@@ -49,8 +49,11 @@ pb.connection.onInitialized(() => {
 		pb.connection.client.register(DidChangeConfigurationNotification.type);
 	}
 	if (pb.settings.hasWorkspaceFolderCapability) {
-		pb.connection.workspace.onDidChangeWorkspaceFolders(_event => {
-			pb.connection.console.log('Workspace folder change event received.');
+		pb.connection.workspace.getWorkspaceFolders().then(folders => folders.forEach(folder => {
+			pb.connection.console.log(folder.uri);
+		}));
+		pb.connection.workspace.onDidChangeWorkspaceFolders(changed => {
+			pb.connection.console.log('Workspace folder change event received.' + changed);
 		});
 	}
 

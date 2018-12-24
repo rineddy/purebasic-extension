@@ -1,5 +1,6 @@
 import {
 	DocumentSymbolParams,
+	Position,
 	Range,
 	SymbolInformation,
 	SymbolKind,
@@ -10,7 +11,11 @@ import {
 import { pb } from './PureBasicAPI';
 
 export class PureBasicSymbols {
-	public readonly CAPTURE_PROCEDURE = /(?:(?:^|:)[\t ]*ProcedureC?(?:DLL)?)\s+(\w+)[\s\S]*?(?:(?:^|:)[\t ]*EndProcedure|Z)/gmi;
+	public readonly SEARCHING_SYMBOLS: { kind: SymbolKind, regex: RegExp; }[] = [
+		/*{ kind: SymbolKind.Interface, regex: pb.symbols.captureKeywordBlock(['Interface'], 'EndInterface') },
+		{ kind: SymbolKind.Function, regex: pb.symbols.captureKeywordBlock(['Procedure', 'ProcedureC', 'ProcedureDLL', 'ProcedureCDLL'], 'EndProcedure') }*/
+	];
+
 	/**
 	 *
 	 * @param document
@@ -18,12 +23,21 @@ export class PureBasicSymbols {
 	public collect(doc: TextDocument) {
 		const text = doc.getText();
 		const simplifiedText = pb.text.simplify(text);
+		/*this.SEARCHING_SYMBOLS.forEach(searching => {
+			let m: RegExpExecArray;
+			while ((m = searching.regex.exec(text)) !== null) {
+				SymbolInformation.create(m[2], searching.kind, Range.create( m.index + m[1].length, 1), doc.uri);
+			}
+		});*/
 	}
 	/**
 	 *
 	 * @param params
 	 */
 	public getDocumentSymbols(params: DocumentSymbolParams): SymbolInformation[] {
+
+		return [];
+
 		let m = SymbolInformation.create('Module::', SymbolKind.Struct, Range.create(0, 1, 3, 1), params.textDocument.uri);
 		let a = SymbolInformation.create('a', SymbolKind.Field, Range.create(14, 2, 14, 3), params.textDocument.uri),
 			b = SymbolInformation.create('b', SymbolKind.Constant, Range.create(15, 2, 15, 3), params.textDocument.uri),
@@ -49,5 +63,9 @@ export class PureBasicSymbols {
 	 */
 	public getWorkspaceSymbols(params: WorkspaceSymbolParams): SymbolInformation[] {
 		return [];
+	}
+	private captureKeywordBlock(startKeyWords: string[], endKeyword: string): RegExp {
+		const startKeyWordsRegex = startKeyWords.join('|');
+		return new RegExp(`((?:^|:)[\t ]*${startKeyWordsRegex}\s+)(\w+)([\s\S]*?)(?:(?:^|:)[\t ]*${endKeyword}|Z)`, 'gmi');
 	}
 }
