@@ -1,4 +1,5 @@
 import {
+	DocumentSymbol,
 	DocumentSymbolParams,
 	Position,
 	Range,
@@ -34,12 +35,10 @@ export class PureBasicSymbols {
 	 *
 	 * @param params
 	 */
-	public getDocumentSymbols(params: DocumentSymbolParams): SymbolInformation[] {
+	public getDocumentSymbols(params: DocumentSymbolParams): DocumentSymbol[] {
 
-		return [];
-
-		let m = SymbolInformation.create('Module::', SymbolKind.Struct, Range.create(0, 1, 3, 1), params.textDocument.uri);
-		let a = SymbolInformation.create('a', SymbolKind.Field, Range.create(14, 2, 14, 3), params.textDocument.uri),
+		let m = DocumentSymbol.create('Module::', 'coucou', SymbolKind.Struct, Range.create(2, 0, 5, 10), Range.create(3, 0, 3, 6));
+		/*let a = SymbolInformation.create('a', SymbolKind.Field, Range.create(14, 2, 14, 3), params.textDocument.uri),
 			b = SymbolInformation.create('b', SymbolKind.Constant, Range.create(15, 2, 15, 3), params.textDocument.uri),
 			c = SymbolInformation.create('c', SymbolKind.Namespace, Range.create(8, 1, 9, 1), params.textDocument.uri);
 		a.containerName = m.name;
@@ -49,11 +48,11 @@ export class PureBasicSymbols {
 		let zz = SymbolInformation.create('zz', SymbolKind.Function, Range.create(20, 2, 22, 3), params.textDocument.uri),
 			zzz = SymbolInformation.create('zzz', SymbolKind.Property, Range.create(20, 2, 23, 3), params.textDocument.uri);
 		zz.containerName = m.name;
-		zzz.containerName = m.name;
+		zzz.containerName = m.name;*/
 		return [
 			m,
-			a, b, c,
-			zz, zzz
+			/*a, b, c,
+			zz, zzz*/
 		];
 	}
 	/**

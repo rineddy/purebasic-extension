@@ -55,6 +55,6 @@ export class PureBasicValidation {
 		}
 
 		// Send the computed diagnostics to VSCode.
-		pb.connection.sendDiagnostics({ uri: doc.uri, diagnostics });
+		// TODO pb.connection.sendDiagnostics({ uri: doc.uri, diagnostics });
 	}
 }
