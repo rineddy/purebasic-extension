@@ -44,11 +44,11 @@ export class PureBasicText {
 		let strings: string[] = [];
 		let comment = '';
 		let endSpaces = '';
-		let content = fullContent.replace(pb.text.FINDS_STRINGS_COMMENT_ENDSPACES, (match: string, dquote: string, quote: string, semicolon: string, s4: string) => {
+		let content = fullContent.replace(pb.text.FINDS_STRINGS_COMMENT_ENDSPACES, (match: string, dquote: string, quote: string, semicolon: string, space: string) => {
 			if (semicolon) {
 				comment = match;
 			}
-			else if (s4) {
+			else if (space) {
 				endSpaces = match;
 			}
 			else {
