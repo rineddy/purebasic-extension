@@ -83,6 +83,7 @@
 	],
 	"scripts": {
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+		"update": "cd client && npm update && cd ../server && npm update && cd ..",
 		"audit": "cd client && npm audit fix && cd ../server && npm audit fix && cd ..",
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
