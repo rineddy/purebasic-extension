@@ -1,10 +1,12 @@
 {
 	"compilerOptions": {
 		"module": "commonjs",
-		"target": "es6",
+		"target": "es2018",
 		"outDir": "out",
 		"rootDir": "src",
-		"lib": [ "es6" ],
+		"lib": [
+			"es2018"
+		],
 		"sourceMap": true
 	},
 	"include": [
@@ -15,7 +17,11 @@
 		".vscode-test"
 	],
 	"references": [
-		{ "path": "./client" },
-		{ "path": "./server" }
+		{
+			"path": "./client"
+		},
+		{
+			"path": "./server"
+		}
 	]
 }
