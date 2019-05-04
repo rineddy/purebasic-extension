@@ -2,15 +2,14 @@ import { pb } from './PureBasicAPI';
 
 export class PureBasicParser {
 	/**
-	 *
-	 * @param startKeyWords
-	 */
+     * Create regex parser for code block
+     * @param startKeyWords
+     */
 	public createBlock() { return this.create(); }
-
 	/**
-	 * Create regex parser
-	 * @param pattern
-	 */
+     * Create regex parser
+     * @param pattern
+     */
 	private create(pattern: string = '') {
 		return {
 			withStartKeyword: (startKeyWords: string[]) => this.create(`${pattern}(?:(?:^|:)[\\t ]*(?<startKeyWord>${startKeyWords.join('|')}))`),

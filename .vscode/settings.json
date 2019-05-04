@@ -22,6 +22,4 @@
 	"editor.insertSpaces": false,
 	"editor.tabSize": 4,
 	"files.trimTrailingWhitespace": true,
-	"tslint.autoFixOnSave": true,
-	"tslint.enable": true,
 }
