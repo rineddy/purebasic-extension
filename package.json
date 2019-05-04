@@ -2,7 +2,7 @@
 	"name": "purebasic-extension",
 	"displayName": "PureBasic Extension",
 	"description": "PureBasic extension for Visual Studio Code",
-	"version": "0.0.15",
+	"version": "0.0.14",
 	"preview": true,
 	"author": "Eddy R.",
 	"publisher": "eddy-r",
@@ -90,7 +90,7 @@
 		"watch": "tsc -b -w",
 		"test": "sh ./client/scripts/e2e.sh",
 		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
-		"publish": "rimraf \"*.vsix--\" \"**/out\" && npm version patch "
+		"publish": "rimraf \"*.vsix\" \"**/out\" && npm version patch && vsce package"
 	},
 	"devDependencies": {
 		"@types/mocha": "^5.2.5",
