@@ -90,7 +90,8 @@
 		"watch": "tsc -b -w",
 		"test": "sh ./client/scripts/e2e.sh",
 		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
-		"publish": "rimraf \"*.vsix\" \"**/out\" && npm version patch && vsce package"
+		"publish": "rimraf \"*.vsix\" \"**/out\" && npm version patch && vsce publish",
+		"package": "rimraf \"*.vsix\" \"**/out\" && vsce package"
 	},
 	"devDependencies": {
 		"@types/mocha": "^5.2.5",

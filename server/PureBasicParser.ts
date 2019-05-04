@@ -5,7 +5,7 @@ export class PureBasicParser {
 	 *
 	 * @param startKeyWords
 	 */
-	public createBLock() { return this.create(); }
+	public createBlock() { return this.create(); }
 
 	/**
 	 * Create regex parser
