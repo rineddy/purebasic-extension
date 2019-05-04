@@ -1,11 +1,11 @@
 {
 	"compilerOptions": {
 		"module": "commonjs",
-		"target": "es2018",
+		"target": "es6",
 		"outDir": "out",
 		"rootDir": "src",
 		"lib": [
-			"es2018"
+			"es6"
 		],
 		"sourceMap": true
 	},
