@@ -1,7 +1,4 @@
-import { Position, Range, TextDocument } from 'vscode-languageserver';
-
-import { isUndefined } from 'util';
-import { pb } from './PureBasicAPI';
+import { Range, TextDocument } from 'vscode-languageserver';
 
 export class PureBasicParser {
 	/**
@@ -45,8 +42,6 @@ export class PureBasicParser {
 			withName: (hasPosition: boolean = true) => this.build(`${hasPosition ? this.group('beforeName', pattern) : pattern}(?<name>\\w+)`),
 			withBody: (hasPosition: boolean = true) => this.build(`${hasPosition ? this.group('beforeBody', pattern) : pattern}(?<body>.*?)`),
 			andSpaces: () => this.build(`${pattern}[\\t ]+`),
-			beforeName: () => this.build(`(?<beforeName>${pattern})`),
-			beforeBody: () => this.build(`(?<beforeBody>${pattern})`),
 			toRegex: (flags: string = 'gmis') => new RegExp(pattern, flags)
 		};
 	}
