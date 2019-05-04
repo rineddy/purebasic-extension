@@ -6,9 +6,13 @@ export class PureBasicParser {
      * @param startKeyWords
      */
 	public declareBlock() { return this.build(); }
-
-	public parseResult(doc: TextDocument, result: RegExpExecArray) {
-		const groups = result['groups'] as {
+	/**
+	 * Parse regex result to extract data of code block
+	 * @param doc
+	 * @param regexResult
+	 */
+	public parseBlock(doc: TextDocument, regexResult: RegExpExecArray) {
+		const groups = regexResult['groups'] as {
 			startKeyword: string,
 			endKeyWord: string,
 			type: string,
@@ -17,17 +21,27 @@ export class PureBasicParser {
 			beforeBody: string,
 			beforeName: string
 		};
-		const hasNamePosition: boolean = groups.beforeName !== undefined && groups.name !== undefined;
-		const hasBodyPosition: boolean = groups.beforeBody !== undefined && groups.body !== undefined;
-		const posStart = result.index;
-		const ranges = {
-			block: Range.create(doc.positionAt(posStart), doc.positionAt(posStart + result[0].length)),
-			name: hasNamePosition ? Range.create(doc.positionAt(posStart + groups.beforeName.length), doc.positionAt(posStart + groups.beforeName.length + groups.name.length)) : undefined,
-			body: hasBodyPosition ? Range.create(doc.positionAt(posStart + groups.beforeBody.length), doc.positionAt(posStart + groups.beforeBody.length + groups.body.length)) : undefined,
-		};
+		const startPos = regexResult.index;
 		return {
-			groups: groups,
-			ranges: ranges,
+			startKeyword: { value: groups.startKeyword },
+			endKeyWord: { value: groups.endKeyWord },
+			type: { value: groups.type },
+			whole: {
+				value: regexResult[0],
+				pos: Range.create(doc.positionAt(startPos), doc.positionAt(startPos + regexResult[0].length))
+			},
+			name: {
+				value: groups.name,
+				pos: groups.beforeName !== undefined ? Range.create(doc.positionAt(startPos + groups.beforeName.length), doc.positionAt(startPos + groups.beforeName.length + groups.name.length)) : undefined
+			},
+			body: {
+				value: groups.body,
+				pos: groups.beforeBody !== undefined ? Range.create(doc.positionAt(startPos + groups.beforeBody.length), doc.positionAt(startPos + groups.beforeBody.length + groups.body.length)) : undefined,
+			},
+			positions: {
+				name: groups.beforeName !== undefined ? Range.create(doc.positionAt(startPos + groups.beforeName.length), doc.positionAt(startPos + groups.beforeName.length + groups.name.length)) : undefined,
+				body: groups.beforeBody !== undefined ? Range.create(doc.positionAt(startPos + groups.beforeBody.length), doc.positionAt(startPos + groups.beforeBody.length + groups.body.length)) : undefined,
+			},
 		};
 	}
 	/**
@@ -39,13 +53,12 @@ export class PureBasicParser {
 			withStartKeyword: (startKeyWords: string[]) => this.build(`${pattern}(?:(?:^|:)[\\t ]*(?<startKeyWord>${startKeyWords.join('|')}))`),
 			withEndKeyword: (endKeyWord: string) => this.build(`${pattern}(?:(?:^|:)[\\t ]*(?<endKeyWord>${endKeyWord})|\\Z)`),
 			withOptionalType: () => this.build(`${pattern}(?<type>[\\t ]*\\.\\w+)?`),
-			withName: (hasPosition: boolean = true) => this.build(`${hasPosition ? this.group('beforeName', pattern) : pattern}(?<name>\\w+)`),
-			withBody: (hasPosition: boolean = true) => this.build(`${hasPosition ? this.group('beforeBody', pattern) : pattern}(?<body>.*?)`),
+			withName: (hasPosition: boolean) => this.build(`${hasPosition ? this.group('beforeName', pattern) : pattern}(?<name>[\\w\\d\\u00C0-\\u017F]+)`),
+			withBody: (hasPosition: boolean) => this.build(`${hasPosition ? this.group('beforeBody', pattern) : pattern}(?<body>.*?)`),
 			andSpaces: () => this.build(`${pattern}[\\t ]+`),
 			toRegex: (flags: string = 'gmis') => new RegExp(pattern, flags)
 		};
 	}
-
 	/**
 	 * Build regex to group given pattern
 	 * @param groupName

@@ -14,6 +14,7 @@ export class PureBasicValidation {
 	public async validate(doc: TextDocument): Promise<void> {
 		// In this simple example we get the settings for every validate run.
 		let settings = await pb.settings.load(doc);
+		let symbols = await pb.symbols.load(doc);
 
 		// The validator creates diagnostics for all uppercase words length 2 and more
 		let text = doc.getText();

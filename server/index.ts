@@ -78,6 +78,7 @@ pb.documentation.onDidOpen(() => {
 });
 pb.documentation.onDidClose(closed => {
 	pb.settings.delete(closed.document);
+	pb.symbols.delete(closed.document);
 });
 pb.documentation.onDidChangeContent(changed => {
 	pb.validation.validate(changed.document);
