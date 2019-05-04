@@ -9,29 +9,30 @@ import {
 	WorkspaceSymbolParams
 } from 'vscode-languageserver';
 
+import { PureBasicParser } from './PureBasicParser';
 import { pb } from './PureBasicAPI';
 
 export class PureBasicSymbols {
-	private readonly SEARCHING_SYMBOLS: { kind: SymbolKind, regex: RegExp }[] = [
+	private readonly PARSING_RULES: { kind: SymbolKind, regex: RegExp }[] = [
 		{
 			kind: SymbolKind.Function,
-			regex: pb.parser.createBlock().withStartKeyword(['Procedure', 'ProcedureC', 'ProcedureDLL', 'ProcedureCDLL']).withOptionalType().andSpaces().asPrefix()
+			regex: pb.parser.declareBlock().withStartKeyword(['Procedure', 'ProcedureC', 'ProcedureDLL', 'ProcedureCDLL']).withOptionalType().andSpaces()
 				.withName().withBody().withEndKeyword('EndProcedure').toRegex()
 		}, {
 			kind: SymbolKind.Interface,
-			regex: pb.parser.createBlock().withStartKeyword(['Interface']).andSpaces().asPrefix()
+			regex: pb.parser.declareBlock().withStartKeyword(['Interface']).andSpaces()
 				.withName().withBody().withEndKeyword('EndInterface').toRegex()
 		}, {
 			kind: SymbolKind.Struct,
-			regex: pb.parser.createBlock().withStartKeyword(['Structure']).andSpaces().asPrefix()
+			regex: pb.parser.declareBlock().withStartKeyword(['Structure']).andSpaces()
 				.withName().withBody().withEndKeyword('EndStructure').toRegex()
 		}, {
 			kind: SymbolKind.Enum,
-			regex: pb.parser.createBlock().withStartKeyword(['Enumeration', 'EnumerationBinary']).andSpaces().asPrefix()
+			regex: pb.parser.declareBlock().withStartKeyword(['Enumeration', 'EnumerationBinary']).andSpaces()
 				.withName().withBody().withEndKeyword('EndEnumeration').toRegex()
 		}, {
 			kind: SymbolKind.Module,
-			regex: pb.parser.createBlock().withStartKeyword(['DeclareModule']).andSpaces().asPrefix()
+			regex: pb.parser.declareBlock().withStartKeyword(['DeclareModule']).andSpaces()
 				.withName().withBody().withEndKeyword('EndDeclareModule').toRegex()
 		}
 	];
@@ -45,14 +46,12 @@ export class PureBasicSymbols {
 		const text = doc.getText();
 		const simplifiedText = pb.text.simplify(text);
 		let symbols = [];
-		pb.symbols.SEARCHING_SYMBOLS.forEach(searching => {
-			let m: RegExpExecArray;
-			while ((m = searching.regex.exec(simplifiedText)) !== null) {
-				let rgBlock = Range.create(doc.positionAt(m.index), doc.positionAt(m.index + m[0].length));
-				let p1 = m.index + m['groups'].prefix.length;
-				let p2 = p1 + m['groups'].name.length;
-				let rgSelection = Range.create(doc.positionAt(p1), doc.positionAt(p2));
-				symbols.push(DocumentSymbol.create(m['groups'].name, '...', searching.kind, rgBlock, rgSelection));
+		pb.symbols.PARSING_RULES.forEach(parsingRule => {
+			let regexResult: RegExpExecArray;
+			while ((regexResult = parsingRule.regex.exec(simplifiedText)) !== null) {
+				const result = pb.parser.parseResult(doc, regexResult);
+				const symbol = DocumentSymbol.create(result.groups.name, '...', parsingRule.kind, result.ranges.block, result.ranges.name)
+				symbols.push(symbol);
 			}
 		});
 		/*let a = SymbolInformation.create('a', SymbolKind.Field, Range.create(14, 2, 14, 3), params.textDocument.uri),
