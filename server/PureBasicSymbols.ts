@@ -1,4 +1,5 @@
 import {
+	DocumentSymbol,
 	DocumentSymbolParams,
 	Position,
 	Range,
@@ -11,50 +12,54 @@ import {
 import { pb } from './PureBasicAPI';
 
 export class PureBasicSymbols {
-	public readonly SEARCHING_SYMBOLS: { kind: SymbolKind, regex: RegExp; }[] = [
-		/*{ kind: SymbolKind.Interface, regex: pb.symbols.captureKeywordBlock(['Interface'], 'EndInterface') },
-		{ kind: SymbolKind.Function, regex: pb.symbols.captureKeywordBlock(['Procedure', 'ProcedureC', 'ProcedureDLL', 'ProcedureCDLL'], 'EndProcedure') }*/
+	private readonly SEARCHING_SYMBOLS: { kind: SymbolKind, regex: RegExp }[] = [
+		{
+			kind: SymbolKind.Function,
+			regex: pb.parser.createBlock().withStartKeyword(['Procedure', 'ProcedureC', 'ProcedureDLL', 'ProcedureCDLL']).withOptionalType().andSpaces().asPrefix()
+				.withName().withBody().withEndKeyword('EndProcedure').toRegex()
+		}, {
+			kind: SymbolKind.Interface,
+			regex: pb.parser.createBlock().withStartKeyword(['Interface']).andSpaces().asPrefix()
+				.withName().withBody().withEndKeyword('EndInterface').toRegex()
+		}, {
+			kind: SymbolKind.Struct,
+			regex: pb.parser.createBlock().withStartKeyword(['Structure']).andSpaces().asPrefix()
+				.withName().withBody().withEndKeyword('EndStructure').toRegex()
+		}, {
+			kind: SymbolKind.Enum,
+			regex: pb.parser.createBlock().withStartKeyword(['Enumeration', 'EnumerationBinary']).andSpaces().asPrefix()
+				.withName().withBody().withEndKeyword('EndEnumeration').toRegex()
+		}, {
+			kind: SymbolKind.Module,
+			regex: pb.parser.createBlock().withStartKeyword(['DeclareModule']).andSpaces().asPrefix()
+				.withName().withBody().withEndKeyword('EndDeclareModule').toRegex()
+		}
 	];
 
 	/**
 	 *
-	 * @param document
-	 */
-	public collect(doc: TextDocument) {
-		const text = doc.getText();
-		const simplifiedText = pb.text.simplify(text);
-		/*this.SEARCHING_SYMBOLS.forEach(searching => {
-			let m: RegExpExecArray;
-			while ((m = searching.regex.exec(text)) !== null) {
-				SymbolInformation.create(m[2], searching.kind, Range.create( m.index + m[1].length, 1), doc.uri);
-			}
-		});*/
-	}
-	/**
-	 *
 	 * @param params
 	 */
-	public getDocumentSymbols(params: DocumentSymbolParams): SymbolInformation[] {
-
-		return [];
-
-		let m = SymbolInformation.create('Module::', SymbolKind.Struct, Range.create(0, 1, 3, 1), params.textDocument.uri);
-		let a = SymbolInformation.create('a', SymbolKind.Field, Range.create(14, 2, 14, 3), params.textDocument.uri),
+	public async getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]> {
+		const doc = await pb.documentation.find(params.textDocument);
+		const text = doc.getText();
+		const simplifiedText = pb.text.simplify(text);
+		let symbols = [];
+		pb.symbols.SEARCHING_SYMBOLS.forEach(searching => {
+			let m: RegExpExecArray;
+			while ((m = searching.regex.exec(simplifiedText)) !== null) {
+				let rgBlock = Range.create(doc.positionAt(m.index), doc.positionAt(m.index + m[0].length));
+				let p1 = m.index + m['groups'].prefix.length;
+				let p2 = p1 + m['groups'].name.length;
+				let rgSelection = Range.create(doc.positionAt(p1), doc.positionAt(p2));
+				symbols.push(DocumentSymbol.create(m['groups'].name, '...', searching.kind, rgBlock, rgSelection));
+			}
+		});
+		/*let a = SymbolInformation.create('a', SymbolKind.Field, Range.create(14, 2, 14, 3), params.textDocument.uri),
 			b = SymbolInformation.create('b', SymbolKind.Constant, Range.create(15, 2, 15, 3), params.textDocument.uri),
-			c = SymbolInformation.create('c', SymbolKind.Namespace, Range.create(8, 1, 9, 1), params.textDocument.uri);
-		a.containerName = m.name;
-		b.containerName = m.name;
-		c.containerName = m.name;
-
-		let zz = SymbolInformation.create('zz', SymbolKind.Function, Range.create(20, 2, 22, 3), params.textDocument.uri),
 			zzz = SymbolInformation.create('zzz', SymbolKind.Property, Range.create(20, 2, 23, 3), params.textDocument.uri);
-		zz.containerName = m.name;
-		zzz.containerName = m.name;
-		return [
-			m,
-			a, b, c,
-			zz, zzz
-		];
+		*/
+		return symbols;
 	}
 	/**
 	 *
@@ -63,9 +68,5 @@ export class PureBasicSymbols {
 	 */
 	public getWorkspaceSymbols(params: WorkspaceSymbolParams): SymbolInformation[] {
 		return [];
-	}
-	private captureKeywordBlock(startKeyWords: string[], endKeyword: string): RegExp {
-		const startKeyWordsRegex = startKeyWords.join('|');
-		return new RegExp(`((?:^|:)[\t ]*${startKeyWordsRegex}\s+)(\w+)([\s\S]*?)(?:(?:^|:)[\t ]*${endKeyword}|Z)`, 'gmi');
 	}
 }

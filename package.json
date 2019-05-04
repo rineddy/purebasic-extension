@@ -2,7 +2,7 @@
 	"name": "purebasic-extension",
 	"displayName": "PureBasic Extension",
 	"description": "PureBasic extension for Visual Studio Code",
-	"version": "0.0.8",
+	"version": "0.0.8-4",
 	"preview": true,
 	"author": "Eddy R.",
 	"publisher": "eddy-r",
@@ -12,7 +12,7 @@
 		"url": "https://github.com/rineddy/purebasic-extension"
 	},
 	"engines": {
-		"vscode": "^1.23.0"
+		"vscode": "^1.26.0"
 	},
 	"categories": [
 		"Programming Languages",
@@ -83,11 +83,15 @@
 	],
 	"scripts": {
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+		"update": "npm update && cd client && npm update && cd ../server && npm update && cd ..",
+		"updatedev": "npm update --dev && cd client && npm update --dev && cd ../server && npm update  --dev && cd ..",
+		"audit": "cd client && npm audit fix && cd ../server && npm audit fix && cd ..",
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
 		"test": "sh ./client/scripts/e2e.sh",
 		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
-		"publish": "rimraf \"*.vsix\" \"**/out\" && npm version patch && vsce publish"
+		"publish": "rimraf \"*.vsix\" \"**/out\" && npm version patch && vsce publish",
+		"package": "rimraf \"*.vsix\" \"**/out\" && vsce package"
 	},
 	"devDependencies": {
 		"@types/mocha": "^5.2.5",

@@ -44,17 +44,17 @@ export class PureBasicText {
 		let strings: string[] = [];
 		let comment = '';
 		let endSpaces = '';
-		let content = fullContent.replace(pb.text.FINDS_STRINGS_COMMENT_ENDSPACES, (match: string, s1: string, s2: string, s3: string, s4: string) => {
-			if (s3) {
+		let content = fullContent.replace(pb.text.FINDS_STRINGS_COMMENT_ENDSPACES, (match: string, dquote: string, quote: string, semicolon: string, space: string) => {
+			if (semicolon) {
 				comment = match;
 			}
-			else if (s4) {
+			else if (space) {
 				endSpaces = match;
 			}
 			else {
 				strings.push(match);
 			}
-			return (s1 + s1) || (s2 + s2) || s3 || ''; // empty string or empty comment result
+			return (dquote + dquote) || (quote + quote) || semicolon || ''; // empty string or empty comment result
 		});
 		return <ICustomLineStruct>{
 			indents: indents,

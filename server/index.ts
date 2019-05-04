@@ -80,7 +80,6 @@ pb.documentation.onDidClose(closed => {
 	pb.settings.delete(closed.document);
 });
 pb.documentation.onDidChangeContent(changed => {
-	pb.symbols.collect(changed.document);
 	pb.validation.validate(changed.document);
 });
 

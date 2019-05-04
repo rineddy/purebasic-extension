@@ -5,7 +5,7 @@ import {
 import { ICustomIndentRule, ICustomIndenting, ICustomLineStruct, pb } from './PureBasicAPI';
 
 export class PureBasicIndentation {
-	public readonly INDENTATION_RULES: ICustomIndentRule[] = [
+	private readonly INDENTATION_RULES: ICustomIndentRule[] = [
 		{
 			regex: /^(While|Repeat|ForEach|For|With|Structure|StructureUnion|Macro|Import|ImportC|Interface|Procedure|ProcedureDLL|ProcedureCDLL|ProcedureC|If|CompilerIf|DataSection|DeclareModule|Module|Enumeration|EnumerationBinary)$/i,
 			before: 0, after: 1
