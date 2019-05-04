@@ -10,14 +10,14 @@
 		"url": "https://github.com/rineddy/purebasic-extension"
 	},
 	"engines": {
-		"vscode": "^1.33.0"
+		"vscode": "^1.33.1"
 	},
 	"scripts": {
 		"update-vscode": "vscode-install",
 		"postinstall": "vscode-install"
 	},
 	"dependencies": {
-		"vscode-languageclient": "^5"
+		"vscode-languageclient": "^5.2.1"
 	},
 	"devDependencies": {
 		"vscode": "^1.1.33"

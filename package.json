@@ -2,7 +2,7 @@
 	"name": "purebasic-extension",
 	"displayName": "PureBasic Extension",
 	"description": "PureBasic extension for Visual Studio Code",
-	"version": "0.0.12",
+	"version": "0.0.13",
 	"preview": true,
 	"author": "Eddy R.",
 	"publisher": "eddy-r",
@@ -12,7 +12,7 @@
 		"url": "https://github.com/rineddy/purebasic-extension"
 	},
 	"engines": {
-		"vscode": "^1.23.0"
+		"vscode": "^1.33.1"
 	},
 	"categories": [
 		"Programming Languages",
@@ -83,7 +83,8 @@
 	],
 	"scripts": {
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
-		"update": "cd client && npm update && cd ../server && npm update && cd ..",
+		"update": "npm update && cd client && npm update && cd ../server && npm update && cd ..",
+		"updatedev": "npm update --dev && cd client && npm update --dev && cd ../server && npm update  --dev && cd ..",
 		"audit": "cd client && npm audit fix && cd ../server && npm audit fix && cd ..",
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",

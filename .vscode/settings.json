@@ -5,7 +5,7 @@
 		"**/.gitattributes": true,
 		"**/.gitignore": true,
 		"**/package-lock.json": true,
-		"**/tsconfig*.json": true,
+		"**/tsconfig*.json----": true,
 		"**/tslint.json": true,
 		"**/*.vsix": true
 	},
