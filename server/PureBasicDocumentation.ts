@@ -1,13 +1,10 @@
+import { ICustomReadLine, pb } from './PureBasicAPI';
 import {
-	DidChangeTextDocumentParams,
-	DidOpenTextDocumentParams,
 	Range,
-	SymbolInformation,
 	TextDocument,
 	TextDocumentIdentifier,
 	TextDocuments,
 } from 'vscode-languageserver';
-import { ICustomReadLine, pb } from './PureBasicAPI';
 
 export class PureBasicDocumentation extends TextDocuments {
 	/**

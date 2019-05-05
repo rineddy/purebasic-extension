@@ -1,6 +1,5 @@
 import {
 	DidChangeConfigurationNotification,
-	DidChangeTextDocumentNotification,
 	InitializeParams,
 	TextDocumentSyncKind,
 } from 'vscode-languageserver';
