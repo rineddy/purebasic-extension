@@ -1,8 +1,6 @@
 import {
 	Diagnostic,
 	DiagnosticSeverity,
-	DocumentLink,
-	DocumentSymbol,
 	SymbolKind,
 	TextDocument
 } from 'vscode-languageserver';
@@ -23,13 +21,13 @@ export class PureBasicValidation {
 		const symbols = await pb.symbols.load(doc);
 
 		let diagnostics: Diagnostic[] = [];
-		let problems = 0;
+		let maxProblems = settings.diagnostics.maxNumberOfProblems;
 		symbols.filter(s => {
 			switch (s.kind) {
 				case SymbolKind.Struct: return s.name.match(this.VALID_NAME_ALPHANUMERIC_DOLLAR) == null;
 				default: return s.name.match(this.VALID_NAME_ALPHANUMERIC) == null;
 			}
-		}).forEach(s => {
+		}).slice(0, maxProblems).forEach(s => {
 			let diagnosic: Diagnostic = {
 				severity: DiagnosticSeverity.Error,
 				range: s.selectionRange,
@@ -55,6 +53,7 @@ export class PureBasicValidation {
 				];
 			}*/
 			diagnostics.push(diagnosic);
+			maxProblems--;
 		});
 
 		// Send the computed diagnostics to VSCode.

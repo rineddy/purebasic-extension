@@ -1,4 +1,7 @@
 {
+	"extends": [
+		"tslint-etc" /* provided custom rules */
+	],
 	"rules": {
 		"class-name": true,
 		"comment-format": [
@@ -9,6 +12,9 @@
 			true,
 			"tabs"
 		],
+		"no-unused-declaration": true, /* custom rules provided by tslint-etc to clean unused imports */
+		"no-unused-variable": true,
+		"no-duplicate-imports": true,
 		"no-duplicate-variable": true,
 		"no-eval": true,
 		"no-internal-module": true,

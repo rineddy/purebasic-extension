@@ -21,5 +21,8 @@
 	"editor.detectIndentation": false,
 	"editor.insertSpaces": false,
 	"editor.tabSize": 4,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.tslint": true
+	},
 	"files.trimTrailingWhitespace": true,
 }

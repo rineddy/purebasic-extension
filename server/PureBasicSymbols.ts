@@ -1,15 +1,10 @@
 import {
 	DocumentSymbol,
 	DocumentSymbolParams,
-	Position,
-	Range,
-	SymbolInformation,
 	SymbolKind,
-	TextDocument,
-	WorkspaceSymbolParams
+	TextDocument
 } from 'vscode-languageserver';
 
-import { PureBasicParser } from './PureBasicParser';
 import { pb } from './PureBasicAPI';
 
 export class PureBasicSymbols {
@@ -82,7 +77,7 @@ export class PureBasicSymbols {
 	 * Get workspace symbols
 	 * @param params
 	 */
-	public getWorkspaceSymbols(params: WorkspaceSymbolParams) {
+	public getWorkspaceSymbols() {
 		// params.query
 		return [];
 	}
