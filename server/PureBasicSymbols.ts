@@ -43,18 +43,19 @@ export class PureBasicSymbols {
 	 * @param doc
 	 */
 	public async load(doc: TextDocument): Promise<DocumentSymbol[]> {
-		let symbols: DocumentSymbol[] = [];
 		const simplifiedText = pb.text.simplify(doc.getText());
-		pb.symbols.BLOCK_PARSERS.forEach(blockParser => {
+		let symbols = await Promise.all(pb.symbols.BLOCK_PARSERS.map(async blockParser => {
 			let result: RegExpExecArray;
+			let symbols: DocumentSymbol[] = [];
 			while ((result = blockParser.regex.exec(simplifiedText)) !== null) {
 				const block = pb.parser.parseBlock(doc, result);
 				const symbol = DocumentSymbol.create(block.name.value, '...', blockParser.kind, block.whole.pos, block.name.pos);
 				symbols.push(symbol);
 			}
-		});
+			return symbols;
+		})).then(symbolsCollection => [].concat.apply([], symbolsCollection) as DocumentSymbol[]);
 		pb.symbols.documentSymbols.set(doc.uri, symbols);
-		return Promise.resolve(symbols);
+		return symbols;
 	}
 	/**
 	* Delete symbols before closing document
