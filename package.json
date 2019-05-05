@@ -2,7 +2,7 @@
 	"name": "purebasic-extension",
 	"displayName": "PureBasic Extension",
 	"description": "PureBasic extension for Visual Studio Code",
-	"version": "0.1.2",
+	"version": "0.1.2-1",
 	"preview": true,
 	"author": "Eddy R.",
 	"publisher": "eddy-r",
