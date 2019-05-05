@@ -1,6 +1,7 @@
 import {
 	DocumentSymbol,
 	DocumentSymbolParams,
+	SymbolInformation,
 	SymbolKind,
 	TextDocument
 } from 'vscode-languageserver';
@@ -41,9 +42,9 @@ export class PureBasicSymbols {
 	 * Load symbols after opening document
 	 * @param doc
 	 */
-	public load(doc: TextDocument): Thenable<DocumentSymbol[]> {
-		const simplifiedText = pb.text.simplify(doc.getText());
+	public load(doc: TextDocument): DocumentSymbol[] {
 		let symbols: DocumentSymbol[] = [];
+		const simplifiedText = pb.text.simplify(doc.getText());
 		pb.symbols.BLOCK_PARSERS.forEach(blockParser => {
 			let result: RegExpExecArray;
 			while ((result = blockParser.regex.exec(simplifiedText)) !== null) {
@@ -52,33 +53,36 @@ export class PureBasicSymbols {
 				symbols.push(symbol);
 			}
 		});
-		/*let a = SymbolInformation.create('a', SymbolKind.Field, Range.create(14, 2, 14, 3), params.textDocument.uri),
-			b = SymbolInformation.create('b', SymbolKind.Constant, Range.create(15, 2, 15, 3), params.textDocument.uri),
-			zzz = SymbolInformation.create('zzz', SymbolKind.Property, Range.create(20, 2, 23, 3), params.textDocument.uri);
-		*/
-		this.documentSymbols.set(doc.uri, symbols);
-		return Promise.resolve(symbols);
+		pb.symbols.documentSymbols.set(doc.uri, symbols);
+		return symbols;
 	}
 	/**
 	* Delete symbols before closing document
 	* @param doc
 	*/
 	public delete(doc: TextDocument) {
-		this.documentSymbols.delete(doc.uri);
+		pb.symbols.documentSymbols.delete(doc.uri);
 	}
 	/**
 	 * Get document symbols (used by outline view)
 	 * @param params
 	 */
-	public getDocumentSymbols(params: DocumentSymbolParams) {
-		return pb.symbols.documentSymbols.get(params.textDocument.uri);
+	public async getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]> {
+		if (!pb.symbols.documentSymbols.has(params.textDocument.uri)) {
+			const doc = await pb.documentation.find(params.textDocument);
+			const symbols = await pb.symbols.load(doc);
+			return symbols;
+		}
+		else {
+			return pb.symbols.documentSymbols.get(params.textDocument.uri);
+		}
 	}
 	/**
 	 * Get workspace symbols
 	 * @param params
 	 */
-	public getWorkspaceSymbols() {
+	public async getWorkspaceSymbols(): Promise<SymbolInformation[]> {
 		// params.query
-		return [];
+		return Promise.resolve([]);
 	}
 }
