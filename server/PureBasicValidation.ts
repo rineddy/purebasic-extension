@@ -15,7 +15,7 @@ export class PureBasicValidation {
 	 * Detects any anomalies in source code
 	 * @param doc
 	 */
-	public async validate(doc: TextDocument): Promise<void> {
+	public async validate(doc: TextDocument) {
 		// get settings and doc symbols for every validate run.
 		const settings = await pb.settings.load(doc);
 		const symbols = await pb.symbols.load(doc);

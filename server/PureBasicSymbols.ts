@@ -42,7 +42,7 @@ export class PureBasicSymbols {
 	 * Load symbols after opening document
 	 * @param doc
 	 */
-	public load(doc: TextDocument): DocumentSymbol[] {
+	public async load(doc: TextDocument): Promise<DocumentSymbol[]> {
 		let symbols: DocumentSymbol[] = [];
 		const simplifiedText = pb.text.simplify(doc.getText());
 		pb.symbols.BLOCK_PARSERS.forEach(blockParser => {
@@ -54,7 +54,7 @@ export class PureBasicSymbols {
 			}
 		});
 		pb.symbols.documentSymbols.set(doc.uri, symbols);
-		return symbols;
+		return Promise.resolve(symbols);
 	}
 	/**
 	* Delete symbols before closing document
