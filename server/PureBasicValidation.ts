@@ -1,40 +1,42 @@
 import {
 	Diagnostic,
 	DiagnosticSeverity,
+	DocumentLink,
+	DocumentSymbol,
+	SymbolKind,
 	TextDocument
 } from 'vscode-languageserver';
 
 import { pb } from './PureBasicAPI';
 
 export class PureBasicValidation {
+	private readonly VALID_NAME_ALPHANUMERIC = /^[a-z_]\w+$/i;
+	private readonly VALID_NAME_ALPHANUMERIC_DOLLAR = /^[a-z_]\w+[$]?$/i;
+
 	/**
 	 * Detects any anomalies in source code
 	 * @param doc
 	 */
 	public async validate(doc: TextDocument): Promise<void> {
-		// In this simple example we get the settings for every validate run.
-		let settings = await pb.settings.load(doc);
-		let symbols = await pb.symbols.load(doc);
+		// get settings and doc symbols for every validate run.
+		const settings = await pb.settings.load(doc);
+		const symbols = await pb.symbols.load(doc);
 
-		// The validator creates diagnostics for all uppercase words length 2 and more
-		let text = doc.getText();
-		let pattern = /\b[A-Z]{2,}\b/g;
-		let m: RegExpExecArray | null;
-
-		let problems = 0;
 		let diagnostics: Diagnostic[] = [];
-		while ((m = pattern.exec(text)) && problems < settings.diagnostics.maxNumberOfProblems) {
-			problems++;
+		let problems = 0;
+		symbols.filter(s => {
+			switch (s.kind) {
+				case SymbolKind.Struct: return s.name.match(this.VALID_NAME_ALPHANUMERIC_DOLLAR) == null;
+				default: return s.name.match(this.VALID_NAME_ALPHANUMERIC) == null;
+			}
+		}).forEach(s => {
 			let diagnosic: Diagnostic = {
-				severity: DiagnosticSeverity.Warning,
-				range: {
-					start: doc.positionAt(m.index),
-					end: doc.positionAt(m.index + m[0].length)
-				},
-				message: `${m[0]} is all uppercase.`,
-				source: 'ex'
+				severity: DiagnosticSeverity.Error,
+				range: s.selectionRange,
+				message: `The identifier name '${s.name}' contains some unexpected characters.`,
+				source: 'PB1000'
 			};
-			if (pb.settings.hasDiagnosticRelatedInformationCapability) {
+			/*if (pb.settings.hasDiagnosticRelatedInformationCapability) {
 				diagnosic.relatedInformation = [
 					{
 						location: {
@@ -51,11 +53,11 @@ export class PureBasicValidation {
 						message: 'Particularly for names'
 					}
 				];
-			}
+			}*/
 			diagnostics.push(diagnosic);
-		}
+		});
 
 		// Send the computed diagnostics to VSCode.
-		// TODO pb.connection.sendDiagnostics({ uri: doc.uri, diagnostics });
+		pb.connection.sendDiagnostics({ uri: doc.uri, diagnostics });
 	}
 }

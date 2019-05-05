@@ -53,7 +53,7 @@ export class PureBasicSymbols {
 			let result: RegExpExecArray;
 			while ((result = blockParser.regex.exec(simplifiedText)) !== null) {
 				const block = pb.parser.parseBlock(doc, result);
-				const symbol = DocumentSymbol.create(block.name.value, '...', blockParser.kind, block.whole.pos, block.name.pos)
+				const symbol = DocumentSymbol.create(block.name.value, '...', blockParser.kind, block.whole.pos, block.name.pos);
 				symbols.push(symbol);
 			}
 		});
@@ -83,7 +83,7 @@ export class PureBasicSymbols {
 	 * @param params
 	 */
 	public getWorkspaceSymbols(params: WorkspaceSymbolParams) {
-		//params.query
+		// params.query
 		return [];
 	}
 }
