@@ -43,7 +43,7 @@ export class PureBasicIndentation {
 			oneIndent: (options.insertSpaces ? ' '.repeat(options.tabSize) : '\t'),
 			tabSpaces: ' '.repeat(options.tabSize)
 		};
-		return Promise.resolve(indentation);
+		return indentation;
 	}
 	/**
 	 * Update line indents according to words and indentating context
