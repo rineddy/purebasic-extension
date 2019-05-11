@@ -63,7 +63,7 @@ export class PureBasicSettings {
 		this.documentSettings.clear();
 		if (!this.hasWorkspaceConfigCapability) {
 			let globalSettings = Promise.resolve(<ICustomSettings>(changed.settings.purebasicLanguage || pb.settings.DEFAULT_SETTINGS));
-			this.saveDocumentSettings('', globalSettings);
+			this.documentSettings.set('', globalSettings.then(this.convertIndentationSettings));
 		}
 	}
 	/**
@@ -74,7 +74,7 @@ export class PureBasicSettings {
 		let settings = this.documentSettings.get(this.hasWorkspaceConfigCapability ? doc.uri : '');
 		if (!settings) {
 			settings = pb.connection.workspace.getConfiguration({ scopeUri: doc.uri, section: 'purebasicLanguage' });
-			this.saveDocumentSettings(doc.uri, settings);
+			this.documentSettings.set(doc.uri, settings.then(this.convertIndentationSettings));
 		}
 		return settings;
 	}
@@ -86,18 +86,16 @@ export class PureBasicSettings {
 		this.documentSettings.delete(doc.uri);
 	}
 	/**
-	 * Save settings in dictionary after converting indent rules from JSON into regex
+	 * Convert indentation settings from string into regex
 	 * @param docUri
 	 * @param settings
 	 */
-	private saveDocumentSettings(docUri: string, settings: Thenable<ICustomSettings>) {
-		settings.then(newSettings => {
-			newSettings.indentationRules.forEach(r => {
-				// convert indent rules from string to RegExp
-				if (typeof (r.regex) === 'string') { r.regex = new RegExp(r.regex, r.flags); }
-			});
-			return newSettings;
+	private convertIndentationSettings(settings: ICustomSettings): PromiseLike<ICustomSettings> {
+		settings.indentationRules.forEach(r => {
+			// convert indent rules from string to RegExp
+			if (typeof (r.regex) === 'string') { r.regex = new RegExp(r.regex, r.flags); }
 		});
-		this.documentSettings.set(docUri, settings);
+		return Promise.resolve(settings);
 	}
+
 }
