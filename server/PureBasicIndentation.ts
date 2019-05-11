@@ -102,13 +102,13 @@ export class PureBasicIndentation {
 		return isIndentContextPicked;
 	}
 	/**
-	 * Search indentation rules to apply for each word or comment from line structure data
+	 * Select indentation rules to apply for each word or comment from line structure data
 	 * @param parsedLine
 	 * @param indentRules
 	 */
 	private selectIdentRules(parsedLine: ParsedLine, indentRules: IndentationRule[]): IndentationRule[] {
-		return parsedLine.words.concat(parsedLine.comment).map(word => {
-			return indentRules.find(indentRule => word.match(indentRule.regex) != null);
-		}).filter(r => r);
+		return parsedLine.words.concat(parsedLine.comment)
+			.map(word => indentRules.find(indentRule => word.match(indentRule.regex) != null))
+			.filter(indentRule => indentRule);
 	}
 }
