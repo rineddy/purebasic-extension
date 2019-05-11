@@ -65,7 +65,7 @@ export class PureBasicSymbols {
 		pb.symbols.documentSymbols.delete(doc.uri);
 	}
 	/**
-	 * Get document symbols (used by outline view)
+	 * Get document symbols (used by 'outline' view)
 	 * @param params
 	 */
 	public async getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]> {

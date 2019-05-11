@@ -2,10 +2,10 @@ import {
 	FormattingOptions,
 	TextDocument
 } from 'vscode-languageserver';
-import { ICustomIndentRule, ICustomIndenting, ICustomLineStruct, pb } from './PureBasicAPI';
+import { IndentationContext, IndentationRule, ParsedLine, pb } from './PureBasicAPI';
 
 export class PureBasicIndentation {
-	private readonly INDENTATION_RULES: ICustomIndentRule[] = [
+	private readonly INDENTATION_RULES: IndentationRule[] = [
 		{
 			regex: /^(While|Repeat|ForEach|For|With|Structure|StructureUnion|Macro|Import|ImportC|Interface|Procedure|ProcedureDLL|ProcedureCDLL|ProcedureC|If|CompilerIf|DataSection|DeclareModule|Module|Enumeration|EnumerationBinary)$/i,
 			before: 0, after: 1
@@ -33,13 +33,13 @@ export class PureBasicIndentation {
 	 * @param doc
 	 * @param options
 	 */
-	public async create(doc: TextDocument, options: FormattingOptions): Promise<ICustomIndenting> {
+	public async create(doc: TextDocument, options: FormattingOptions): Promise<IndentationContext> {
 		const settings = await pb.settings.load(doc);
-		const indentation = <ICustomIndenting>{
+		const indentation = <IndentationContext>{
 			current: 0,
 			next: 0,
 			options: options,
-			indentationRules: pb.indentation.INDENTATION_RULES.concat(settings.indentationRules),
+			indentRules: pb.indentation.INDENTATION_RULES.concat(settings.indentationRules),
 			oneIndent: (options.insertSpaces ? ' '.repeat(options.tabSize) : '\t'),
 			tabSpaces: ' '.repeat(options.tabSize)
 		};
@@ -47,68 +47,68 @@ export class PureBasicIndentation {
 	}
 	/**
 	 * Update line indents according to words and indentating context
-	 * @param lineStruct line structure to analyze
-	 * @param indenting current indenting context
+	 * @param parsedLine
+	 * @param indentContext current indenting context
 	 */
-	public update(lineStruct: ICustomLineStruct, indenting: ICustomIndenting) {
-		const { indentationRules, oneIndent } = indenting;
+	public update(parsedLine: ParsedLine, indentContext: IndentationContext) {
+		const { indentRules, oneIndent } = indentContext;
 		// reset current indents
-		if (indenting.next < 0) indenting.next = 0;
-		indenting.current = indenting.next;
+		if (indentContext.next < 0) indentContext.next = 0;
+		indentContext.current = indentContext.next;
 		// calculate current and next indents
 		let isIndentingCurrentLine = true;
-		this.searchIdentRules(lineStruct, indentationRules).forEach(indentRule => {
+		this.selectIdentRules(parsedLine, indentRules).forEach(indentRule => {
 			if (isIndentingCurrentLine) {
 				if (indentRule.before) {
-					indenting.current += indentRule.before;
-					indenting.next = indenting.current;
+					indentContext.current += indentRule.before;
+					indentContext.next = indentContext.current;
 				}
 				if (indentRule.after) {
-					indenting.next += indentRule.after;
+					indentContext.next += indentRule.after;
 					isIndentingCurrentLine = false;
 				}
 			}
 			else {
-				indenting.next += indentRule.before + indentRule.after;
+				indentContext.next += indentRule.before + indentRule.after;
 			}
 		});
 		// apply current indents on current line
-		if (indenting.current < 0) indenting.current = 0;
-		lineStruct.indents = oneIndent.repeat(indenting.current);
+		if (indentContext.current < 0) indentContext.current = 0;
+		parsedLine.indents = oneIndent.repeat(indentContext.current);
 	}
 	/**
 	 * Pick line indents used for next indentation
-	 * @param lineStruct line structure to analyze
-	 * @param indenting current indenting context
+	 * @param parsedLine
+	 * @param indentContext current indenting context
 	 * @returns True if line indentation is picked
 	 */
-	public pick(lineStruct: ICustomLineStruct, indenting: ICustomIndenting): boolean {
-		const { indentationRules, options, tabSpaces } = indenting;
+	public pick(parsedLine: ParsedLine, indentContext: IndentationContext): boolean {
+		const { indentRules, options, tabSpaces } = indentContext;
 		let isIndentingCurrentLine = true;
 		let isIndentingPicked = false;
-		indenting.next = lineStruct.indents.replace(/\t/g, tabSpaces).length / options.tabSize;
-		this.searchIdentRules(lineStruct, indentationRules).forEach(indentRule => {
+		indentContext.next = parsedLine.indents.replace(/\t/g, tabSpaces).length / options.tabSize;
+		this.selectIdentRules(parsedLine, indentRules).forEach(indentRule => {
 			isIndentingPicked = true;
 			if (isIndentingCurrentLine) {
 				if (indentRule.after) {
-					indenting.next += indentRule.after;
+					indentContext.next += indentRule.after;
 					isIndentingCurrentLine = false;
 				}
 			}
 			else {
-				indenting.next += indentRule.before + indentRule.after;
+				indentContext.next += indentRule.before + indentRule.after;
 			}
 		});
 		return isIndentingPicked;
 	}
 	/**
 	 * Search indentation rules to apply for each word or comment from line structure data
-	 * @param lineStruct line structure to analyze
-	 * @param indentationRules
+	 * @param parsedLine
+	 * @param indentRules
 	 */
-	private searchIdentRules(lineStruct: ICustomLineStruct, indentationRules: ICustomIndentRule[]): ICustomIndentRule[] {
-		return lineStruct.words.concat(lineStruct.comment).map(word => {
-			return indentationRules.find(indentRule => word.match(indentRule.regex) != null);
+	private selectIdentRules(parsedLine: ParsedLine, indentRules: IndentationRule[]): IndentationRule[] {
+		return parsedLine.words.concat(parsedLine.comment).map(word => {
+			return indentRules.find(indentRule => word.match(indentRule.regex) != null);
 		}).filter(r => r);
 	}
 }

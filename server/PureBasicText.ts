@@ -1,4 +1,4 @@
-import { ICustomLineStruct, ICustomRegexReplacer, pb } from './PureBasicAPI';
+import { ICustomRegexReplacer, ParsedLine, pb } from './PureBasicAPI';
 
 export class PureBasicText {
 	/**
@@ -27,19 +27,19 @@ export class PureBasicText {
 	 * @param modifyStruct function to modify line structure data
 	 * @returns output text
 	 */
-	public reconstruct(lineText: string, modifyStruct: (lineStruct: ICustomLineStruct) => void): string {
-		let lineStruct = this.deconstruct(lineText);
+	public reconstruct(lineText: string, modifyStruct: (parsedLine: ParsedLine) => void): string {
+		let parsedLine = this.deconstruct(lineText);
 		if (modifyStruct) {
-			modifyStruct(lineStruct);
+			modifyStruct(parsedLine);
 		}
-		return this.construct(lineStruct);
+		return this.construct(parsedLine);
 	}
 	/**
 	 * Retrieves line structure data from `linetext` by extracting indents, content, strings, words and comment
 	 * @param lineText original text to parse
 	 * @returns output structure data
 	 */
-	public deconstruct(lineText: string): ICustomLineStruct {
+	public deconstruct(lineText: string): ParsedLine {
 		let [, indents, fullContent] = lineText.match(pb.text.EXTRACTS_INDENTS_FULLCONTENT) || [, '', ''];
 		let strings: string[] = [];
 		let comment = '';
@@ -56,7 +56,7 @@ export class PureBasicText {
 			}
 			return (dquote + dquote) || (quote + quote) || semicolon || ''; // empty string or empty comment result
 		});
-		return <ICustomLineStruct>{
+		return <ParsedLine>{
 			indents: indents,
 			content: content,
 			words: content.match(pb.text.EXTRACTS_WORDS) || [],
@@ -68,11 +68,11 @@ export class PureBasicText {
 	}
 	/**
 	 * Retrieves line text by combining indents, content, strings and comment from `lineStruct`
-	 * @param lineStruct
+	 * @param parsedLine
 	 * @returns output text
 	 */
-	public construct(lineStruct: ICustomLineStruct): string {
-		const { indents, content, strings, comment, endSpaces } = lineStruct;
+	public construct(parsedLine: ParsedLine): string {
+		const { indents, content, strings, comment, endSpaces } = parsedLine;
 		const lineText = indents + content.replace(pb.text.FINDS_STRINGS_COMMENT_ENDSPACES, (match: string) => {
 			return match[0] === ';' ? comment : strings.shift() || '';
 		}) + endSpaces;
@@ -80,24 +80,24 @@ export class PureBasicText {
 	}
 	/**
 	 * Beautify line content by replacing substrings
-	 * @param lineStruct
+	 * @param parsedLine
 	 * @param replacers array of replacement rules
 	 */
-	public beautify(lineStruct: ICustomLineStruct, replacers: ICustomRegexReplacer[]) {
+	public beautify(parsedLine: ParsedLine, replacers: ICustomRegexReplacer[]) {
 		for (const replacer of replacers) {
-			lineStruct.content = lineStruct.content.replace(replacer[0], replacer[1]);
+			parsedLine.content = parsedLine.content.replace(replacer[0], replacer[1]);
 		}
 	}
 	/**
 	 * Trim end line spaces
-	 * @param lineStruct
+	 * @param parsedLine
 	 */
-	public trimEnd(lineStruct: ICustomLineStruct): any {
-		if (lineStruct.isBlank) {
-			lineStruct.indents = '';
+	public trimEnd(parsedLine: ParsedLine): any {
+		if (parsedLine.isBlank) {
+			parsedLine.indents = '';
 		}
 		else {
-			lineStruct.endSpaces = '';
+			parsedLine.endSpaces = '';
 		}
 	}
 	public simplify(text: string): string {

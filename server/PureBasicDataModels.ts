@@ -1,38 +1,38 @@
 import { FormattingOptions, Range } from 'vscode-languageserver';
 
 /**
- * Represents Purebasic indentation rules
- */
-export interface ICustomIndentRule {
-	regex: string | RegExp;
-	flags?: string;
-	before: number;
-	after: number;
-}
-/**
  * Represents Purebasic settings customized by user
  */
 export interface ICustomSettings {
 	diagnostics: {
 		maxNumberOfProblems: number;
 	};
-	indentationRules: ICustomIndentRule[];
+	indentationRules: IndentationRule[];
+}
+/**
+ * Represents Purebasic indentation rules
+ */
+export interface IndentationRule {
+	regex: string | RegExp;
+	flags?: string;
+	before: number;
+	after: number;
 }
 /**
  * Represents custom indenting context for current and next line
  */
-export interface ICustomIndenting {
+export interface IndentationContext {
 	current: number;
 	next: number;
 	readonly options: FormattingOptions;
-	readonly indentationRules: ICustomIndentRule[];
+	readonly indentRules: IndentationRule[];
 	readonly oneIndent: string;
 	readonly tabSpaces: string;
 }
 /**
  * Represents line text structure (indentation spaces, text content, words, strings, comment)
  */
-export interface ICustomLineStruct {
+export interface ParsedLine {
 	indents: string;
 	content: string;
 	words: string[];
