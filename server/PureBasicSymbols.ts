@@ -12,23 +12,23 @@ export class PureBasicSymbols {
 	private readonly BLOCK_PARSERS: { kind: SymbolKind, regex: RegExp }[] = [
 		{
 			kind: SymbolKind.Function,
-			regex: pb.parser.declareBlock().withStartKeyword(['Procedure', 'ProcedureC', 'ProcedureDLL', 'ProcedureCDLL']).withOptionalType().andSpaces()
+			regex: pb.regex.declareBlock().withStartKeyword(['Procedure', 'ProcedureC', 'ProcedureDLL', 'ProcedureCDLL']).withOptionalType().andSpaces()
 				.withName(true).withBody(true).withEndKeyword('EndProcedure').toRegex()
 		}, {
 			kind: SymbolKind.Interface,
-			regex: pb.parser.declareBlock().withStartKeyword(['Interface']).andSpaces()
+			regex: pb.regex.declareBlock().withStartKeyword(['Interface']).andSpaces()
 				.withName(true).withBody(true).withEndKeyword('EndInterface').toRegex()
 		}, {
 			kind: SymbolKind.Struct,
-			regex: pb.parser.declareBlock().withStartKeyword(['Structure']).andSpaces()
+			regex: pb.regex.declareBlock().withStartKeyword(['Structure']).andSpaces()
 				.withName(true).withBody(true).withEndKeyword('EndStructure').toRegex()
 		}, {
 			kind: SymbolKind.Enum,
-			regex: pb.parser.declareBlock().withStartKeyword(['Enumeration', 'EnumerationBinary']).andSpaces()
+			regex: pb.regex.declareBlock().withStartKeyword(['Enumeration', 'EnumerationBinary']).andSpaces()
 				.withName(true).withBody(true).withEndKeyword('EndEnumeration').toRegex()
 		}, {
 			kind: SymbolKind.Module,
-			regex: pb.parser.declareBlock().withStartKeyword(['DeclareModule']).andSpaces()
+			regex: pb.regex.declareBlock().withStartKeyword(['DeclareModule']).andSpaces()
 				.withName(true).withBody(true).withEndKeyword('EndDeclareModule').toRegex()
 		}
 	];
@@ -43,12 +43,12 @@ export class PureBasicSymbols {
 	 * @param doc
 	 */
 	public async load(doc: TextDocument): Promise<DocumentSymbol[]> {
-		const simplifiedText = pb.text.simplify(doc.getText());
+		const simplifiedText = pb.parser.simplify(doc.getText());
 		let symbols = await Promise.all(pb.symbols.BLOCK_PARSERS.map(async blockParser => {
 			let result: RegExpExecArray;
 			let symbols: DocumentSymbol[] = [];
 			while ((result = blockParser.regex.exec(simplifiedText)) !== null) {
-				const block = pb.parser.parseBlock(doc, result);
+				const block = pb.regex.parseBlock(doc, result);
 				const symbol = DocumentSymbol.create(block.name.value, '...', blockParser.kind, block.whole.pos, block.name.pos);
 				symbols.push(symbol);
 			}

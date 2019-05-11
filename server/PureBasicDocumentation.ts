@@ -1,10 +1,10 @@
-import { ICustomReadLine, pb } from './PureBasicAPI';
 import {
-	Range,
 	TextDocument,
 	TextDocumentIdentifier,
 	TextDocuments,
 } from 'vscode-languageserver';
+
+import { pb } from './PureBasicAPI';
 
 export class PureBasicDocumentation extends TextDocuments {
 	/**
@@ -20,21 +20,5 @@ export class PureBasicDocumentation extends TextDocuments {
 			doc = pb.documentation.get(docInfo.uri);
 		}
 		return doc ? Promise.resolve(doc) : Promise.reject(`Invalid docInfo: ${docInfo.toString()}`);
-	}
-	/**
-	 * Read doc line
-	 * @param doc
-	 * @param line line to read
-	 * @param lineCharacter line last character position ( or end of line position if 'undefined' )
-	 */
-	public readLine(doc: TextDocument, line: number, lineCharacter?: number): ICustomReadLine {
-		const rg = Range.create(line, 0, line, lineCharacter !== undefined ? lineCharacter : Number.MAX_SAFE_INTEGER);
-		const rgCut = lineCharacter !== undefined ? Range.create(line, lineCharacter, line, Number.MAX_SAFE_INTEGER) : undefined;
-		return {
-			lineRange: rg,
-			lineText: doc.getText(rg),
-			lineCutRange: rgCut,
-			lineCutText: rgCut ? doc.getText(rgCut) : undefined,
-		};
 	}
 }

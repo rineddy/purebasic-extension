@@ -8,9 +8,9 @@ import { PureBasicDocumentation } from './PureBasicDocumentation';
 import { PureBasicFormatter } from './PureBasicFormatter';
 import { PureBasicIndentation } from './PureBasicIndentation';
 import { PureBasicParser } from './PureBasicParser';
+import { PureBasicRegex } from './PureBasicRegex';
 import { PureBasicSettings } from './PureBasicSettings';
 import { PureBasicSymbols } from './PureBasicSymbols';
-import { PureBasicText } from './PureBasicText';
 import { PureBasicValidation } from './PureBasicValidation';
 
 export * from './PureBasicDataModels';
@@ -22,7 +22,7 @@ export namespace pb {
 	/**
 	 * Provide functions used to examine and modify text from source code
 	 */
-	export const text = new PureBasicText();
+	export const parser = new PureBasicParser();
 	/**
 	 * Provide functions used to beautify source code by following some formatting rules
 	 */
@@ -30,7 +30,7 @@ export namespace pb {
 	/**
 	 * Provide functions used to create regex parser
 	 */
-	export const parser = new PureBasicParser();
+	export const regex = new PureBasicRegex();
 	/**
 	 * Provide functions used to display code autocompletion list
 	 */

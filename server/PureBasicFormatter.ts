@@ -64,30 +64,25 @@ export class PureBasicFormatter {
 		const textEdits: TextEdit[] = [];
 		const indenting = await pb.indentation.create(doc, options);
 		for (let line = startLine - 1; line >= 0; line--) {
-			const { lineText } = pb.documentation.readLine(doc, line);
-			const lineStruct = pb.text.deconstruct(lineText);
-			if (pb.indentation.pick(lineStruct, indenting)) {
+			const parsedLine = pb.parser.readLine(doc, line);
+			if (pb.indentation.pick(parsedLine, indenting)) {
 				break;
 			}
 		}
 		for (let line = startLine; line <= endLine; line++) {
-			const { lineRange, lineText, lineCutText, lineCutRange } = pb.documentation.readLine(doc, line, line === endLine ? endLineCharacter : undefined);
-			const formattedText = pb.text.reconstruct(lineText, lineStruct => {
-				pb.indentation.update(lineStruct, indenting);
-				pb.text.beautify(lineStruct, pb.formatter.FORMATTING_RULES);
-				if (lineCutRange && lineCutText) {
-					if (lineStruct.isBlank && lineCutText.match(/^\s+/)) {
-						textEdits.push(TextEdit.replace(lineCutRange, lineCutText.trimLeft()));
-					}
-				}
-				else {
-					pb.text.trimEnd(lineStruct);
-				}
+			const parsedLine = pb.parser.readLine(doc, line, line === endLine ? endLineCharacter : undefined);
+			pb.parser.updateLine(parsedLine, parsedLine => {
+				pb.indentation.update(parsedLine, indenting);
+				pb.parser.beautify(parsedLine, pb.formatter.FORMATTING_RULES);
+				pb.parser.trimEnd(parsedLine);
 			});
-			if (formattedText !== lineText) {
-				textEdits.push(TextEdit.replace(lineRange, formattedText));
+			if (parsedLine.read.newText !== parsedLine.read.text) {
+				textEdits.push(TextEdit.replace(parsedLine.read.range, parsedLine.read.newText));
+			}
+			if (parsedLine.cut && parsedLine.cut.newText !== parsedLine.cut.text) {
+				textEdits.push(TextEdit.replace(parsedLine.cut.range, parsedLine.cut.newText));
 			}
 		}
-		return Promise.resolve(textEdits);
+		return textEdits;
 	}
 }
