@@ -53,7 +53,7 @@ export interface ParsedLine {
  * Represents regex replacer
  * @example let replacer: ICustomRegexReplacer = { /\s(\w+)/g, '$1' }
  */
-export interface ICustomRegexReplacer {
+export interface RegexReplaceRule {
 	0: RegExp;
 	1: string;
 }

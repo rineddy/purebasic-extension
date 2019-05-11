@@ -6,10 +6,10 @@ import {
 	TextDocument,
 	TextEdit,
 } from 'vscode-languageserver';
-import { ICustomRegexReplacer, pb } from './PureBasicAPI';
+import { RegexReplaceRule, pb } from './PureBasicAPI';
 
 export class PureBasicFormatter {
-	private readonly BEAUTIFICATION_RULES: ICustomRegexReplacer[] = [
+	private readonly BEAUTIFICATION_RULES: RegexReplaceRule[] = [
 		[/\s+/g, ' '],
 		[/\s+(,)/g, '$1'],
 		[/(,)(?=\S)/g, '$1 '],

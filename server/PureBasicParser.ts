@@ -1,4 +1,4 @@
-import { ICustomRegexReplacer, ParsedLine, pb } from './PureBasicAPI';
+import { ParsedLine, RegexReplaceRule, pb } from './PureBasicAPI';
 import { Range, TextDocument } from 'vscode-languageserver';
 
 export class PureBasicParser {
@@ -104,11 +104,11 @@ export class PureBasicParser {
 	/**
 	 * Beautify line content by replacing substrings
 	 * @param parsedLine
-	 * @param replacers array of replacement rules
+	 * @param rules array of replacement rules
 	 */
-	public beautify(parsedLine: ParsedLine, replacers: ICustomRegexReplacer[]) {
-		for (const replacer of replacers) {
-			parsedLine.content = parsedLine.content.replace(replacer[0], replacer[1]);
+	public beautify(parsedLine: ParsedLine, rules: RegexReplaceRule[]) {
+		for (const rule of rules) {
+			parsedLine.content = parsedLine.content.replace(rule[0], rule[1]);
 		}
 	}
 	public simplify(text: string): string {

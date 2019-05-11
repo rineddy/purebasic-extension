@@ -85,10 +85,10 @@ export class PureBasicIndentation {
 	public pick(parsedLine: ParsedLine, indentContext: IndentationContext): boolean {
 		const { indentRules, options, tabSpaces } = indentContext;
 		let isIndentingCurrentLine = true;
-		let isIndentingPicked = false;
+		let isIndentContextPicked = false;
 		indentContext.next = parsedLine.indents.replace(/\t/g, tabSpaces).length / options.tabSize;
 		this.selectIdentRules(parsedLine, indentRules).forEach(indentRule => {
-			isIndentingPicked = true;
+			isIndentContextPicked = true;
 			if (isIndentingCurrentLine) {
 				if (indentRule.after) {
 					indentContext.next += indentRule.after;
@@ -99,7 +99,7 @@ export class PureBasicIndentation {
 				indentContext.next += indentRule.before + indentRule.after;
 			}
 		});
-		return isIndentingPicked;
+		return isIndentContextPicked;
 	}
 	/**
 	 * Search indentation rules to apply for each word or comment from line structure data

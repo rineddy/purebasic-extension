@@ -20,7 +20,7 @@ export namespace pb {
 	 */
 	export const settings = new PureBasicSettings();
 	/**
-	 * Provide functions used to examine and modify text from source code
+	 * Provide functions used to parse and modify text structure and data
 	 */
 	export const parser = new PureBasicParser();
 	/**
@@ -36,7 +36,7 @@ export namespace pb {
 	 */
 	export const completion = new PureBasicCompletion();
 	/**
-	 * Provide functions used to indent source code
+	 * Provide functions used to calculate and modify text indentation
 	 */
 	export const indentation = new PureBasicIndentation();
 	/**
