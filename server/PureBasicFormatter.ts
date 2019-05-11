@@ -9,7 +9,7 @@ import {
 import { ICustomRegexReplacer, pb } from './PureBasicAPI';
 
 export class PureBasicFormatter {
-	private readonly FORMATTING_RULES: ICustomRegexReplacer[] = [
+	private readonly BEAUTIFICATION_RULES: ICustomRegexReplacer[] = [
 		[/\s+/g, ' '],
 		[/\s+(,)/g, '$1'],
 		[/(,)(?=\S)/g, '$1 '],
@@ -73,11 +73,16 @@ export class PureBasicFormatter {
 			const parsedLine = pb.parser.readLine(doc, line, line === endLine ? endLineCharacter : undefined);
 			pb.parser.updateLine(parsedLine, parsedLine => {
 				pb.indentation.update(parsedLine, indenting);
-				pb.parser.beautify(parsedLine, pb.formatter.FORMATTING_RULES);
-				pb.parser.trimEnd(parsedLine);
+				pb.parser.beautify(parsedLine, pb.formatter.BEAUTIFICATION_RULES);
+				if (parsedLine.cut) {
+					if (parsedLine.isBlank) { pb.parser.trimAfterCutSpaces(parsedLine); }
+				}
+				else {
+					pb.parser.trimEndSpaces(parsedLine);
+				}
 			});
-			if (parsedLine.read.newText !== parsedLine.read.text) {
-				textEdits.push(TextEdit.replace(parsedLine.read.range, parsedLine.read.newText));
+			if (parsedLine.newText !== parsedLine.text) {
+				textEdits.push(TextEdit.replace(parsedLine.range, parsedLine.newText));
 			}
 			if (parsedLine.cut && parsedLine.cut.newText !== parsedLine.cut.text) {
 				textEdits.push(TextEdit.replace(parsedLine.cut.range, parsedLine.cut.newText));

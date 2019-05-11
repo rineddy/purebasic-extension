@@ -29,12 +29,12 @@ export class PureBasicParser {
 	 */
 	public readLine(doc: TextDocument, line: number, lineCharacter?: number): ParsedLine {
 		// reading
-		const rg = Range.create(line, 0, line, lineCharacter !== undefined ? lineCharacter : Number.MAX_SAFE_INTEGER);
-		const rgCut = lineCharacter !== undefined ? Range.create(line, lineCharacter, line, Number.MAX_SAFE_INTEGER) : undefined;
-		const text = doc.getText(rg);
-		const textCut = rgCut ? doc.getText(rgCut) : undefined;
+		const readRange = Range.create(line, 0, line, lineCharacter !== undefined ? lineCharacter : Number.MAX_SAFE_INTEGER);
+		const cutRange = lineCharacter !== undefined ? Range.create(line, lineCharacter, line, Number.MAX_SAFE_INTEGER) : undefined;
+		const readText = doc.getText(readRange);
+		const cutText = cutRange ? doc.getText(cutRange) : undefined;
 		// parsing
-		let [, indents, fullContent] = text.match(pb.parser.EXTRACTS_INDENTS_FULLCONTENT) || [, '', ''];
+		let [, indents, fullContent] = readText.match(pb.parser.EXTRACTS_INDENTS_FULLCONTENT) || [, '', ''];
 		let strings: string[] = [];
 		let comment = '';
 		let endSpaces = '';
@@ -45,8 +45,14 @@ export class PureBasicParser {
 			return (dquote + dquote) || (quote + quote) || semicolon || ''; // empty string or empty comment result
 		});
 		return <ParsedLine>{
-			read: { text: text, newText: text, range: rg },
-			cut: textCut ? { text: textCut, newText: textCut, range: rgCut } : undefined,
+			text: readText,
+			newText: readText,
+			range: readRange,
+			cut: cutText ? {
+				text: cutText,
+				newText: cutText,
+				range: cutRange
+			} : undefined,
 			indents: indents,
 			content: content,
 			words: content.match(pb.parser.EXTRACTS_WORDS) || [],
@@ -67,10 +73,33 @@ export class PureBasicParser {
 			modifyLine(parsedLine);
 		}
 		const { indents, content, strings, comment, endSpaces } = parsedLine;
-		const lineText = indents + content.replace(pb.parser.FINDS_STRINGS_COMMENT_ENDSPACES, (match: string) => {
+		const fullContent = content.replace(pb.parser.FINDS_STRINGS_COMMENT_ENDSPACES, (match: string) => {
 			return match[0] === ';' ? comment : strings.shift() || '';
 		}) + endSpaces;
-		parsedLine.read.newText = lineText;
+		parsedLine.newText = indents + fullContent;
+	}
+	/**
+	 * Trim spaces after cut
+	 * @param parsedLine
+	 * @example "lineText|   cutText"  -->  "lineText|cutText"
+	 */
+	public trimAfterCutSpaces(parsedLine: ParsedLine) {
+		if (parsedLine.cut && parsedLine.cut.text.match(/^\s+/)) {
+			parsedLine.cut.newText = parsedLine.cut.text.trimLeft();
+		}
+	}
+	/**
+	 * Trim end spaces
+	 * @param parsedLine
+	 * @example "lineText   "  -->  "lineText"
+	 */
+	public trimEndSpaces(parsedLine: ParsedLine) {
+		if (parsedLine.isBlank) {
+			parsedLine.indents = '';
+		}
+		else {
+			parsedLine.endSpaces = '';
+		}
 	}
 	/**
 	 * Beautify line content by replacing substrings
@@ -80,26 +109,6 @@ export class PureBasicParser {
 	public beautify(parsedLine: ParsedLine, replacers: ICustomRegexReplacer[]) {
 		for (const replacer of replacers) {
 			parsedLine.content = parsedLine.content.replace(replacer[0], replacer[1]);
-		}
-	}
-	/**
-	 * Trim end line spaces
-	 * @param parsedLine
-	 */
-	public trimEnd(parsedLine: ParsedLine) {
-		if (parsedLine.cut) {
-			if (parsedLine.isBlank && parsedLine.cut.text.match(/^\s+/)) {
-				const cutText = parsedLine.cut.text.trimLeft();
-				parsedLine.cut.newText = cutText;
-			}
-		}
-		else {
-			if (parsedLine.isBlank) {
-				parsedLine.indents = '';
-			}
-			else {
-				parsedLine.endSpaces = '';
-			}
 		}
 	}
 	public simplify(text: string): string {

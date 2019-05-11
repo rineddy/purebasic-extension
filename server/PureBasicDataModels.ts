@@ -33,23 +33,21 @@ export interface IndentationContext {
  * Represents line text structure (indentation spaces, text content, words, strings, comment)
  */
 export interface ParsedLine {
-	readonly read: {
-		newText: string;
-		readonly text: string;
-		readonly range: Range;
-	};
+	newText: string;
+	readonly text: string;
+	readonly range: Range;
 	readonly cut?: {
 		newText: string;
 		readonly text: string;
 		readonly range: Range;
 	};
-	readonly isBlank: boolean;
 	readonly words: string[];
 	readonly strings: string[];
 	indents: string;
 	content: string;
 	comment: string;
 	endSpaces: string;
+	readonly isBlank: boolean;
 }
 /**
  * Represents regex replacer
