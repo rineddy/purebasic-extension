@@ -73,10 +73,10 @@ export class PureBasicParser {
 			modifyLine(parsedLine);
 		}
 		const { indents, content, strings, comment, endSpaces } = parsedLine;
-		const fullContent = content.replace(pb.parser.FINDS_STRINGS_COMMENT_ENDSPACES, (match: string) => {
+		const newText = indents + content.replace(pb.parser.FINDS_STRINGS_COMMENT_ENDSPACES, (match: string) => {
 			return match[0] === ';' ? comment : strings.shift() || '';
 		}) + endSpaces;
-		parsedLine.newText = indents + fullContent;
+		parsedLine.newText = newText;
 	}
 	/**
 	 * Trim spaces after cut
@@ -84,8 +84,9 @@ export class PureBasicParser {
 	 * @example "lineText|   cutText"  -->  "lineText|cutText"
 	 */
 	public trimAfterCutSpaces(parsedLine: ParsedLine) {
-		if (parsedLine.cut && parsedLine.cut.text.match(/^\s+/)) {
-			parsedLine.cut.newText = parsedLine.cut.text.trimLeft();
+		let newCutText: string;
+		if (parsedLine.cut && ([, newCutText] = parsedLine.cut.text.match(/^\s+([^\r\n]*)/))) {
+			parsedLine.cut.newText = newCutText;
 		}
 	}
 	/**
