@@ -51,7 +51,7 @@ export interface ParsedLine {
 }
 /**
  * Represents regex replacer
- * @example let replacer: ICustomRegexReplacer = { /\s(\w+)/g, '$1' }
+ * @example let replacer: RegexReplaceRule = [ /\s(\w+)/g, '$1' ]
  */
 export interface RegexReplaceRule {
 	0: RegExp;
