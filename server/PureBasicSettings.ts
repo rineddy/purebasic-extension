@@ -87,7 +87,6 @@ export class PureBasicSettings {
 	}
 	/**
 	 * Convert indentation settings from string into regex
-	 * @param docUri
 	 * @param settings
 	 */
 	private convertIndentationSettings(settings: ICustomSettings): PromiseLike<ICustomSettings> {
