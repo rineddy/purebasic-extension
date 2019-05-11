@@ -71,8 +71,7 @@ export class PureBasicSymbols {
 	public async getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]> {
 		if (!pb.symbols.documentSymbols.has(params.textDocument.uri)) {
 			const doc = await pb.documentation.find(params.textDocument);
-			const symbols = await pb.symbols.load(doc);
-			return symbols;
+			return await pb.symbols.load(doc);
 		}
 		else {
 			return pb.symbols.documentSymbols.get(params.textDocument.uri);
