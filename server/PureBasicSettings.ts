@@ -43,16 +43,15 @@ export class PureBasicSettings {
 		this.initParams = params;
 		this.clientCapabilities = this.initParams.capabilities;
 		// Does the client support the `workspace/configuration` request?
-		// If not, we will fall back using global settings
+		// If not, we will fall back using Global Settings
 		this.hasWorkspaceConfigCapability = !!(this.clientCapabilities.workspace && this.clientCapabilities.workspace.configuration);
 		this.hasWorkspaceFolderCapability = !!(this.clientCapabilities.workspace && this.clientCapabilities.workspace.workspaceFolders);
 		this.hasDiagnosticRelatedInformationCapability = !!(this.clientCapabilities.textDocument && this.clientCapabilities.textDocument.publishDiagnostics && this.clientCapabilities.textDocument.publishDiagnostics.relatedInformation);
 		// The global settings, used when the `workspace/configuration` request is not supported by the client.
-		// Please note that this is not the case when using this server with the client provided in this example
-		// but could happen with other clients.
+		// Please note that this is not the case when using this server with the client provided in this example but could happen with other clients.
 		if (!this.hasWorkspaceConfigCapability) {
-			const defaultSettings = Promise.resolve(pb.settings.DEFAULT_SETTINGS);
-			this.documentSettings.set('', defaultSettings);
+			const globalSettings = Promise.resolve(pb.settings.DEFAULT_SETTINGS);
+			this.documentSettings.set('', globalSettings);
 		}
 	}
 	/**
@@ -63,8 +62,8 @@ export class PureBasicSettings {
 		// Clear cached document settings
 		this.documentSettings.clear();
 		if (!this.hasWorkspaceConfigCapability) {
-			const defaultSettings = Promise.resolve(<ICustomSettings>(changed.settings.purebasicLanguage || pb.settings.DEFAULT_SETTINGS));
-			this.documentSettings.set('', defaultSettings.then(this.loadIndentationRules));
+			const globalSettings = Promise.resolve(<ICustomSettings>(changed.settings.purebasicLanguage || pb.settings.DEFAULT_SETTINGS));
+			this.documentSettings.set('', globalSettings.then(this.loadIndentationRules));
 		}
 	}
 	/**
