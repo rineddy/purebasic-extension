@@ -23,11 +23,12 @@ export class PureBasicParser {
 	private readonly FINDS_STRINGS_COMMENTS = /"(?:[^"\r\n\\]|\\.)*"?|'[^\r\n']*'?|;.*?$/gm;
 
 	/**
+	 * Read document line to parse
 	 * @param doc
 	 * @param line line to read and parse
 	 * @param lineCharacter line last character position ( or end of line position if 'undefined' )
 	 */
-	public readLine(doc: TextDocument, line: number, lineCharacter?: number): ParsedLine {
+	public parseLine(doc: TextDocument, line: number, lineCharacter?: number): ParsedLine {
 		// reading
 		const readRange = Range.create(line, 0, line, lineCharacter !== undefined ? lineCharacter : Number.MAX_SAFE_INTEGER);
 		const cutRange = lineCharacter !== undefined ? Range.create(line, lineCharacter, line, Number.MAX_SAFE_INTEGER) : undefined;
@@ -63,10 +64,9 @@ export class PureBasicParser {
 		};
 	}
 	/**
-	 * Retrieves line text after some structure data modifications
-	 * @param doc
-	 * @param line line to read and toparse
-	 * @param lineCharacter line last character position ( or end of line position if 'undefined' )
+	 * Update parsed line data using `modifyLine` function
+	 * @param parsedLine
+	 * @param modifyLine
 	 */
 	public updateLine(parsedLine: ParsedLine, modifyLine: (parsedLine: ParsedLine) => void) {
 		if (modifyLine) {
@@ -112,8 +112,14 @@ export class PureBasicParser {
 			parsedLine.content = parsedLine.content.replace(rule[0], rule[1]);
 		}
 	}
-	public simplify(text: string): string {
-		const simplifiedText = text.replace(pb.parser.FINDS_STRINGS_COMMENTS, match => {
+	/**
+	 * Read document text to parse
+	 * @param doc
+	 */
+	public parseText(doc: TextDocument): string {
+		// reading
+		const readText = doc.getText();
+		const simplifiedText = readText.replace(pb.parser.FINDS_STRINGS_COMMENTS, match => {
 			return match.length > 1 ? match[0] + '-'.repeat(match.length - 2) + match[0] : match[0]; // simplified string or comment
 		});
 		return simplifiedText;

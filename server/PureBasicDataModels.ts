@@ -14,9 +14,9 @@ export interface ICustomSettings {
  */
 export interface IndentationRule {
 	regex: string | RegExp;
-	flags?: string;
-	before: number;
-	after: number;
+	readonly flags?: string;
+	readonly before: number;
+	readonly after: number;
 }
 /**
  * Represents custom indenting context for current and next line
@@ -30,7 +30,7 @@ export interface IndentationContext {
 	readonly tabSpaces: string;
 }
 /**
- * Represents line text structure (indentation spaces, text content, words, strings, comment)
+ * Represents parsed line structure (indentation spaces, text content, words, strings, comment)
  */
 export interface ParsedLine {
 	newText: string;
@@ -41,13 +41,27 @@ export interface ParsedLine {
 		readonly text: string;
 		readonly range: Range;
 	};
+	readonly isBlank: boolean;
 	readonly words: string[];
 	readonly strings: string[];
 	indents: string;
 	content: string;
 	comment: string;
 	endSpaces: string;
-	readonly isBlank: boolean;
+}
+/**
+ * Represents parsed text structure (text, strings, comments)
+ */
+export interface ParsedText {
+	readonly text: string;
+	strings: {
+		readonly text: string;
+		readonly range: Range;
+	}[];
+	comments: {
+		readonly text: string;
+		readonly range: Range;
+	}[];
 }
 /**
  * Represents regex replacer
