@@ -51,7 +51,8 @@ export class PureBasicSettings {
 		// Please note that this is not the case when using this server with the client provided in this example
 		// but could happen with other clients.
 		if (!this.hasWorkspaceConfigCapability) {
-			this.documentSettings.set('', Promise.resolve(pb.settings.DEFAULT_SETTINGS));
+			const defaultSettings = Promise.resolve(pb.settings.DEFAULT_SETTINGS);
+			this.documentSettings.set('', defaultSettings);
 		}
 	}
 	/**
@@ -62,8 +63,8 @@ export class PureBasicSettings {
 		// Clear cached document settings
 		this.documentSettings.clear();
 		if (!this.hasWorkspaceConfigCapability) {
-			let globalSettings = Promise.resolve(<ICustomSettings>(changed.settings.purebasicLanguage || pb.settings.DEFAULT_SETTINGS));
-			this.documentSettings.set('', globalSettings.then(this.convertIndentationSettings));
+			const defaultSettings = Promise.resolve(<ICustomSettings>(changed.settings.purebasicLanguage || pb.settings.DEFAULT_SETTINGS));
+			this.documentSettings.set('', defaultSettings.then(this.loadIndentationRules));
 		}
 	}
 	/**
@@ -74,7 +75,7 @@ export class PureBasicSettings {
 		let settings = this.documentSettings.get(this.hasWorkspaceConfigCapability ? doc.uri : '');
 		if (!settings) {
 			settings = pb.connection.workspace.getConfiguration({ scopeUri: doc.uri, section: 'purebasicLanguage' });
-			this.documentSettings.set(doc.uri, settings.then(this.convertIndentationSettings));
+			this.documentSettings.set(doc.uri, settings.then(this.loadIndentationRules));
 		}
 		return settings;
 	}
@@ -86,10 +87,10 @@ export class PureBasicSettings {
 		this.documentSettings.delete(doc.uri);
 	}
 	/**
-	 * Convert indentation settings from string into regex
+	 * Load indentation rules after converting string into regex
 	 * @param settings
 	 */
-	private convertIndentationSettings(settings: ICustomSettings): PromiseLike<ICustomSettings> {
+	private loadIndentationRules(settings: ICustomSettings): PromiseLike<ICustomSettings> {
 		settings.indentationRules.forEach(r => {
 			// convert indent rules from string to RegExp
 			if (typeof (r.regex) === 'string') { r.regex = new RegExp(r.regex, r.flags); }
