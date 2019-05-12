@@ -62,17 +62,17 @@ export class PureBasicFormatter {
 	 */
 	private async formatLineByLine(doc: TextDocument, options: FormattingOptions, startLine: number, endLine: number, endLineCharacter?: number): Promise<TextEdit[]> {
 		const textEdits: TextEdit[] = [];
-		const indenting = await pb.indentation.create(doc, options);
+		const indentContext = await pb.indentation.create(doc, options);
 		for (let line = startLine - 1; line >= 0; line--) {
 			const parsedLine = pb.parser.readLine(doc, line);
-			if (pb.indentation.pick(parsedLine, indenting)) {
+			if (pb.indentation.pick(parsedLine, indentContext)) {
 				break;
 			}
 		}
 		for (let line = startLine; line <= endLine; line++) {
 			const parsedLine = pb.parser.readLine(doc, line, line === endLine ? endLineCharacter : undefined);
 			pb.parser.updateLine(parsedLine, parsedLine => {
-				pb.indentation.update(parsedLine, indenting);
+				pb.indentation.update(parsedLine, indentContext);
 				pb.parser.beautify(parsedLine, pb.formatter.BEAUTIFICATION_RULES);
 				if (parsedLine.cut) {
 					if (parsedLine.isBlank) { pb.parser.trimAfterCutSpaces(parsedLine); }
