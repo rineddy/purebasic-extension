@@ -4,21 +4,24 @@ import { Range, TextDocument } from 'vscode-languageserver';
 export class PureBasicParser {
 	/**
 	 *
-	 * Extracts indents and full content without line break characters from line text
-	 * @example let [match, indents, fullContent] = thisLineText.match(pb.text.EXTRACTS_INDENTS_FULLCONTENT)
+	 * Finds indents and full content without optional line break characters from line text
 	 */
-	private readonly EXTRACTS_INDENTS_FULLCONTENT = /^([\t ]*)(.*?)[\r\n]*$/;
+	private readonly FINDS_INDENTS_FULLCONTENT = /^([\t ]*)(.*?)[\r\n]*$/;
 	/**
-	 * Extracts words from text (ex: _Word123,$myWord,OtherW0rd$)
-	 * @example let words = thisText.match(pb.text.EXTRACTS_WORDS)
+	 * Finds words from multiline text or line text
+	 * @example ' ( _Word123, $myWord, OtherW0rd$ | $someWord$ ) + 123'  -->  ['_Word123', '$myWord', 'OtherW0rd$', '$someWord$', '123']
 	 */
-	private readonly EXTRACTS_WORDS = /[$]?\b\w+\b[$]?/gi;
+	private readonly FINDS_WORDS = /[$]?\b\w+\b[$]?/gi;
 	/**
 	 * Finds strings, comment and end spaces from line text
 	 */
 	private readonly FINDS_STRINGS_COMMENT_ENDSPACES = /(")(?:[^"\\]|\\.)*"?|(')[^']*'?|(;).*?(?=\s*$)|(\s)\s*$/g;
 	/**
-	 * Finds strings, comments from document text
+	 * Finds cut text without start spaces or line break characters from line text
+	 */
+	private readonly FINDS_CUTTEXT = /^[\t ]+(.*?)[\r\n]*$/;
+	/**
+	 * Finds strings, comments from multiline text
 	 */
 	private readonly FINDS_STRINGS_COMMENTS = /"(?:[^"\r\n\\]|\\.)*"?|'[^\r\n']*'?|;.*?$/gm;
 
@@ -35,7 +38,7 @@ export class PureBasicParser {
 		const readText = doc.getText(readRange);
 		const cutText = cutRange ? doc.getText(cutRange) : undefined;
 		// parsing
-		let [, indents, fullContent] = readText.match(pb.parser.EXTRACTS_INDENTS_FULLCONTENT) || [, '', ''];
+		let [, indents, fullContent] = readText.match(pb.parser.FINDS_INDENTS_FULLCONTENT) || [, '', ''];
 		let strings: string[] = [];
 		let comment = '';
 		let endSpaces = '';
@@ -56,7 +59,7 @@ export class PureBasicParser {
 			} : undefined,
 			indents: indents,
 			content: content,
-			words: content.match(pb.parser.EXTRACTS_WORDS) || [],
+			words: content.match(pb.parser.FINDS_WORDS) || [],
 			strings: strings,
 			comment: comment,
 			endSpaces: endSpaces,
@@ -81,18 +84,18 @@ export class PureBasicParser {
 	/**
 	 * Trim spaces after cut
 	 * @param parsedLine
-	 * @example "lineText|   cutText"  -->  "lineText|cutText"
+	 * @example 'lineText|   cutText'  -->  'lineText|cutText'
 	 */
 	public trimAfterCutSpaces(parsedLine: ParsedLine) {
 		let newCutText: string;
-		if (parsedLine.cut && ([, newCutText] = parsedLine.cut.text.match(/^\s+([^\r\n]*)/))) {
+		if (parsedLine.cut && ([, newCutText] = parsedLine.cut.text.match(pb.parser.FINDS_CUTTEXT))) {
 			parsedLine.cut.newText = newCutText;
 		}
 	}
 	/**
 	 * Trim end spaces
 	 * @param parsedLine
-	 * @example "lineText   "  -->  "lineText"
+	 * @example 'lineText   '  -->  'lineText'
 	 */
 	public trimEndSpaces(parsedLine: ParsedLine) {
 		if (parsedLine.isBlank) {
