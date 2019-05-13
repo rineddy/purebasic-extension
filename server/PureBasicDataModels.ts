@@ -54,14 +54,8 @@ export interface ParsedLine {
  */
 export interface ParsedText {
 	readonly text: string;
-	strings: {
-		readonly text: string;
-		readonly range: Range;
-	}[];
-	comments: {
-		readonly text: string;
-		readonly range: Range;
-	}[];
+	strings: RegexCapture[];
+	comments: RegexCapture[];
 }
 /**
  * Represents regex replacer
@@ -70,4 +64,12 @@ export interface ParsedText {
 export interface RegexReplaceRule {
 	0: RegExp;
 	1: string;
+}
+/**
+ * Represents regex captured result
+ */
+export interface RegexCapture {
+	readonly text: string;
+	readonly startPos: number;
+	readonly endPos: number;
 }

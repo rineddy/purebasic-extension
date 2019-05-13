@@ -14,6 +14,8 @@ import { PureBasicSymbols } from './PureBasicSymbols';
 import { PureBasicValidation } from './PureBasicValidation';
 
 export * from './PureBasicDataModels';
+export * from './PureBasicExtensions';
+
 export namespace pb {
 	/**
 	 * Provide functions used to save or load all language custom settings

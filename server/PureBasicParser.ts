@@ -1,29 +1,36 @@
-import { ParsedLine, RegexReplaceRule, pb } from './PureBasicAPI';
+import { ParsedLine, ParsedText, RegexReplaceRule, pb } from './PureBasicAPI';
 import { Range, TextDocument } from 'vscode-languageserver';
 
 export class PureBasicParser {
 	/**
-	 *
-	 * Finds indents and full content without optional line break characters from line text
+	 * Provides `Regexp` rules to capture substrings from line text
 	 */
-	private readonly FINDS_INDENTS_FULLCONTENT = /^([\t ]*)(.*?)[\r\n]*$/;
+	private readonly LINE_WITH = {
+		/**
+		 * Finds indents and full content without optional line break characters
+		 */
+		INDENTS_FULLCONTENT: /^([\t ]*)(.*?)[\r\n]*$/,
+		/**
+		 * Finds words
+		 * @example ' ( _Word123, $myWord, OtherW0rd$ | $someWord$ ) + 123'  -->  ['_Word123', '$myWord', 'OtherW0rd$', '$someWord$', '123']
+		 */
+		WORDS: /[$]?\b\w+\b[$]?/gi,
+		/**
+		 * Finds strings, comment and end spaces
+		 */
+		STRINGS_COMMENT_ENDSPACES: /(")(?:[^"\\]|\\.)*"?|(')[^']*'?|(;).*?(?=\s*$)|(\s)\s*$/g,
+		/**
+		 * Finds cut text without start spaces or line break characters
+		 */
+		CUTTEXT: /^[\t ]+(.*?)[\r\n]*$/
+	};
 	/**
-	 * Finds words from multiline text or line text
-	 * @example ' ( _Word123, $myWord, OtherW0rd$ | $someWord$ ) + 123'  -->  ['_Word123', '$myWord', 'OtherW0rd$', '$someWord$', '123']
+	 * Provides `Regexp` rules to capture substrings from multiline text
 	 */
-	private readonly FINDS_WORDS = /[$]?\b\w+\b[$]?/gi;
-	/**
-	 * Finds strings, comment and end spaces from line text
-	 */
-	private readonly FINDS_STRINGS_COMMENT_ENDSPACES = /(")(?:[^"\\]|\\.)*"?|(')[^']*'?|(;).*?(?=\s*$)|(\s)\s*$/g;
-	/**
-	 * Finds cut text without start spaces or line break characters from line text
-	 */
-	private readonly FINDS_CUTTEXT = /^[\t ]+(.*?)[\r\n]*$/;
-	/**
-	 * Finds strings, comments from multiline text
-	 */
-	private readonly FINDS_STRINGS_COMMENTS = /"(?:[^"\r\n\\]|\\.)*"?|'[^\r\n']*'?|;.*?$/gm;
+	private readonly TEXT_WITH = {
+		STRINGS: /"(?:[^"\r\n\\]|\\.)*"?|'[^\r\n']*'?/gm,
+		COMMENTS: /;.*?$/gm
+	};
 
 	/**
 	 * Read document line to parse
@@ -38,11 +45,11 @@ export class PureBasicParser {
 		const readText = doc.getText(readRange);
 		const cutText = cutRange ? doc.getText(cutRange) : undefined;
 		// parsing
-		let [, indents, fullContent] = readText.match(pb.parser.FINDS_INDENTS_FULLCONTENT) || [, '', ''];
+		let [, indents, fullContent] = readText.match(pb.parser.LINE_WITH.INDENTS_FULLCONTENT) || [, '', ''];
 		let strings: string[] = [];
 		let comment = '';
 		let endSpaces = '';
-		let content = fullContent.replace(pb.parser.FINDS_STRINGS_COMMENT_ENDSPACES, (match: string, dquote: string, quote: string, semicolon: string, space: string) => {
+		let content = fullContent.replace(pb.parser.LINE_WITH.STRINGS_COMMENT_ENDSPACES, (match: string, dquote: string, quote: string, semicolon: string, space: string) => {
 			if (semicolon) { comment = match; }
 			else if (space) { endSpaces = match; }
 			else { strings.push(match); }
@@ -59,7 +66,7 @@ export class PureBasicParser {
 			} : undefined,
 			indents: indents,
 			content: content,
-			words: content.match(pb.parser.FINDS_WORDS) || [],
+			words: content.match(pb.parser.LINE_WITH.WORDS) || [],
 			strings: strings,
 			comment: comment,
 			endSpaces: endSpaces,
@@ -76,7 +83,7 @@ export class PureBasicParser {
 			modifyLine(parsedLine);
 		}
 		const { indents, content, strings, comment, endSpaces } = parsedLine;
-		const newText = indents + content.replace(pb.parser.FINDS_STRINGS_COMMENT_ENDSPACES, (match: string) => {
+		const newText = indents + content.replace(pb.parser.LINE_WITH.STRINGS_COMMENT_ENDSPACES, (match: string) => {
 			return match[0] === ';' ? comment : strings.shift() || '';
 		}) + endSpaces;
 		parsedLine.newText = newText;
@@ -88,7 +95,7 @@ export class PureBasicParser {
 	 */
 	public trimAfterCutSpaces(parsedLine: ParsedLine) {
 		let newCutText: string;
-		if (parsedLine.cut && ([, newCutText] = parsedLine.cut.text.match(pb.parser.FINDS_CUTTEXT))) {
+		if (parsedLine.cut && ([, newCutText] = parsedLine.cut.text.match(pb.parser.LINE_WITH.CUTTEXT))) {
 			parsedLine.cut.newText = newCutText;
 		}
 	}
@@ -119,12 +126,12 @@ export class PureBasicParser {
 	 * Read document text to parse
 	 * @param doc
 	 */
-	public parseText(doc: TextDocument): string {
-		// reading
+	public parseText(doc: TextDocument): ParsedText {
 		const readText = doc.getText();
-		const simplifiedText = readText.replace(pb.parser.FINDS_STRINGS_COMMENTS, match => {
-			return match.length > 1 ? match[0] + '-'.repeat(match.length - 2) + match[0] : match[0]; // simplified string or comment
-		});
-		return simplifiedText;
+		return <ParsedText>{
+			text: readText,
+			comments: readText.capture(pb.parser.TEXT_WITH.COMMENTS) || [],
+			strings: readText.capture(pb.parser.TEXT_WITH.STRINGS) || []
+		};
 	}
 }

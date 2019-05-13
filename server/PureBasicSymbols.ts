@@ -6,6 +6,7 @@ import {
 	TextDocument
 } from 'vscode-languageserver';
 
+import { RegexCapture } from './PureBasicDataModels';
 import { pb } from './PureBasicAPI';
 
 export class PureBasicSymbols {
@@ -45,12 +46,12 @@ export class PureBasicSymbols {
 	public async load(doc: TextDocument): Promise<DocumentSymbol[]> {
 		const parsedText = pb.parser.parseText(doc);
 		let symbols = await Promise.all(pb.symbols.BLOCK_PARSERS.map(async blockParser => {
-			let result: RegExpExecArray;
 			let symbols: DocumentSymbol[] = [];
-			while ((result = blockParser.regex.exec(parsedText)) !== null) {
-				const block = pb.regex.parseBlock(doc, result);
-				const symbol = DocumentSymbol.create(block.name.value, '...', blockParser.kind, block.whole.pos, block.name.pos);
-				symbols.push(symbol);
+			let captures: RegexCapture[];
+			while ((captures = parsedText.text.capture(blockParser.regex)) !== null) {
+				// const block = pb.regex.parseBlock(doc, captures);
+				// const symbol = DocumentSymbol.create(block.name.value, '...', blockParser.kind, block.whole.pos, block.name.pos);
+				// symbols.push(symbol);
 			}
 			return symbols;
 		})).then(symbolsCollection => [].concat.apply([], symbolsCollection) as DocumentSymbol[]);
