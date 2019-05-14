@@ -4,7 +4,11 @@ declare global {
 	interface String {
 		capture(regex: RegExp): RegexCapture[];
 	}
+	interface Array<T> {
+		flatten(): T;
+	}
 }
+
 String.prototype.capture = function (regex: RegExp) {
 	let result: RegExpExecArray;
 	let captures = [];
@@ -17,4 +21,9 @@ String.prototype.capture = function (regex: RegExp) {
 	}
 	return captures.length > 0 ? captures : null;
 };
+
+Array.prototype.flatten = function <T>(this: T[]): T {
+	return [].concat.apply([], this) as T;
+};
+
 export { };
