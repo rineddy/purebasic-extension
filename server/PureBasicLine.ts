@@ -3,11 +3,11 @@ import { Range, TextDocument } from 'vscode-languageserver';
 
 export class PureBasicLine {
 	/**
-	 * Finds indents and full content without optional line break characters
+	 * Extracts indents and full content without any line break characters
 	 */
 	private readonly WITH_INDENTS_FULLCONTENT = /^([\t ]*)(.*?)[\r\n]*$/;
 	/**
-	 * Finds words
+	 * Extracts words
 	 * @example ' ( _Word123, $myWord, OtherW0rd$ | $someWord$ ) + 123'  -->  ['_Word123', '$myWord', 'OtherW0rd$', '$someWord$', '123']
 	 */
 	private readonly WITH_WORDS = /[$]?\b\w+\b[$]?/gi;
@@ -16,16 +16,9 @@ export class PureBasicLine {
 	 */
 	private readonly WITH_STRINGS_COMMENT_ENDSPACES = /(")(?:[^"\\]|\\.)*"?|(')[^']*'?|(;).*?(?=\s*$)|(\s)\s*$/g;
 	/**
-	 * Finds cut text without start spaces or line break characters
+	 * Extracts cut text without start spaces and any line break characters
 	 */
 	private readonly WITH_CUTTEXT = /^[\t ]+(.*?)[\r\n]*$/;
-	/**
-	 * Provides `Regexp` rules to capture substrings from multiline text
-	 */
-	private readonly TEXT_WITH = {
-		STRINGS: /"(?:[^"\r\n\\]|\\.)*"?|'[^\r\n']*'?/gm,
-		COMMENTS: /;.*?$/gm
-	};
 
 	/**
 	 * Read document line to parse
