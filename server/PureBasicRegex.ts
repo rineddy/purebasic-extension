@@ -1,11 +1,13 @@
 import { Range, TextDocument } from 'vscode-languageserver';
 
+import { isArray } from 'util';
+
 export class PureBasicRegex {
 	/**
      * Create regex parser for code block
      * @param startKeyWords
      */
-	public declareBlock() { return this.build(); }
+	public startWith() { return this.build(); }
 	/**
 	 * Parse regex result to extract data of code block
 	 * @param doc
@@ -50,21 +52,12 @@ export class PureBasicRegex {
      */
 	private build(pattern: string = '') {
 		return {
-			withStartKeyword: (startKeyWords: string[]) => this.build(`${pattern}(?:(?:^|:)[\\t ]*(?<startKeyWord>${startKeyWords.join('|')}))`),
-			withEndKeyword: (endKeyWord: string) => this.build(`${pattern}(?:(?:^|:)[\\t ]*(?<endKeyWord>${endKeyWord})|\\Z)`),
-			withOptionalType: () => this.build(`${pattern}(?<type>[\\t ]*\\.\\w+)?`),
-			withName: (hasPosition: boolean) => this.build(`${hasPosition ? this.group('beforeName', pattern) : pattern}(?<name>[\\w\\d\\u00C0-\\u017F]+)`),
-			withBody: (hasPosition: boolean) => this.build(`${hasPosition ? this.group('beforeBody', pattern) : pattern}(?<body>.*?)`),
-			andSpaces: () => this.build(`${pattern}[\\t ]+`),
+			newLine: (isIndented: boolean = true) => this.build(`${pattern}(?:^|:)${isIndented ? '[\\t ]*' : ''}`),
+			spaces: (isOptional: boolean = false) => this.build(`${pattern}[\\t ]${isOptional ? '*' : '+'}`),
+			type: (isOptional: boolean = true) => this.build(`${pattern}(?<type>[\\t ]*\\.\\w+)${isOptional ? '?' : ''}`),
+			keyword: (keyWords: string[] | string) => this.build(`${pattern}${isArray(keyWords) ? `(?<keyword>${keyWords.join('|')})` : keyWords}`),
+			name: () => this.build(`(?<beforeName>${pattern})(?<name>[\\w\\d\\u00C0-\\u017F]+)`),
 			toRegex: (flags: string = 'gmis') => new RegExp(pattern, flags)
 		};
-	}
-	/**
-	 * Build regex to group given pattern
-	 * @param groupName
-	 * @param groupPattern
-	 */
-	private group(groupName: string, groupPattern: string) {
-		return `(?<${groupName}>${groupPattern})`;
 	}
 }

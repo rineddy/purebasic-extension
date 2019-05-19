@@ -7,10 +7,11 @@ import { PureBasicCompletion } from './PureBasicCompletion';
 import { PureBasicDocumentation } from './PureBasicDocumentation';
 import { PureBasicFormatter } from './PureBasicFormatter';
 import { PureBasicIndentation } from './PureBasicIndentation';
-import { PureBasicParser } from './PureBasicParser';
+import { PureBasicLine } from './PureBasicLine';
 import { PureBasicRegex } from './PureBasicRegex';
 import { PureBasicSettings } from './PureBasicSettings';
 import { PureBasicSymbols } from './PureBasicSymbols';
+import { PureBasicText } from './PureBasicText';
 import { PureBasicValidation } from './PureBasicValidation';
 
 export * from './PureBasicDataModels';
@@ -22,9 +23,13 @@ export namespace pb {
 	 */
 	export const settings = new PureBasicSettings();
 	/**
+	 * Provide functions used to parse and modify line structure and data
+	 */
+	export const line = new PureBasicLine();
+	/**
 	 * Provide functions used to parse and modify text structure and data
 	 */
-	export const parser = new PureBasicParser();
+	export const text = new PureBasicText();
 	/**
 	 * Provide functions used to beautify source code by following some formatting rules
 	 */
