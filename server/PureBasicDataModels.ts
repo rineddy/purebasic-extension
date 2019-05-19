@@ -1,4 +1,4 @@
-import { FormattingOptions, Range } from 'vscode-languageserver';
+import { DocumentSymbol, FormattingOptions, Range, SymbolKind, TextDocument } from 'vscode-languageserver';
 
 /**
  * Represents Purebasic settings customized by user
@@ -53,9 +53,46 @@ export interface ParsedLine {
  * Represents parsed text structure (text, strings, comments)
  */
 export interface ParsedText {
+	readonly doc: TextDocument;
 	readonly text: string;
+	startIndex: number;
+	lastIndex: number;
+	openedSymbol?: ParsedSymbol;
+	symbols: ParsedSymbol[];
 	strings: RegexCapture[];
 	comments: RegexCapture[];
+}
+export interface ParsedSymbol_ extends DocumentSymbol {
+	startIndex: number;
+	lastIndex: number;
+	rule: ParsedSymbolRule;
+	parent?: ParsedSymbol;
+}
+export enum ParsedSymbolType {
+	All = 0xFF,
+	None = 0,
+	Module = 1 << 0,
+	Procedure = 1 << 1,
+	Interface = 1 << 2,
+	Structure = 1 << 3,
+	Enumeration = 1 << 4,
+	Import = 1 << 5,
+	Macro = 1 << 6,
+}
+export interface ParsedSymbolRule {
+	type: ParsedSymbolType;
+	kind: SymbolKind;
+	endKeyword?: String;
+}
+/**
+ * Represents parsed symbol (with nested symbols)
+ */
+export class ParsedSymbol {
+	docSymbol: DocumentSymbol;
+	startIndex: number;
+	lastIndex: number;
+	rule: ParsedSymbolRule;
+	parent?: ParsedSymbol;
 }
 /**
  * Represents regex replacer

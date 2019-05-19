@@ -1,8 +1,6 @@
 import {
 	DocumentSymbol,
 	DocumentSymbolParams,
-	Position,
-	Range,
 	SymbolInformation,
 	SymbolKind,
 	TextDocument
@@ -76,35 +74,14 @@ export class PureBasicSymbols {
 	 * Load symbols after opening document
 	 * @param doc
 	 */
-	public async load(doc: TextDocument): Promise<DocumentSymbol[]> {
+	public load(doc: TextDocument): Promise<DocumentSymbol[]> {
 		const parsedText = pb.text.parseText(doc);
-		let symbols = await Promise.all(pb.symbols.BLOCK_PARSERS.map(async blockParser => {
-			let startResult: RegExpExecArray;
-			let symbols = [];
-			blockParser.startRegex.lastIndex = 0;
-			while ((startResult = blockParser.startRegex.exec(parsedText.text)) !== null) {
-				blockParser.endRegex.lastIndex = blockParser.startRegex.lastIndex;
-				const endResult = blockParser.endRegex.exec(parsedText.text);
-				const endOffset = (endResult) ? blockParser.endRegex.lastIndex : doc.offsetAt(Position.create(doc.lineCount, 0));
+		while (pb.text.nextStartWord(parsedText)) {
 
-				pb.connection.console.log(`-- ${startResult.index} --- ${endOffset}`);
-
-
-				blockParser.startRegex.lastIndex = endOffset;
-
-
-				const startOffset = startResult.index;
-				const rg = Range.create(doc.positionAt(startOffset), doc.positionAt(endOffset));
-				const rgSelection = Range.create(doc.positionAt(startOffset + startResult['groups'].beforeName.length),
-					doc.positionAt(startOffset + startResult['groups'].beforeName.length + startResult['groups'].name.length));
-				const name = startResult['groups'].name;
-				const s = DocumentSymbol.create(name, '', blockParser.vskind, rg, rgSelection);
-				symbols.push(s);
-			}
-			return symbols;
-		})).then(symbolsCollection => [].concat.apply([], symbolsCollection) as DocumentSymbol[]);
-		pb.symbols.documentSymbols.set(doc.uri, symbols);
-		return symbols;
+		}
+		const docSymbols = parsedText.symbols.map(s => s.docSymbol);
+		pb.symbols.documentSymbols.set(doc.uri, docSymbols);
+		return Promise.resolve(docSymbols);
 	}
 	/**
 	* Delete symbols before closing document
