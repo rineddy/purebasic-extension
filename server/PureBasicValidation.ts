@@ -1,15 +1,15 @@
 import {
 	Diagnostic,
 	DiagnosticSeverity,
-	SymbolKind,
 	TextDocument
 } from 'vscode-languageserver';
 
+import { ParsedSymbolType } from './PureBasicDataModels';
 import { pb } from './PureBasicAPI';
 
 export class PureBasicValidation {
-	private readonly VALID_NAME_ALPHANUMERIC = /^[a-z_]\w+$/i;
-	private readonly VALID_NAME_ALPHANUMERIC_DOLLAR = /^[a-z_]\w+[$]?$/i;
+	private readonly VALID_NAME_ALPHANUMERIC = /^[a-z_]\w*$/i;
+	private readonly VALID_NAME_ALPHANUMERIC_DOLLAR = /^[a-z_]\w*[$]?$/i;
 
 	/**
 	 * Detects any anomalies in source code
@@ -23,8 +23,8 @@ export class PureBasicValidation {
 		let diagnostics: Diagnostic[] = [];
 		let maxProblems = settings.diagnostics.maxNumberOfProblems;
 		symbols.filter(s => {
-			switch (s.kind) {
-				case SymbolKind.Struct: return s.name.match(this.VALID_NAME_ALPHANUMERIC_DOLLAR) == null;
+			switch (s.rule.type) {
+				case ParsedSymbolType.Structure: return s.name.match(this.VALID_NAME_ALPHANUMERIC_DOLLAR) == null;
 				default: return s.name.match(this.VALID_NAME_ALPHANUMERIC) == null;
 			}
 		}).slice(0, maxProblems).forEach(s => {

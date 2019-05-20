@@ -1,11 +1,11 @@
 import {
-	DocumentSymbol,
 	DocumentSymbolParams,
 	SymbolInformation,
 	SymbolKind,
 	TextDocument
 } from 'vscode-languageserver';
 
+import { ParsedSymbol } from './PureBasicDataModels';
 import { pb } from './PureBasicAPI';
 
 export enum PureBasicKind {
@@ -68,20 +68,19 @@ export class PureBasicSymbols {
 	/**
 	 * Cache the symbols of all open documents
 	 */
-	private documentSymbols: Map<string, DocumentSymbol[]> = new Map();
+	private documentSymbols: Map<string, ParsedSymbol[]> = new Map();
 
 	/**
 	 * Load symbols after opening document
 	 * @param doc
 	 */
-	public load(doc: TextDocument): Promise<DocumentSymbol[]> {
+	public load(doc: TextDocument): Promise<ParsedSymbol[]> {
 		const parsedText = pb.text.parseText(doc);
 		while (pb.text.nextStartWord(parsedText)) {
 
 		}
-		const docSymbols = parsedText.symbols.map(s => s.docSymbol);
-		pb.symbols.documentSymbols.set(doc.uri, docSymbols);
-		return Promise.resolve(docSymbols);
+		pb.symbols.documentSymbols.set(doc.uri, parsedText.symbols);
+		return Promise.resolve(parsedText.symbols);
 	}
 	/**
 	* Delete symbols before closing document
@@ -94,7 +93,7 @@ export class PureBasicSymbols {
 	 * Get document symbols (used by 'outline' view)
 	 * @param params
 	 */
-	public async getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]> {
+	public async getDocumentSymbols(params: DocumentSymbolParams): Promise<ParsedSymbol[]> {
 		if (!pb.symbols.documentSymbols.has(params.textDocument.uri)) {
 			const doc = await pb.documentation.find(params.textDocument);
 			return await pb.symbols.load(doc);

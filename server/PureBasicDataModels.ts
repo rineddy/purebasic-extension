@@ -57,17 +57,14 @@ export interface ParsedText {
 	readonly text: string;
 	startIndex: number;
 	lastIndex: number;
-	openedSymbol?: ParsedSymbol;
+	openedSymbols: ParsedSymbol[];
 	symbols: ParsedSymbol[];
 	strings: RegexCapture[];
 	comments: RegexCapture[];
 }
-export interface ParsedSymbol_ extends DocumentSymbol {
-	startIndex: number;
-	lastIndex: number;
-	rule: ParsedSymbolRule;
-	parent?: ParsedSymbol;
-}
+/**
+ * Represents parsed symbol language types
+ */
 export enum ParsedSymbolType {
 	All = 0xFF,
 	None = 0,
@@ -79,6 +76,9 @@ export enum ParsedSymbolType {
 	Import = 1 << 5,
 	Macro = 1 << 6,
 }
+/**
+ * Represents parsed symbol rules
+ */
 export interface ParsedSymbolRule {
 	type: ParsedSymbolType;
 	kind: SymbolKind;
@@ -87,12 +87,10 @@ export interface ParsedSymbolRule {
 /**
  * Represents parsed symbol (with nested symbols)
  */
-export class ParsedSymbol {
-	docSymbol: DocumentSymbol;
+export class ParsedSymbol extends DocumentSymbol {
 	startIndex: number;
 	lastIndex: number;
 	rule: ParsedSymbolRule;
-	parent?: ParsedSymbol;
 }
 /**
  * Represents regex replacer
