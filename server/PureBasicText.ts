@@ -87,6 +87,7 @@ export class PureBasicText {
 			if (type === ParsedSymbolType.Procedure) {
 				pb.text.continueWith(parsedText, pb.text.SIGNATURES.TYPE_NAME, (res, groups) => {
 					const name = groups.name;
+					const type = groups.type;
 					pb.text.openSymbol(parsedText, rule, name, parsedText.startIndex, parsedText.lastIndex);
 				});
 			}
