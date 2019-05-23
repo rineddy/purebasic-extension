@@ -1,70 +1,13 @@
 import {
 	DocumentSymbolParams,
 	SymbolInformation,
-	SymbolKind,
 	TextDocument
 } from 'vscode-languageserver';
 
 import { ParsedSymbol } from './PureBasicDataModels';
 import { pb } from './PureBasicAPI';
 
-export enum PureBasicKind {
-	All = 0xFF,
-	None = 0,
-	Module = 1 << 0,
-	Procedure = 1 << 1,
-	Interface = 1 << 2,
-	Structure = 1 << 3,
-	Enumeration = 1 << 4,
-	Import = 1 << 5
-}
 export class PureBasicSymbols {
-	private readonly BLOCK_PARSERS: {
-		pbKind: PureBasicKind,
-		vskind: SymbolKind,
-		startRegex: RegExp,
-		endRegex?: RegExp,
-		contains: PureBasicKind
-	}[] = [
-			{
-				pbKind: PureBasicKind.Module,
-				vskind: SymbolKind.Module,
-				startRegex: pb.regex.startWith().newLine().keyword('DeclareModule').spaces().name().toRegex(),
-				endRegex: pb.regex.startWith().newLine().keyword('EndDeclareModule').toRegex(),
-				contains: (PureBasicKind.All & ~PureBasicKind.Module)
-			}, {
-				pbKind: PureBasicKind.Procedure,
-				vskind: SymbolKind.Function,
-				startRegex: pb.regex.startWith().newLine().keyword(['Procedure', 'ProcedureC', 'ProcedureDLL', 'ProcedureCDLL']).type().spaces().name().toRegex(),
-				endRegex: pb.regex.startWith().newLine().keyword('EndProcedure').toRegex(),
-				contains: PureBasicKind.None
-			}, {
-				pbKind: PureBasicKind.Interface,
-				vskind: SymbolKind.Interface,
-				startRegex: pb.regex.startWith().newLine().keyword('Interface').spaces().name().toRegex(),
-				endRegex: pb.regex.startWith().newLine().keyword('EndInterface').toRegex(),
-				contains: PureBasicKind.None
-			}, {
-				pbKind: PureBasicKind.Structure,
-				vskind: SymbolKind.Struct,
-				startRegex: pb.regex.startWith().newLine().keyword('Structure').spaces().name().toRegex(),
-				endRegex: pb.regex.startWith().newLine().keyword('EndStructure').toRegex(),
-				contains: PureBasicKind.None
-			}, {
-				pbKind: PureBasicKind.Enumeration,
-				vskind: SymbolKind.Enum,
-				startRegex: pb.regex.startWith().newLine().keyword(['Enumeration', 'EnumerationBinary']).spaces().name().toRegex(),
-				endRegex: pb.regex.startWith().newLine().keyword('EndEnumeration').toRegex(),
-				contains: PureBasicKind.None
-			}, {
-				pbKind: PureBasicKind.Import,
-				vskind: SymbolKind.Package,
-				startRegex: pb.regex.startWith().newLine().keyword(['Import', 'ImportC']).spaces().name().toRegex(),
-				endRegex: pb.regex.startWith().newLine().keyword('EndImport').toRegex(),
-				contains: PureBasicKind.None
-			}
-		];
-
 	/**
 	 * Cache the symbols of all open documents
 	 */
@@ -76,7 +19,7 @@ export class PureBasicSymbols {
 	 */
 	public load(doc: TextDocument): Promise<ParsedSymbol[]> {
 		const parsedText = pb.text.parseText(doc);
-		while (pb.text.nextStartWord(parsedText)) {
+		while (pb.text.nextSymbol(parsedText)) {
 
 		}
 		pb.symbols.documentSymbols.set(doc.uri, parsedText.symbols);

@@ -75,13 +75,15 @@ export enum ParsedSymbolType {
 	Enumeration = 1 << 4,
 	Import = 1 << 5,
 	Macro = 1 << 6,
+	Closing = 1 << 7,
 }
 /**
  * Represents parsed symbol rules
  */
 export interface ParsedSymbolRule {
+	startKeyword: RegExp;
 	type: ParsedSymbolType;
-	kind: SymbolKind;
+	kind?: SymbolKind;
 	endKeyword?: String;
 }
 /**

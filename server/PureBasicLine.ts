@@ -82,8 +82,9 @@ export class PureBasicLine {
 	 * @example 'lineText|   cutText'  -->  'lineText|cutText'
 	 */
 	public trimAfterCutSpaces(parsedLine: ParsedLine) {
-		let newCutText: string;
-		if (parsedLine.cut && ([, newCutText] = parsedLine.cut.text.match(pb.line.WITH_CUTTEXT))) {
+		let res: RegExpMatchArray | [any, string];
+		if (parsedLine.cut && (res = parsedLine.cut.text.match(pb.line.WITH_CUTTEXT))) {
+			let [, newCutText] = res;
 			parsedLine.cut.newText = newCutText;
 		}
 	}

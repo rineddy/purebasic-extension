@@ -8,7 +8,6 @@ import { PureBasicDocumentation } from './PureBasicDocumentation';
 import { PureBasicFormatter } from './PureBasicFormatter';
 import { PureBasicIndentation } from './PureBasicIndentation';
 import { PureBasicLine } from './PureBasicLine';
-import { PureBasicRegex } from './PureBasicRegex';
 import { PureBasicSettings } from './PureBasicSettings';
 import { PureBasicSymbols } from './PureBasicSymbols';
 import { PureBasicText } from './PureBasicText';
@@ -34,10 +33,6 @@ export namespace pb {
 	 * Provide functions used to beautify source code by following some formatting rules
 	 */
 	export const formatter = new PureBasicFormatter();
-	/**
-	 * Provide functions used to create regex parser
-	 */
-	export const regex = new PureBasicRegex();
 	/**
 	 * Provide functions used to display code autocompletion list
 	 */
