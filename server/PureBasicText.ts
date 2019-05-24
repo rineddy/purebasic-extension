@@ -32,7 +32,7 @@ export class PureBasicText {
 			endKeyword: /^EndInterface$/i
 		},
 		{
-			startKeyword: /^Procedure(C)?$/i, type: ParsedSymbolType.Procedure, kind: SymbolKind.Function,
+			startKeyword: /^Procedure(C|CDLL|DLL)?$/i, type: ParsedSymbolType.Procedure, kind: SymbolKind.Function,
 			endKeyword: /^EndProcedure$/i
 		},
 		{
@@ -40,7 +40,7 @@ export class PureBasicText {
 			endKeyword: /^EndStructure$/i
 		},
 		{
-			startKeyword: /^Import$/i, type: ParsedSymbolType.Import, kind: SymbolKind.Package,
+			startKeyword: /^Import(C)?$/i, type: ParsedSymbolType.Import, kind: SymbolKind.Package,
 			endKeyword: /^EndImport$/i
 		},
 		{
@@ -78,27 +78,24 @@ export class PureBasicText {
 			const word = groups.word;
 			const rule = pb.text.SYMBOL_RULES.find(r => r.startKeyword.test(word));
 			const type = rule ? rule.type : ParsedSymbolType.None;
-			if (type & (ParsedSymbolType.Module | ParsedSymbolType.Interface | ParsedSymbolType.Structure | ParsedSymbolType.Macro | ParsedSymbolType.Enumeration)) {
-				pb.text.continueWith(parsedText, pb.text.SIGNATURES.NAME, (res, groups) => {
-					const name = groups.name;
-					pb.text.openSymbol(parsedText, rule, name, parsedText.startIndex, parsedText.lastIndex);
-				});
-			}
-			if (type === ParsedSymbolType.Procedure) {
+			if (type === ParsedSymbolType.Closing) {
+				pb.text.closeSymbol(parsedText, word, parsedText.lastIndex);
+			} else if (type === ParsedSymbolType.Procedure) {
 				pb.text.continueWith(parsedText, pb.text.SIGNATURES.TYPE_NAME, (res, groups) => {
 					const name = groups.name;
 					const type = groups.type;
 					pb.text.openSymbol(parsedText, rule, name, parsedText.startIndex, parsedText.lastIndex);
 				});
-			}
-			if (type === ParsedSymbolType.Import) {
+			} else if (type === ParsedSymbolType.Import) {
 				pb.text.continueWith(parsedText, pb.text.SIGNATURES.PATH, (res, groups) => {
 					const name = groups.name;
 					pb.text.openSymbol(parsedText, rule, name, parsedText.startIndex, parsedText.lastIndex);
 				});
-			}
-			if (type === ParsedSymbolType.Closing) {
-				pb.text.closeSymbol(parsedText, word, parsedText.lastIndex);
+			} else if (type !== ParsedSymbolType.None) {
+				pb.text.continueWith(parsedText, pb.text.SIGNATURES.NAME, (res, groups) => {
+					const name = groups.name;
+					pb.text.openSymbol(parsedText, rule, name, parsedText.startIndex, parsedText.lastIndex);
+				});
 			}
 		});
 		return isSuccess;
