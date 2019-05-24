@@ -24,13 +24,13 @@ export class PureBasicValidation {
 		let maxProblems = settings.diagnostics.maxNumberOfProblems;
 		symbols.filter(s => {
 			switch (s.rule.type) {
-				case ParsedSymbolType.Structure: return s.name.match(this.VALID_NAME_ALPHANUMERIC_DOLLAR) == null;
-				default: return s.name.match(this.VALID_NAME_ALPHANUMERIC) == null;
+				case ParsedSymbolType.Structure: return !this.VALID_NAME_ALPHANUMERIC_DOLLAR.test(s.name);
+				default: return !this.VALID_NAME_ALPHANUMERIC.test(s.name);
 			}
 		}).slice(0, maxProblems).forEach(s => {
 			let diagnosic: Diagnostic = {
 				severity: DiagnosticSeverity.Error,
-				range: s.selectionRange,
+				range: s.nameRange,
 				message: `The identifier name '${s.name}' contains some unexpected characters.`,
 				source: 'PB1000'
 			};

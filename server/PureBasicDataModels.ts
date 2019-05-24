@@ -87,11 +87,20 @@ export interface ParsedSymbolRule {
 	endKeyword?: RegExp;
 }
 /**
+ * Represents parsed symbol signature info
+ */
+export interface ParsedSymbolSignature {
+	name: string;
+	type: string;
+	rg: Range;
+	rgName: Range;
+	rgSelection: Range;
+}
+/**
  * Represents parsed symbol (with nested symbols)
  */
 export class ParsedSymbol extends DocumentSymbol {
-	startIndex: number;
-	lastIndex: number;
+	nameRange?: Range;
 	rule: ParsedSymbolRule;
 }
 /**

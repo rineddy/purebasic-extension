@@ -1,6 +1,6 @@
 import { DocumentSymbol, Position, Range, SymbolKind, TextDocument } from 'vscode-languageserver';
 import { ParsedSymbol, ParsedText, pb } from './PureBasicAPI';
-import { ParsedSymbolRule, ParsedSymbolType } from './PureBasicDataModels';
+import { ParsedSymbolRule, ParsedSymbolSignature, ParsedSymbolType } from './PureBasicDataModels';
 
 export class PureBasicText {
 	/**
@@ -15,9 +15,9 @@ export class PureBasicText {
 	 * Describes all symbol naming
 	 */
 	private readonly SIGNATURES = {
-		NAME: /[ \t]+(?<name>[\w\u00C0-\u017F]+[$]?)/gmi,
-		TYPE_NAME: /(?:[ \t]*(?<type>\.\w+))?[ \t]+(?<name>[\w\u00C0-\u017F]+[$]?)/gmi,
-		PATH: /[ \t]+(?<name>"(?:[^"\r\n\\]|\\.)*")/gmi,
+		TYPE_NAME: /(?<beforeName>(?:[ \t]*(?<type>\.\w+))?[ \t]+)(?<name>[\w\u00C0-\u017F]+[$]?)/gmi,
+		NAME: /(?<beforeName>[ \t]+)(?<name>[\w\u00C0-\u017F]+[$]?)/gmi,
+		PATH: /(?<beforeName>[ \t]+)(?<name>"(?:[^"\r\n\\]|\\.)*")/gmi,
 	};
 	/**
 	 * Describes all kinds of symbol
@@ -73,8 +73,8 @@ export class PureBasicText {
 	}
 
 	public nextSymbol(parsedText: ParsedText): boolean {
-		let isSuccess = pb.text.startWith(parsedText, /(?:^|:)[\t ]*(?<word>[\w]+[$]?)/gmi, (res, groups) => {
-			parsedText.startIndex = res.index;
+		let isSuccess = pb.text.startWith(parsedText, /(?<beforeWord>(?:^|:)[\t ]*)(?<word>[\w]+[$]?)/gmi, (res, groups) => {
+			parsedText.startIndex = res.index + groups.beforeWord.length;
 			const word = groups.word;
 			const rule = pb.text.SYMBOL_RULES.find(r => r.startKeyword.test(word));
 			const type = rule ? rule.type : ParsedSymbolType.None;
@@ -82,33 +82,45 @@ export class PureBasicText {
 				pb.text.closeSymbol(parsedText, word, parsedText.lastIndex);
 			} else if (type === ParsedSymbolType.Procedure) {
 				pb.text.continueWith(parsedText, pb.text.SIGNATURES.TYPE_NAME, (res, groups) => {
-					const name = groups.name;
-					const type = groups.type;
-					pb.text.openSymbol(parsedText, rule, name, parsedText.startIndex, parsedText.lastIndex);
+					const signature = pb.text.getSymbolSignature(parsedText, res, groups);
+					pb.text.openSymbol(parsedText, rule, signature);
 				});
 			} else if (type === ParsedSymbolType.Import) {
 				pb.text.continueWith(parsedText, pb.text.SIGNATURES.PATH, (res, groups) => {
-					const name = groups.name;
-					pb.text.openSymbol(parsedText, rule, name, parsedText.startIndex, parsedText.lastIndex);
+					const signature = pb.text.getSymbolSignature(parsedText, res, groups);
+					pb.text.openSymbol(parsedText, rule, signature);
 				});
 			} else if (type !== ParsedSymbolType.None) {
 				pb.text.continueWith(parsedText, pb.text.SIGNATURES.NAME, (res, groups) => {
-					const name = groups.name;
-					pb.text.openSymbol(parsedText, rule, name, parsedText.startIndex, parsedText.lastIndex);
+					const signature = pb.text.getSymbolSignature(parsedText, res, groups);
+					pb.text.openSymbol(parsedText, rule, signature);
 				});
 			}
 		});
 		return isSuccess;
 	}
 
-	private openSymbol(parsedText: ParsedText, rule: ParsedSymbolRule, name: string, startIndex: number, lastIndex: number) {
-		const rg = Range.create(parsedText.doc.positionAt(startIndex), Position.create(parsedText.doc.lineCount, 0));
-		const rgSelection = Range.create(parsedText.doc.positionAt(startIndex), parsedText.doc.positionAt(lastIndex));
-		const docSymbol = DocumentSymbol.create(name, '', rule.kind, rg, rgSelection, []);
+	private getSymbolSignature(parsedText: ParsedText, signatureRes: RegExpExecArray, signatureGroups: { [key: string]: string; }) {
+		const name = signatureGroups.name;
+		const type = signatureGroups.type;
+		const startPos = parsedText.doc.positionAt(parsedText.startIndex);
+		const lastPos = parsedText.doc.positionAt(parsedText.lastIndex);
+		const nameStartPos = parsedText.doc.positionAt(signatureRes.index + signatureGroups.beforeName.length);
+		const nameLastPos = parsedText.doc.positionAt(signatureRes.index + signatureGroups.beforeName.length + signatureGroups.name.length);
+		return <ParsedSymbolSignature>{
+			name: name,
+			type: type,
+			rg: Range.create(startPos, Position.create(parsedText.doc.lineCount, 0)),
+			rgSelection: Range.create(startPos, lastPos),
+			rgName: Range.create(nameStartPos, nameLastPos),
+		};
+	}
+
+	private openSymbol(parsedText: ParsedText, rule: ParsedSymbolRule, sign: ParsedSymbolSignature) {
+		const docSymbol = DocumentSymbol.create(sign.name, '', rule.kind, sign.rg, sign.rgSelection, []);
 		const parsedSymbol = <ParsedSymbol>{
 			...docSymbol,
-			startIndex: startIndex,
-			lastIndex: lastIndex,
+			nameRange: sign.rgName,
 			rule: rule,
 		};
 		if (parsedText.openedSymbols.length > 0) {
@@ -123,7 +135,6 @@ export class PureBasicText {
 	private closeSymbol(parsedText: ParsedText, endKeyword: string, lastIndex: number) {
 		parsedText.openedSymbols.forEach((openedSymbol, index) => {
 			if (openedSymbol.rule.endKeyword.test(endKeyword)) {
-				openedSymbol.lastIndex = lastIndex;
 				openedSymbol.detail = `(closed at ${lastIndex})`;
 				openedSymbol.range.end = parsedText.doc.positionAt(lastIndex);
 				pb.text.alignToClosingSymbol(parsedText, openedSymbol);
