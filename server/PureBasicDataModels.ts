@@ -84,7 +84,7 @@ export interface ParsedSymbolRule {
 	startKeyword: RegExp;
 	type: ParsedSymbolType;
 	kind?: SymbolKind;
-	endKeyword?: String;
+	endKeyword?: RegExp;
 }
 /**
  * Represents parsed symbol (with nested symbols)

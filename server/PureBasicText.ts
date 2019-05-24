@@ -1,4 +1,4 @@
-import { DocumentSymbol, Range, SymbolKind, TextDocument } from 'vscode-languageserver';
+import { DocumentSymbol, Position, Range, SymbolKind, TextDocument } from 'vscode-languageserver';
 import { ParsedSymbol, ParsedText, pb } from './PureBasicAPI';
 import { ParsedSymbolRule, ParsedSymbolType } from './PureBasicDataModels';
 
@@ -24,32 +24,32 @@ export class PureBasicText {
 	 */
 	private readonly SYMBOL_RULES: ParsedSymbolRule[] = [
 		{
-			startKeyword: /^declaremodule$/i, type: ParsedSymbolType.Module, kind: SymbolKind.Module,
-			endKeyword: 'enddeclaremodule'
+			startKeyword: /^DeclareModule$/i, type: ParsedSymbolType.Module, kind: SymbolKind.Module,
+			endKeyword: /^EndDeclareModule$/i
 		},
 		{
-			startKeyword: /^interface$/i, type: ParsedSymbolType.Interface, kind: SymbolKind.Interface,
-			endKeyword: 'endinterface'
+			startKeyword: /^Interface$/i, type: ParsedSymbolType.Interface, kind: SymbolKind.Interface,
+			endKeyword: /^EndInterface$/i
 		},
 		{
-			startKeyword: /^procedure(C)?$/i, type: ParsedSymbolType.Procedure, kind: SymbolKind.Function,
-			endKeyword: 'endprocedure'
+			startKeyword: /^Procedure(C)?$/i, type: ParsedSymbolType.Procedure, kind: SymbolKind.Function,
+			endKeyword: /^EndProcedure$/i
 		},
 		{
-			startKeyword: /^structure$/i, type: ParsedSymbolType.Structure, kind: SymbolKind.Struct,
-			endKeyword: 'endstructure'
+			startKeyword: /^Structure$/i, type: ParsedSymbolType.Structure, kind: SymbolKind.Struct,
+			endKeyword: /^EndStructure$/i
 		},
 		{
-			startKeyword: /^import$/i, type: ParsedSymbolType.Import, kind: SymbolKind.Package,
-			endKeyword: 'endimport'
+			startKeyword: /^Import$/i, type: ParsedSymbolType.Import, kind: SymbolKind.Package,
+			endKeyword: /^EndImport$/i
 		},
 		{
-			startKeyword: /^macro$/i, type: ParsedSymbolType.Macro, kind: SymbolKind.Function,
-			endKeyword: 'endmacro'
+			startKeyword: /^Macro$/i, type: ParsedSymbolType.Macro, kind: SymbolKind.Function,
+			endKeyword: /^EndMacro$/i
 		},
 		{
-			startKeyword: /^enumeration(Binary)?$/i, type: ParsedSymbolType.Enumeration, kind: SymbolKind.Enum,
-			endKeyword: 'endenumeration'
+			startKeyword: /^Enumeration(Binary)?$/i, type: ParsedSymbolType.Enumeration, kind: SymbolKind.Enum,
+			endKeyword: /^EndEnumeration$/i
 		},
 		{ startKeyword: /^(?:EndProcedure|EndDeclareModule|EndInterface|EndStructure|EndImport|EndMacro|EndEnumeration)$/i, type: ParsedSymbolType.Closing },
 	];
@@ -104,22 +104,10 @@ export class PureBasicText {
 		return isSuccess;
 	}
 
-	private closeSymbol(parsedText: ParsedText, endKeyword: String, lastIndex: number) {
-		parsedText.openedSymbols.forEach((openedSymbol, index) => {
-			if (openedSymbol.rule.endKeyword === endKeyword) {
-				openedSymbol.lastIndex = lastIndex;
-				openedSymbol.detail = `(closed at ${lastIndex})`;
-				openedSymbol.range.end = parsedText.doc.positionAt(lastIndex);
-				pb.text.alignToLastSymbol(parsedText, openedSymbol);
-				parsedText.openedSymbols = parsedText.openedSymbols.splice(index + 1);
-				return;
-			}
-		});
-	}
-
 	private openSymbol(parsedText: ParsedText, rule: ParsedSymbolRule, name: string, startIndex: number, lastIndex: number) {
-		const rg = Range.create(parsedText.doc.positionAt(startIndex), parsedText.doc.positionAt(lastIndex));
-		const docSymbol = DocumentSymbol.create(name, '', rule.kind, rg, rg, []);
+		const rg = Range.create(parsedText.doc.positionAt(startIndex), Position.create(parsedText.doc.lineCount, 0));
+		const rgSelection = Range.create(parsedText.doc.positionAt(startIndex), parsedText.doc.positionAt(lastIndex));
+		const docSymbol = DocumentSymbol.create(name, '', rule.kind, rg, rgSelection, []);
 		const parsedSymbol = <ParsedSymbol>{
 			...docSymbol,
 			startIndex: startIndex,
@@ -129,19 +117,30 @@ export class PureBasicText {
 		if (parsedText.openedSymbols.length > 0) {
 			parsedText.openedSymbols[0].children.push(parsedSymbol);
 			parsedText.openedSymbols.unshift(parsedSymbol);
-			pb.text.alignToLastSymbol(parsedText, parsedSymbol);
 		} else {
 			parsedText.openedSymbols.unshift(parsedSymbol);
 			parsedText.symbols.push(parsedSymbol);
 		}
 	}
 
-	private alignToLastSymbol(parsedText: ParsedText, lastSymbol: ParsedSymbol) {
+	private closeSymbol(parsedText: ParsedText, endKeyword: string, lastIndex: number) {
+		parsedText.openedSymbols.forEach((openedSymbol, index) => {
+			if (openedSymbol.rule.endKeyword.test(endKeyword)) {
+				openedSymbol.lastIndex = lastIndex;
+				openedSymbol.detail = `(closed at ${lastIndex})`;
+				openedSymbol.range.end = parsedText.doc.positionAt(lastIndex);
+				pb.text.alignToClosingSymbol(parsedText, openedSymbol);
+				parsedText.openedSymbols = parsedText.openedSymbols.splice(index + 1);
+				return;
+			}
+		});
+	}
+
+	private alignToClosingSymbol(parsedText: ParsedText, lastSymbol: ParsedSymbol) {
 		const endPos = lastSymbol.range.end;
-		let parsedSymbol = parsedText.symbols[parsedText.symbols.length - 1];
-		while (parsedSymbol !== lastSymbol) {
-			parsedSymbol.range.end = endPos;
-			parsedSymbol = <ParsedSymbol>parsedSymbol.children[parsedSymbol.children.length - 1];
+		for (const openedSymbol of parsedText.openedSymbols) {
+			if (openedSymbol === lastSymbol) break;
+			openedSymbol.range.end = endPos;
 		}
 	}
 

@@ -19,9 +19,7 @@ export class PureBasicSymbols {
 	 */
 	public load(doc: TextDocument): Promise<ParsedSymbol[]> {
 		const parsedText = pb.text.parseText(doc);
-		while (pb.text.nextSymbol(parsedText)) {
-
-		}
+		while (pb.text.nextSymbol(parsedText)) { }
 		pb.symbols.documentSymbols.set(doc.uri, parsedText.symbols);
 		return Promise.resolve(parsedText.symbols);
 	}
