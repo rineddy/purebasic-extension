@@ -128,8 +128,9 @@ export class PureBasicText {
 			parsedText.openedSymbols.unshift(parsedSymbol);
 		} else {
 			parsedText.openedSymbols.unshift(parsedSymbol);
-			parsedText.symbols.push(parsedSymbol);
+			parsedSymbol.isRootSymbol = true;
 		}
+		parsedText.symbols.push(parsedSymbol);
 	}
 
 	private closeSymbol(parsedText: ParsedText, endKeyword: string, lastIndex: number) {

@@ -22,6 +22,7 @@ export class PureBasicValidation {
 
 		let diagnostics: Diagnostic[] = [];
 		let maxProblems = settings.diagnostics.maxNumberOfProblems;
+
 		symbols.filter(s => {
 			switch (s.rule.type) {
 				case ParsedSymbolType.Structure: return !this.VALID_NAME_ALPHANUMERIC_DOLLAR.test(s.name);

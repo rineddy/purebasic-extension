@@ -35,13 +35,15 @@ export class PureBasicSymbols {
 	 * @param params
 	 */
 	public async getDocumentSymbols(params: DocumentSymbolParams): Promise<ParsedSymbol[]> {
+		let symbols: ParsedSymbol[];
 		if (!pb.symbols.documentSymbols.has(params.textDocument.uri)) {
 			const doc = await pb.documentation.find(params.textDocument);
-			return await pb.symbols.load(doc);
+			symbols = await pb.symbols.load(doc);
 		}
 		else {
-			return pb.symbols.documentSymbols.get(params.textDocument.uri);
+			symbols = pb.symbols.documentSymbols.get(params.textDocument.uri);
 		}
+		return symbols.filter(s => s.isRootSymbol);
 	}
 	/**
 	 * Get workspace symbols

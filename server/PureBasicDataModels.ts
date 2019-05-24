@@ -81,20 +81,20 @@ export enum ParsedSymbolType {
  * Represents parsed symbol rules
  */
 export interface ParsedSymbolRule {
-	startKeyword: RegExp;
-	type: ParsedSymbolType;
-	kind?: SymbolKind;
-	endKeyword?: RegExp;
+	readonly startKeyword: RegExp;
+	readonly type: ParsedSymbolType;
+	readonly kind?: SymbolKind;
+	readonly endKeyword?: RegExp;
 }
 /**
  * Represents parsed symbol signature info
  */
 export interface ParsedSymbolSignature {
-	name: string;
-	type: string;
-	rg: Range;
-	rgName: Range;
-	rgSelection: Range;
+	readonly name: string;
+	readonly type: string;
+	readonly rg: Range;
+	readonly rgName: Range;
+	readonly rgSelection: Range;
 }
 /**
  * Represents parsed symbol (with nested symbols)
@@ -102,6 +102,7 @@ export interface ParsedSymbolSignature {
 export class ParsedSymbol extends DocumentSymbol {
 	nameRange?: Range;
 	rule: ParsedSymbolRule;
+	isRootSymbol: boolean;
 }
 /**
  * Represents regex replacer
