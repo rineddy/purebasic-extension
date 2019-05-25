@@ -64,26 +64,56 @@ export interface ParsedText {
 /**
  * Represents kinds of parsed symbol (alias)
  */
-export type ParsedSymbolKind = { readonly icon?: SymbolKind; };
-export const ParsedSymbolKind = {
-	All: {},
-	None: {},
+export type SymbolType = { readonly icon?: SymbolKind; };
+export const SymbolType = {
+	Unknown: {},
 	Module: { icon: SymbolKind.Module },
 	Procedure: { icon: SymbolKind.Function },
 	Macro: { icon: SymbolKind.Function },
 	Interface: { icon: SymbolKind.Interface },
 	Structure: { icon: SymbolKind.Struct },
-	Enumeration: { icon: SymbolKind.Enum },
+	Enum: { icon: SymbolKind.Enum },
+	EnumMember: { icon: SymbolKind.EnumMember },
+	Constant: { icon: SymbolKind.Constant },
 	Import: { icon: SymbolKind.Package },
-	Closing: {},
 };
 /**
  * Represents parsed symbol rules
  */
-export interface ParsedSymbolRule {
-	readonly startKeyword: RegExp;
-	readonly kind: ParsedSymbolKind;
-	readonly endKeyword?: RegExp;
+export class SymbolParser {
+	public readonly type: SymbolType;
+	public readonly openToken: RegExp;
+	public readonly contentToken?: RegExp;
+	public readonly closeToken?: RegExp;
+	public readonly parentType?: SymbolType;
+	public readonly isClosed: boolean;
+	public isClosing: boolean;
+
+	public static Unknown: SymbolParser = <SymbolParser>{ type: SymbolType.Unknown };
+
+	public static Tokens = {
+		ReturnTypeName: /(?<beforeName>(?:[ \t]*(?<returnType>\.\w+))?[ \t]+)(?<name>[#]?[\w\u00C0-\u017F]+[$]?)/gm,
+		Name: /(?<beforeName>[ \t]+)(?<name>[#]?[\w\u00C0-\u017F]+[$]?)/gm,
+		Path: /(?<beforeName>[ \t]+)(?<name>"(?:[^"\r\n\\]|\\.)*")/gm,
+		ValidName: /^[a-z_]\w*$/i,
+		ValidStringName: /^[a-z_]\w*[$]?$/i,
+		ValidConstantName: /^#[a-z_]\w*[$]?$/i,
+	};
+
+	public constructor(init?: Partial<SymbolParser>) {
+		Object.assign(this, init);
+		this.isClosed = (this.closeToken === undefined);
+	}
+
+	public openWith(word: string, parsedText: ParsedText) {
+		this.isClosing = false;
+		return this.openToken.test(word) && (!this.parentType || (parsedText.openedSymbols.length > 0 && this.parentType === parsedText.openedSymbols[0].parser.type));
+	}
+
+	public closeWith(word: string) {
+		this.isClosing = true;
+		return this.closeToken && this.closeToken.test(word);
+	}
 }
 /**
  * Represents parsed symbol signature info
@@ -100,7 +130,7 @@ export interface ParsedSymbolSignature {
  */
 export class ParsedSymbol extends DocumentSymbol {
 	nameRange?: Range;
-	rule: ParsedSymbolRule;
+	parser: SymbolParser;
 	isRootSymbol: boolean;
 }
 /**
