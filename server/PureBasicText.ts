@@ -1,5 +1,5 @@
-import { DocumentSymbol, Position, Range, SymbolKind, TextDocument } from 'vscode-languageserver';
-import { ParsedSymbol, ParsedSymbolRule, ParsedSymbolSignature, ParsedSymbolType, ParsedText, pb } from './PureBasicAPI';
+import { DocumentSymbol, Position, Range, TextDocument } from 'vscode-languageserver';
+import { ParsedSymbol, ParsedSymbolKind, ParsedSymbolRule, ParsedSymbolSignature, ParsedText, pb } from './PureBasicAPI';
 
 export class PureBasicText {
 	/**
@@ -15,34 +15,34 @@ export class PureBasicText {
 	 */
 	private readonly SYMBOL_RULES: ParsedSymbolRule[] = [
 		{
-			startKeyword: /^DeclareModule$/i, type: ParsedSymbolType.Module, kind: SymbolKind.Module,
+			startKeyword: /^DeclareModule$/i, kind: ParsedSymbolKind.Module,
 			endKeyword: /^EndDeclareModule$/i
 		},
 		{
-			startKeyword: /^Interface$/i, type: ParsedSymbolType.Interface, kind: SymbolKind.Interface,
+			startKeyword: /^Interface$/i, kind: ParsedSymbolKind.Interface,
 			endKeyword: /^EndInterface$/i
 		},
 		{
-			startKeyword: /^Procedure(C|CDLL|DLL)?$/i, type: ParsedSymbolType.Procedure, kind: SymbolKind.Function,
+			startKeyword: /^Procedure(C|CDLL|DLL)?$/i, kind: ParsedSymbolKind.Procedure,
 			endKeyword: /^EndProcedure$/i
 		},
 		{
-			startKeyword: /^Structure$/i, type: ParsedSymbolType.Structure, kind: SymbolKind.Struct,
+			startKeyword: /^Structure$/i, kind: ParsedSymbolKind.Structure,
 			endKeyword: /^EndStructure$/i
 		},
 		{
-			startKeyword: /^Import(C)?$/i, type: ParsedSymbolType.Import, kind: SymbolKind.Package,
+			startKeyword: /^Import(C)?$/i, kind: ParsedSymbolKind.Import,
 			endKeyword: /^EndImport$/i
 		},
 		{
-			startKeyword: /^Macro$/i, type: ParsedSymbolType.Macro, kind: SymbolKind.Function,
+			startKeyword: /^Macro$/i, kind: ParsedSymbolKind.Macro,
 			endKeyword: /^EndMacro$/i
 		},
 		{
-			startKeyword: /^Enumeration(Binary)?$/i, type: ParsedSymbolType.Enumeration, kind: SymbolKind.Enum,
+			startKeyword: /^Enumeration(Binary)?$/i, kind: ParsedSymbolKind.Enumeration,
 			endKeyword: /^EndEnumeration$/i
 		},
-		{ startKeyword: /^(?:EndProcedure|EndDeclareModule|EndInterface|EndStructure|EndImport|EndMacro|EndEnumeration)$/i, type: ParsedSymbolType.Closing },
+		{ startKeyword: /^(?:EndProcedure|EndDeclareModule|EndInterface|EndStructure|EndImport|EndMacro|EndEnumeration)$/i, kind: ParsedSymbolKind.Closing },
 	];
 
 	/**
@@ -68,20 +68,20 @@ export class PureBasicText {
 			parsedText.startIndex = res.index + groups.beforeWord.length;
 			const word = groups.word;
 			const rule = pb.text.SYMBOL_RULES.find(r => r.startKeyword.test(word));
-			const type = rule ? rule.type : ParsedSymbolType.None;
-			if (type === ParsedSymbolType.Closing) {
+			const kind = rule ? rule.kind : ParsedSymbolKind.None;
+			if (kind === ParsedSymbolKind.Closing) {
 				pb.text.closeSymbol(parsedText, word, parsedText.lastIndex);
-			} else if (type === ParsedSymbolType.Procedure) {
+			} else if (kind === ParsedSymbolKind.Procedure) {
 				pb.text.continueWith(parsedText, pb.text.SIGNATURES.TYPE_NAME, (res, groups) => {
 					const signature = pb.text.getSymbolSignature(parsedText, res, groups);
 					pb.text.openSymbol(parsedText, rule, signature);
 				});
-			} else if (type === ParsedSymbolType.Import) {
+			} else if (kind === ParsedSymbolKind.Import) {
 				pb.text.continueWith(parsedText, pb.text.SIGNATURES.PATH, (res, groups) => {
 					const signature = pb.text.getSymbolSignature(parsedText, res, groups);
 					pb.text.openSymbol(parsedText, rule, signature);
 				});
-			} else if (type !== ParsedSymbolType.None) {
+			} else if (kind !== ParsedSymbolKind.None) {
 				pb.text.continueWith(parsedText, pb.text.SIGNATURES.NAME, (res, groups) => {
 					const signature = pb.text.getSymbolSignature(parsedText, res, groups);
 					pb.text.openSymbol(parsedText, rule, signature);
@@ -108,7 +108,7 @@ export class PureBasicText {
 	}
 
 	private openSymbol(parsedText: ParsedText, rule: ParsedSymbolRule, sign: ParsedSymbolSignature) {
-		const docSymbol = DocumentSymbol.create(sign.name, '', rule.kind, sign.range, sign.selectionRange, []);
+		const docSymbol = DocumentSymbol.create(sign.name, '', rule.kind.icon, sign.range, sign.selectionRange, []);
 		const parsedSymbol = <ParsedSymbol>{
 			...docSymbol,
 			nameRange: sign.nameRange,

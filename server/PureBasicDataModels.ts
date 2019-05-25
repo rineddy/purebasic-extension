@@ -62,27 +62,27 @@ export interface ParsedText {
 	openedSymbols: ParsedSymbol[];
 }
 /**
- * Represents parsed symbol language types
+ * Represents kinds of parsed symbol (alias)
  */
-export enum ParsedSymbolType {
-	All = 0xFF,
-	None = 0,
-	Module = 1 << 0,
-	Procedure = 1 << 1,
-	Interface = 1 << 2,
-	Structure = 1 << 3,
-	Enumeration = 1 << 4,
-	Import = 1 << 5,
-	Macro = 1 << 6,
-	Closing = 1 << 7,
-}
+export type ParsedSymbolKind = { readonly icon?: SymbolKind; };
+export const ParsedSymbolKind = {
+	All: {},
+	None: {},
+	Module: { icon: SymbolKind.Module },
+	Procedure: { icon: SymbolKind.Function },
+	Macro: { icon: SymbolKind.Function },
+	Interface: { icon: SymbolKind.Interface },
+	Structure: { icon: SymbolKind.Struct },
+	Enumeration: { icon: SymbolKind.Enum },
+	Import: { icon: SymbolKind.Package },
+	Closing: {},
+};
 /**
  * Represents parsed symbol rules
  */
 export interface ParsedSymbolRule {
 	readonly startKeyword: RegExp;
-	readonly type: ParsedSymbolType;
-	readonly kind?: SymbolKind;
+	readonly kind: ParsedSymbolKind;
 	readonly endKeyword?: RegExp;
 }
 /**
