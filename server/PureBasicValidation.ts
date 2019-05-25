@@ -3,9 +3,7 @@ import {
 	DiagnosticSeverity,
 	TextDocument
 } from 'vscode-languageserver';
-
-import { ParsedSymbolType } from './PureBasicDataModels';
-import { pb } from './PureBasicAPI';
+import { ParsedSymbolType, pb } from './PureBasicAPI';
 
 export class PureBasicValidation {
 	private readonly VALID_NAME_ALPHANUMERIC = /^[a-z_]\w*$/i;

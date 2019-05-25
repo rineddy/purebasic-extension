@@ -1,6 +1,5 @@
 import { DocumentSymbol, Position, Range, SymbolKind, TextDocument } from 'vscode-languageserver';
-import { ParsedSymbol, ParsedText, pb } from './PureBasicAPI';
-import { ParsedSymbolRule, ParsedSymbolSignature, ParsedSymbolType } from './PureBasicDataModels';
+import { ParsedSymbol, ParsedSymbolRule, ParsedSymbolSignature, ParsedSymbolType, ParsedText, pb } from './PureBasicAPI';
 
 export class PureBasicText {
 	/**
