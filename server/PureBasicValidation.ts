@@ -4,14 +4,9 @@ import {
 	TextDocument
 } from 'vscode-languageserver';
 
-import { SymbolType } from './PureBasicDataModels';
 import { pb } from './PureBasicAPI';
 
 export class PureBasicValidation {
-	private readonly VALID_NAME_ALPHANUMERIC = /^[a-z_]\w*$/i;
-	private readonly VALID_NAME_ALPHANUMERIC_DOLLAR = /^[a-z_]\w*[$]?$/i;
-	private readonly VALID_CONSTANT_ALPHANUMERIC_DOLLAR = /^#[a-z_]\w*[$]?$/i;
-
 	/**
 	 * Detects any anomalies in source code
 	 * @param doc
@@ -24,40 +19,36 @@ export class PureBasicValidation {
 		let diagnostics: Diagnostic[] = [];
 		let maxProblems = settings.diagnostics.maxNumberOfProblems;
 
-		symbols.filter(s => {
-			switch (s.parser.type) {
-				case SymbolType.Constant: return !this.VALID_CONSTANT_ALPHANUMERIC_DOLLAR.test(s.name);
-				case SymbolType.Structure: return !this.VALID_NAME_ALPHANUMERIC_DOLLAR.test(s.name);
-				default: return !this.VALID_NAME_ALPHANUMERIC.test(s.name);
-			}
-		}).slice(0, maxProblems).forEach(s => {
-			let diagnosic: Diagnostic = {
-				severity: DiagnosticSeverity.Error,
-				range: s.nameRange,
-				message: `The identifier name '${s.name}' contains some unexpected characters.`,
-				source: 'PB1000'
-			};
-			/*if (pb.settings.hasDiagnosticRelatedInformationCapability) {
-				diagnosic.relatedInformation = [
-					{
-						location: {
-							uri: doc.uri,
-							range: Object.assign({}, diagnosic.range)
+		symbols.filter(s => !s.parser.validNameToken.test(s.name))
+			.slice(0, maxProblems)
+			.forEach(s => {
+				let diagnosic: Diagnostic = {
+					severity: DiagnosticSeverity.Error,
+					range: s.nameRange,
+					message: `The identifier name '${s.name}' contains some unexpected characters.`,
+					source: 'PB1000'
+				};
+				/*if (pb.settings.hasDiagnosticRelatedInformationCapability) {
+					diagnosic.relatedInformation = [
+						{
+							location: {
+								uri: doc.uri,
+								range: Object.assign({}, diagnosic.range)
+							},
+							message: 'Spelling matters'
 						},
-						message: 'Spelling matters'
-					},
-					{
-						location: {
-							uri: doc.uri,
-							range: Object.assign({}, diagnosic.range)
-						},
-						message: 'Particularly for names'
-					}
-				];
-			}*/
-			diagnostics.push(diagnosic);
-			maxProblems--;
-		});
+						{
+							location: {
+								uri: doc.uri,
+								range: Object.assign({}, diagnosic.range)
+							},
+							message: 'Particularly for names'
+						}
+					];
+				}*/
+				diagnostics.push(diagnosic);
+				maxProblems--;
+			});
 
 		// Send the computed diagnostics to VSCode.
 		pb.connection.sendDiagnostics({ uri: doc.uri, diagnostics });

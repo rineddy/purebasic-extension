@@ -8,47 +8,47 @@ export class PureBasicText {
 	private readonly SymbolParsers: SymbolParser[] = [
 		new SymbolParser({
 			openToken: /^DeclareModule$/i, type: SymbolType.Module,
-			contentToken: SymbolParser.Tokens.Name,
+			contentToken: SymbolParser.Tokens.Name, validNameToken: SymbolParser.Tokens.ValidAlphaNumeric,
 			closeToken: /^EndDeclareModule$/i
 		}),
 		new SymbolParser({
 			openToken: /^Interface$/i, type: SymbolType.Interface,
-			contentToken: SymbolParser.Tokens.Name,
+			contentToken: SymbolParser.Tokens.Name, validNameToken: SymbolParser.Tokens.ValidAlphaNumeric,
 			closeToken: /^EndInterface$/i
 		}),
 		new SymbolParser({
 			openToken: /^Procedure(C|CDLL|DLL)?$/i, type: SymbolType.Procedure,
-			contentToken: SymbolParser.Tokens.ReturnTypeName,
+			contentToken: SymbolParser.Tokens.ReturnTypeName, validNameToken: SymbolParser.Tokens.ValidAlphaNumeric,
 			closeToken: /^EndProcedure$/i
 		}),
 		new SymbolParser({
 			openToken: /^Structure$/i, type: SymbolType.Structure,
-			contentToken: SymbolParser.Tokens.Name,
+			contentToken: SymbolParser.Tokens.Name, validNameToken: SymbolParser.Tokens.ValidAlphaNumeric,
 			closeToken: /^EndStructure$/i
 		}),
 		new SymbolParser({
 			openToken: /^Import(C)?$/i, type: SymbolType.Import,
-			contentToken: SymbolParser.Tokens.Path,
+			contentToken: SymbolParser.Tokens.String, validNameToken: SymbolParser.Tokens.ValidString,
 			closeToken: /^EndImport$/i
 		}),
 		new SymbolParser({
 			openToken: /^Macro$/i, type: SymbolType.Macro,
-			contentToken: SymbolParser.Tokens.Name,
+			contentToken: SymbolParser.Tokens.Name, validNameToken: SymbolParser.Tokens.ValidAlphaNumeric,
 			closeToken: /^EndMacro$/i
 		}),
 		new SymbolParser({
 			openToken: /^Enumeration(Binary)?$/i, type: SymbolType.Enum,
-			contentToken: SymbolParser.Tokens.Name,
+			contentToken: SymbolParser.Tokens.Name, validNameToken: SymbolParser.Tokens.ValidAlphaNumericDollar,
 			closeToken: /^EndEnumeration$/i
 		}),
 		new SymbolParser({
 			openToken: /^#.+?/, type: SymbolType.EnumMember,
-			contentToken: SymbolParser.Tokens.Name,
+			contentToken: SymbolParser.Tokens.Name, validNameToken: SymbolParser.Tokens.ValidDashAlphaNumericDollar,
 			parentType: SymbolType.Enum,
 		}),
 		new SymbolParser({
 			openToken: /^#.+?/, type: SymbolType.Constant,
-			contentToken: SymbolParser.Tokens.Name,
+			contentToken: SymbolParser.Tokens.Name, validNameToken: SymbolParser.Tokens.ValidDashAlphaNumericDollar,
 		}),
 	];
 	/**

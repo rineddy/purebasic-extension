@@ -81,11 +81,12 @@ export const SymbolType = {
  * Represents parsed symbol rules
  */
 export class SymbolParser {
+	public readonly parentType?: SymbolType;
 	public readonly type: SymbolType;
 	public readonly openToken: RegExp;
 	public readonly contentToken?: RegExp;
 	public readonly closeToken?: RegExp;
-	public readonly parentType?: SymbolType;
+	public readonly validNameToken?: RegExp;
 	public readonly isClosed: boolean;
 	public isClosing: boolean;
 
@@ -94,10 +95,11 @@ export class SymbolParser {
 	public static Tokens = {
 		ReturnTypeName: /(?<beforeName>(?:[ \t]*(?<returnType>\.\w+))?[ \t]+)(?<name>[#]?[\w\u00C0-\u017F]+[$]?)/gm,
 		Name: /(?<beforeName>[ \t]+)(?<name>[#]?[\w\u00C0-\u017F]+[$]?)/gm,
-		Path: /(?<beforeName>[ \t]+)(?<name>"(?:[^"\r\n\\]|\\.)*")/gm,
-		ValidName: /^[a-z_]\w*$/i,
-		ValidStringName: /^[a-z_]\w*[$]?$/i,
-		ValidConstantName: /^#[a-z_]\w*[$]?$/i,
+		String: /(?<beforeName>[ \t]+)(?<name>"(?:[^"\r\n\\]|\\.)*"?)/gm,
+		ValidAlphaNumeric: /^[a-z_]\w*$/i,
+		ValidAlphaNumericDollar: /^[a-z_]\w*[$]?$/i,
+		ValidDashAlphaNumericDollar: /^#[a-z_]\w*[$]?$/i,
+		ValidString: /"(?:[^"\r\n\\]|\\.)*"/,
 	};
 
 	public constructor(init?: Partial<SymbolParser>) {
