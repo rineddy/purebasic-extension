@@ -14,7 +14,6 @@ import { PureBasicText } from './PureBasicText';
 import { PureBasicValidation } from './PureBasicValidation';
 
 export * from './PureBasicDataModels';
-export * from './PureBasicExtensions';
 
 export namespace pb {
 	/**

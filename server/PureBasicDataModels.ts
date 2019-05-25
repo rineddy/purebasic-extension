@@ -1,4 +1,4 @@
-import { DocumentSymbol, FormattingOptions, Range, SymbolKind, TextDocument } from 'vscode-languageserver';
+import { DocumentSymbol, FormattingOptions, Position, Range, SymbolKind, TextDocument } from 'vscode-languageserver';
 
 /**
  * Represents Purebasic settings customized by user
@@ -53,14 +53,13 @@ export interface ParsedLine {
  * Represents parsed text structure (text, strings, comments)
  */
 export interface ParsedText {
-	readonly doc: TextDocument;
 	readonly text: string;
+	readonly doc: TextDocument;
+	readonly docLastPos: Position;
 	startIndex: number;
 	lastIndex: number;
-	openedSymbols: ParsedSymbol[];
 	symbols: ParsedSymbol[];
-	strings: RegexCapture[];
-	comments: RegexCapture[];
+	openedSymbols: ParsedSymbol[];
 }
 /**
  * Represents parsed symbol language types
@@ -91,10 +90,10 @@ export interface ParsedSymbolRule {
  */
 export interface ParsedSymbolSignature {
 	readonly name: string;
-	readonly type: string;
-	readonly rg: Range;
-	readonly rgName: Range;
-	readonly rgSelection: Range;
+	readonly returnType: string;
+	readonly range: Range;
+	readonly nameRange: Range;
+	readonly selectionRange: Range;
 }
 /**
  * Represents parsed symbol (with nested symbols)
