@@ -38,6 +38,7 @@ class DocSymbolValidationRule {
 /**
  * Validator of document symbol
  */
+export type DocSymbolValidator = { validate(symbol: DocSymbol): Diagnostic };
 export namespace DocSymbolValidator {
 	export const ValidName = new DocSymbolValidationRule({
 		isValidSymbol: s => /^[a-z_]\w*$/i.test(s.name),
@@ -68,4 +69,3 @@ export namespace DocSymbolValidator {
 		}
 	});
 }
-export type DocSymbolValidator = DocSymbolValidationRule;
