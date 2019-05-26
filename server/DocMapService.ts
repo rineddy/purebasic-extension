@@ -13,8 +13,7 @@ import { pb } from './PureBasicAPI';
  */
 export class DocMap {
 	private readonly documentSymbols: Map<string, DocSymbol[]> = new Map();
-
-	public static Service = new DocMap();
+	public static service = new DocMap();
 
 	private constructor() { }
 

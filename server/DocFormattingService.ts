@@ -29,8 +29,7 @@ export class DocFormatting {
 		[/([^\s:])(?=:[^:])/g, '$1 '],
 		[/([^:]:)(?=[^\s:])/g, '$1 '],
 	];
-
-	public static Service = new DocFormatting();
+	public static service = new DocFormatting();
 
 	private constructor() { }
 

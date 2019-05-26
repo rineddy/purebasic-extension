@@ -63,27 +63,27 @@ pb.connection.onInitialized(() => {
 
 pb.connection.onDidChangeConfiguration(changed => {
 	pb.settings.reset(changed);
-	pb.documentation.all().forEach(DocValidation.Service.validate);
+	pb.documentation.all().forEach(DocValidation.service.validate);
 });
 pb.connection.onDidChangeWatchedFiles(() => {
 	pb.connection.console.log('We received an file change event');
 });
 pb.connection.onCompletion(pb.completion.getCompletionItems);
 pb.connection.onCompletionResolve(pb.completion.getCompletionDescription);
-pb.connection.onDocumentFormatting(p => DocFormatting.Service.formatAll(p));
-pb.connection.onDocumentRangeFormatting(p => DocFormatting.Service.formatRange(p));
-pb.connection.onDocumentOnTypeFormatting(p => DocFormatting.Service.formatOnType(p));
-pb.connection.onDocumentSymbol(p => DocMap.Service.getDocSymbols(p));
-pb.connection.onWorkspaceSymbol(p => DocMap.Service.getWorkspaceSymbols(p));
+pb.connection.onDocumentFormatting(p => DocFormatting.service.formatAll(p));
+pb.connection.onDocumentRangeFormatting(p => DocFormatting.service.formatRange(p));
+pb.connection.onDocumentOnTypeFormatting(p => DocFormatting.service.formatOnType(p));
+pb.connection.onDocumentSymbol(p => DocMap.service.getDocSymbols(p));
+pb.connection.onWorkspaceSymbol(p => DocMap.service.getWorkspaceSymbols(p));
 
 pb.documentation.onDidOpen(() => {
 });
 pb.documentation.onDidClose(closed => {
 	pb.settings.delete(closed.document);
-	DocMap.Service.delete(closed.document);
+	DocMap.service.delete(closed.document);
 });
 pb.documentation.onDidChangeContent(changed => {
-	DocValidation.Service.validate(changed.document);
+	DocValidation.service.validate(changed.document);
 });
 
 pb.connection.listen(); 				// Listen on the pb.connection
