@@ -56,8 +56,7 @@ export class SymbolValidator {
 
 	public validate(symbol: ParsedSymbol) {
 		const isValid = this.rule.test(symbol.name);
-		if (!isValid) { symbol.validationDiagnostic = this.createDiagnostic(symbol); }
-		return isValid;
+		return isValid ? undefined : this.createDiagnostic(symbol);
 		/*if (pb.settings.hasDiagnosticRelatedInformationCapability) {
 			diagnosic.relatedInformation = [
 			{
@@ -129,10 +128,5 @@ export class ParsedSymbol extends DocumentSymbol {
 	public constructor(init?: Partial<ParsedSymbol>) {
 		super();
 		Object.assign(this, init);
-	}
-
-	public validate() {
-		const isValid = this.parser.validator.validate(this);
-		return isValid;
 	}
 }
