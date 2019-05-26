@@ -8,15 +8,10 @@ import { PureBasicCompletion } from './PureBasicCompletion';
 import { PureBasicDocumentation } from './PureBasicDocumentation';
 import { PureBasicIndentation } from './PureBasicIndentation';
 import { PureBasicLine } from './PureBasicLine';
-import { PureBasicSettings } from './PureBasicSettings';
 
 export * from './PureBasicDataModels';
 
 export namespace pb {
-	/**
-	 * Provide functions used to save or load all language custom settings
-	 */
-	export const settings = new PureBasicSettings();
 	/**
 	 * Provide functions used to parse and modify line structure and data
 	 */

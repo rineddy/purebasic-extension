@@ -7,6 +7,7 @@ import {
 import { DocFormatting } from './DocFormattingService';
 import { DocMap } from './DocMapService';
 import { DocValidation } from './DocValidationService';
+import { LanguageSettings } from './LanguageSettingsService';
 import { pb } from './PureBasicAPI';
 
 /* --------------------------------------------------------------------------------------------
@@ -16,7 +17,7 @@ import { pb } from './PureBasicAPI';
 'use strict';
 
 pb.connection.onInitialize((params: InitializeParams) => {
-	pb.settings.initialize(params);
+	LanguageSettings.service.initialize(params);
 	return {
 		capabilities: {
 			textDocumentSync: TextDocumentSyncKind.Full,
@@ -46,11 +47,11 @@ pb.connection.onInitialize((params: InitializeParams) => {
 });
 
 pb.connection.onInitialized(() => {
-	if (pb.settings.hasWorkspaceConfigCapability) {
+	if (LanguageSettings.service.hasWorkspaceConfigCapability) {
 		// Register for all configuration changes.
 		pb.connection.client.register(DidChangeConfigurationNotification.type);
 	}
-	if (pb.settings.hasWorkspaceFolderCapability) {
+	if (LanguageSettings.service.hasWorkspaceFolderCapability) {
 		pb.connection.workspace.getWorkspaceFolders().then(folders => folders.forEach(folder => {
 			pb.connection.console.log(folder.uri);
 		}));
@@ -58,11 +59,10 @@ pb.connection.onInitialized(() => {
 			pb.connection.console.log('Workspace folder change event received.' + changed);
 		});
 	}
-
 });
 
 pb.connection.onDidChangeConfiguration(changed => {
-	pb.settings.reset(changed);
+	LanguageSettings.service.reset(changed);
 	pb.documentation.all().forEach(DocValidation.service.validate);
 });
 pb.connection.onDidChangeWatchedFiles(() => {
@@ -74,12 +74,12 @@ pb.connection.onDocumentFormatting(p => DocFormatting.service.formatAll(p));
 pb.connection.onDocumentRangeFormatting(p => DocFormatting.service.formatRange(p));
 pb.connection.onDocumentOnTypeFormatting(p => DocFormatting.service.formatOnType(p));
 pb.connection.onDocumentSymbol(p => DocMap.service.getDocSymbols(p));
-pb.connection.onWorkspaceSymbol(p => DocMap.service.getWorkspaceSymbols(p));
+pb.connection.onWorkspaceSymbol(p => DocMap.service.getDocSymbolsFromWorkspace(p));
 
 pb.documentation.onDidOpen(() => {
 });
 pb.documentation.onDidClose(closed => {
-	pb.settings.delete(closed.document);
+	LanguageSettings.service.delete(closed.document);
 	DocMap.service.delete(closed.document);
 });
 pb.documentation.onDidChangeContent(changed => {

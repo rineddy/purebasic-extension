@@ -37,7 +37,7 @@ export class DocMap {
 		}
 		return symbols.filter(s => s.isRootSymbol);
 	}
-	public async getWorkspaceSymbols(params: WorkspaceSymbolParams): Promise<SymbolInformation[]> {
+	public async getDocSymbolsFromWorkspace(params: WorkspaceSymbolParams): Promise<SymbolInformation[]> {
 		// params.query
 		return Promise.resolve([]);
 	}

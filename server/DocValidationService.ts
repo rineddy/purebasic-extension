@@ -4,6 +4,7 @@ import {
 } from 'vscode-languageserver';
 
 import { DocMap } from './DocMapService';
+import { LanguageSettings } from './LanguageSettingsService';
 import { pb } from './PureBasicAPI';
 
 /**
@@ -16,7 +17,7 @@ export class DocValidation {
 
 	public async validate(doc: TextDocument) {
 		// get settings and doc symbols for every validate run.
-		const settings = await pb.settings.load(doc);
+		const settings = await LanguageSettings.service.load(doc);
 		const symbols = await DocMap.service.load(doc);
 
 		let diagnosticMax = settings.diagnostics.maxNumberOfProblems;

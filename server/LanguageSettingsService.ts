@@ -6,12 +6,15 @@ import {
 } from 'vscode-languageserver';
 import { ICustomSettings, pb } from './PureBasicAPI';
 
-export class PureBasicSettings {
+export class LanguageSettings {
 	public initParams?: InitializeParams;
 	public clientCapabilities?: ClientCapabilities;
 	public hasWorkspaceConfigCapability: boolean = false;
 	public hasWorkspaceFolderCapability: boolean = false;
 	public hasDiagnosticRelatedInformationCapability: boolean = false;
+	public static service = new LanguageSettings();
+
+	private constructor() { }
 
 	/**
 	 * Default settings
@@ -50,7 +53,7 @@ export class PureBasicSettings {
 		// The global settings, used when the `workspace/configuration` request is not supported by the client.
 		// Please note that this is not the case when using this server with the client provided in this example but could happen with other clients.
 		if (!this.hasWorkspaceConfigCapability) {
-			const globalSettings = Promise.resolve(pb.settings.DEFAULT_SETTINGS);
+			const globalSettings = Promise.resolve(this.DEFAULT_SETTINGS);
 			this.documentSettings.set('', globalSettings);
 		}
 	}
@@ -62,7 +65,7 @@ export class PureBasicSettings {
 		// Clear cached document settings
 		this.documentSettings.clear();
 		if (!this.hasWorkspaceConfigCapability) {
-			const globalSettings = Promise.resolve(<ICustomSettings>(changed.settings.purebasicLanguage || pb.settings.DEFAULT_SETTINGS));
+			const globalSettings = Promise.resolve(<ICustomSettings>(changed.settings.purebasicLanguage || this.DEFAULT_SETTINGS));
 			this.documentSettings.set('', globalSettings.then(this.loadIndentationRules));
 		}
 	}

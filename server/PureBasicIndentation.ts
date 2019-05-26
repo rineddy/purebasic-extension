@@ -4,6 +4,8 @@ import {
 } from 'vscode-languageserver';
 import { IndentationContext, IndentationRule, ParsedLine, pb } from './PureBasicAPI';
 
+import { LanguageSettings } from './LanguageSettingsService';
+
 export class PureBasicIndentation {
 	private readonly INDENTATION_RULES: IndentationRule[] = [
 		{
@@ -34,7 +36,7 @@ export class PureBasicIndentation {
 	 * @param options
 	 */
 	public async create(doc: TextDocument, options: FormattingOptions): Promise<IndentationContext> {
-		const settings = await pb.settings.load(doc);
+		const settings = await LanguageSettings.service.load(doc);
 		const indentation = <IndentationContext>{
 			current: 0,
 			next: 0,
