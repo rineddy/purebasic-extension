@@ -3,6 +3,7 @@ import {
 	createConnection
 } from 'vscode-languageserver';
 
+import { DocValidation } from './DocValidation';
 import { PureBasicCompletion } from './PureBasicCompletion';
 import { PureBasicDocumentation } from './PureBasicDocumentation';
 import { PureBasicFormatter } from './PureBasicFormatter';
@@ -11,7 +12,6 @@ import { PureBasicLine } from './PureBasicLine';
 import { PureBasicSettings } from './PureBasicSettings';
 import { PureBasicSymbols } from './PureBasicSymbols';
 import { PureBasicText } from './PureBasicText';
-import { PureBasicValidation } from './PureBasicValidation';
 
 export * from './PureBasicDataModels';
 
@@ -43,7 +43,7 @@ export namespace pb {
 	/**
 	 * Provide functions used to analyze source code and retrieve diagnostic report
 	 */
-	export const validation = new PureBasicValidation();
+	export const validation = DocValidation.Singleton;
 	/**
 	 * Provide functions used to collect symbols (variables, functions, types...) from document or workspace by parsing some texts
 	 */
