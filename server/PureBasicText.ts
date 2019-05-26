@@ -1,5 +1,6 @@
 import { DocumentSymbol, Position, Range, TextDocument } from 'vscode-languageserver';
-import { ParsedSymbol, ParsedSymbolSignature, ParsedText, SymbolParser, SymbolType, pb } from './PureBasicAPI';
+import { ParsedSymbol, SymbolParser, SymbolToken, SymbolType, SymbolValidator } from './SymbolParser';
+import { ParsedSymbolSignature, ParsedText, pb } from './PureBasicAPI';
 
 export class PureBasicText {
 	/**
@@ -8,47 +9,47 @@ export class PureBasicText {
 	private readonly SymbolParsers: SymbolParser[] = [
 		new SymbolParser({
 			openToken: /^DeclareModule$/i, type: SymbolType.Module,
-			contentToken: SymbolParser.Tokens.Name, validNameToken: SymbolParser.Tokens.ValidAlphaNumeric,
+			contentToken: SymbolToken.Name, validator: SymbolValidator.ValidIdentifier,
 			closeToken: /^EndDeclareModule$/i
 		}),
 		new SymbolParser({
 			openToken: /^Interface$/i, type: SymbolType.Interface,
-			contentToken: SymbolParser.Tokens.Name, validNameToken: SymbolParser.Tokens.ValidAlphaNumeric,
+			contentToken: SymbolToken.Name, validator: SymbolValidator.ValidIdentifier,
 			closeToken: /^EndInterface$/i
 		}),
 		new SymbolParser({
 			openToken: /^Procedure(C|CDLL|DLL)?$/i, type: SymbolType.Procedure,
-			contentToken: SymbolParser.Tokens.ReturnTypeName, validNameToken: SymbolParser.Tokens.ValidAlphaNumeric,
+			contentToken: SymbolToken.ReturnTypeName, validator: SymbolValidator.ValidIdentifier,
 			closeToken: /^EndProcedure$/i
 		}),
 		new SymbolParser({
 			openToken: /^Structure$/i, type: SymbolType.Structure,
-			contentToken: SymbolParser.Tokens.Name, validNameToken: SymbolParser.Tokens.ValidAlphaNumeric,
+			contentToken: SymbolToken.Name, validator: SymbolValidator.ValidIdentifier,
 			closeToken: /^EndStructure$/i
 		}),
 		new SymbolParser({
 			openToken: /^Import(C)?$/i, type: SymbolType.Import,
-			contentToken: SymbolParser.Tokens.String, validNameToken: SymbolParser.Tokens.ValidString,
+			contentToken: SymbolToken.String, validator: SymbolValidator.ValidString,
 			closeToken: /^EndImport$/i
 		}),
 		new SymbolParser({
 			openToken: /^Macro$/i, type: SymbolType.Macro,
-			contentToken: SymbolParser.Tokens.Name, validNameToken: SymbolParser.Tokens.ValidAlphaNumeric,
+			contentToken: SymbolToken.Name, validator: SymbolValidator.ValidIdentifier,
 			closeToken: /^EndMacro$/i
 		}),
 		new SymbolParser({
 			openToken: /^Enumeration(Binary)?$/i, type: SymbolType.Enum,
-			contentToken: SymbolParser.Tokens.Name, validNameToken: SymbolParser.Tokens.ValidAlphaNumericDollar,
+			contentToken: SymbolToken.Name, validator: SymbolValidator.ValidStringIdentifier,
 			closeToken: /^EndEnumeration$/i
 		}),
 		new SymbolParser({
 			openToken: /^#.+?/, type: SymbolType.EnumMember,
-			contentToken: SymbolParser.Tokens.Name, validNameToken: SymbolParser.Tokens.ValidDashAlphaNumericDollar,
+			contentToken: SymbolToken.Name, validator: SymbolValidator.ValidConstantIdentifier,
 			parentType: SymbolType.Enum,
 		}),
 		new SymbolParser({
 			openToken: /^#.+?/, type: SymbolType.Constant,
-			contentToken: SymbolParser.Tokens.Name, validNameToken: SymbolParser.Tokens.ValidDashAlphaNumericDollar,
+			contentToken: SymbolToken.Name, validator: SymbolValidator.ValidConstantIdentifier,
 		}),
 	];
 	/**
@@ -109,11 +110,11 @@ export class PureBasicText {
 
 	private openSymbol(parsedText: ParsedText, rule: SymbolParser, sign: ParsedSymbolSignature) {
 		const docSymbol = DocumentSymbol.create(sign.name, '', rule.type.icon, sign.range, sign.selectionRange, []);
-		const parsedSymbol = <ParsedSymbol>{
+		const parsedSymbol = new ParsedSymbol({
 			...docSymbol,
 			nameRange: sign.nameRange,
 			parser: rule,
-		};
+		});
 		if (parsedText.openedSymbols.length > 0) {
 			parsedText.openedSymbols[0].children.push(parsedSymbol);
 			if (!rule.isClosed) { parsedText.openedSymbols.unshift(parsedSymbol); }

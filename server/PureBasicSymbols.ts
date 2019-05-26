@@ -4,7 +4,7 @@ import {
 	TextDocument
 } from 'vscode-languageserver';
 
-import { ParsedSymbol } from './PureBasicDataModels';
+import { ParsedSymbol } from './SymbolParser';
 import { pb } from './PureBasicAPI';
 
 export class PureBasicSymbols {

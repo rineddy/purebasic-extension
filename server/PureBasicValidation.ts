@@ -1,6 +1,5 @@
 import {
 	Diagnostic,
-	DiagnosticSeverity,
 	TextDocument
 } from 'vscode-languageserver';
 
@@ -19,34 +18,10 @@ export class PureBasicValidation {
 		let diagnostics: Diagnostic[] = [];
 		let maxProblems = settings.diagnostics.maxNumberOfProblems;
 
-		symbols.filter(s => !s.parser.validNameToken.test(s.name))
+		symbols.filter(s => !s.validate())
 			.slice(0, maxProblems)
 			.forEach(s => {
-				let diagnosic: Diagnostic = {
-					severity: DiagnosticSeverity.Error,
-					range: s.nameRange,
-					message: `The identifier name '${s.name}' contains some unexpected characters.`,
-					source: 'PB1000'
-				};
-				/*if (pb.settings.hasDiagnosticRelatedInformationCapability) {
-					diagnosic.relatedInformation = [
-						{
-							location: {
-								uri: doc.uri,
-								range: Object.assign({}, diagnosic.range)
-							},
-							message: 'Spelling matters'
-						},
-						{
-							location: {
-								uri: doc.uri,
-								range: Object.assign({}, diagnosic.range)
-							},
-							message: 'Particularly for names'
-						}
-					];
-				}*/
-				diagnostics.push(diagnosic);
+				diagnostics.push(s.validationDiagnostic);
 				maxProblems--;
 			});
 
