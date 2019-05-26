@@ -4,20 +4,20 @@ import {
 	TextDocument
 } from 'vscode-languageserver';
 
-import { ParsedSymbol } from './SymbolParser';
+import { Symbol } from './SymbolParser';
 import { pb } from './PureBasicAPI';
 
 export class PureBasicSymbols {
 	/**
 	 * Cache the symbols of all open documents
 	 */
-	private documentSymbols: Map<string, ParsedSymbol[]> = new Map();
+	private documentSymbols: Map<string, Symbol[]> = new Map();
 
 	/**
 	 * Load symbols after opening document
 	 * @param doc
 	 */
-	public load(doc: TextDocument): Promise<ParsedSymbol[]> {
+	public load(doc: TextDocument): Promise<Symbol[]> {
 		const parsedText = pb.text.parseText(doc);
 		while (pb.text.nextSymbol(parsedText)) { }
 		pb.symbols.documentSymbols.set(doc.uri, parsedText.symbols);
@@ -34,8 +34,8 @@ export class PureBasicSymbols {
 	 * Get document symbols (used by 'outline' view)
 	 * @param params
 	 */
-	public async getDocumentSymbols(params: DocumentSymbolParams): Promise<ParsedSymbol[]> {
-		let symbols: ParsedSymbol[];
+	public async getDocumentSymbols(params: DocumentSymbolParams): Promise<Symbol[]> {
+		let symbols: Symbol[];
 		if (!pb.symbols.documentSymbols.has(params.textDocument.uri)) {
 			const doc = await pb.documentation.find(params.textDocument);
 			symbols = await pb.symbols.load(doc);

@@ -1,6 +1,6 @@
 import { FormattingOptions, Position, Range, TextDocument } from 'vscode-languageserver';
 
-import { ParsedSymbol } from './SymbolParser';
+import { Symbol } from './SymbolParser';
 
 /**
  * Represents Purebasic settings customized by user
@@ -60,8 +60,8 @@ export interface ParsedText {
 	readonly docLastPos: Position;
 	startIndex: number;
 	lastIndex: number;
-	symbols: ParsedSymbol[];
-	openedSymbols: ParsedSymbol[];
+	symbols: Symbol[];
+	openedSymbols: Symbol[];
 }
 
 /**

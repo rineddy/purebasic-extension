@@ -23,7 +23,7 @@ export const SymbolType = {
  */
 export class SymbolValidator {
 	public rule: RegExp;
-	public createDiagnostic: (symbol: ParsedSymbol) => Diagnostic;
+	public createDiagnostic: (symbol: Symbol) => Diagnostic;
 
 	public static ValidIdentifier = new SymbolValidator({
 		rule: /^[a-z_]\w*$/i, createDiagnostic: (s) => <Diagnostic>{
@@ -54,7 +54,7 @@ export class SymbolValidator {
 		Object.assign(this, init);
 	}
 
-	public validate(symbol: ParsedSymbol) {
+	public validate(symbol: Symbol) {
 		const isValid = this.rule.test(symbol.name);
 		return isValid ? undefined : this.createDiagnostic(symbol);
 		/*if (pb.settings.hasDiagnosticRelatedInformationCapability) {
@@ -119,13 +119,13 @@ export class SymbolParser {
 /**
  * Represents parsed symbol (with nested symbols)
  */
-export class ParsedSymbol extends DocumentSymbol {
+export class Symbol extends DocumentSymbol {
 	public nameRange?: Range;
 	public parser: SymbolParser;
 	public isRootSymbol: boolean;
 	public validationDiagnostic?: Diagnostic;
 
-	public constructor(init?: Partial<ParsedSymbol>) {
+	public constructor(init?: Partial<Symbol>) {
 		super();
 		Object.assign(this, init);
 	}

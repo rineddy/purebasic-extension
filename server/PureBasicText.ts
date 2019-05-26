@@ -1,6 +1,6 @@
 import { DocumentSymbol, Position, Range, TextDocument } from 'vscode-languageserver';
-import { ParsedSymbol, SymbolParser, SymbolToken, SymbolType, SymbolValidator } from './SymbolParser';
 import { ParsedSymbolSignature, ParsedText, pb } from './PureBasicAPI';
+import { Symbol, SymbolParser, SymbolToken, SymbolType, SymbolValidator } from './SymbolParser';
 
 export class PureBasicText {
 	/**
@@ -110,7 +110,7 @@ export class PureBasicText {
 
 	private openSymbol(parsedText: ParsedText, rule: SymbolParser, sign: ParsedSymbolSignature) {
 		const docSymbol = DocumentSymbol.create(sign.name, '', rule.type.icon, sign.range, sign.selectionRange, []);
-		const parsedSymbol = new ParsedSymbol({
+		const parsedSymbol = new Symbol({
 			...docSymbol,
 			nameRange: sign.nameRange,
 			parser: rule,
@@ -137,7 +137,7 @@ export class PureBasicText {
 		});
 	}
 
-	private alignToClosingSymbol(parsedText: ParsedText, lastSymbol: ParsedSymbol) {
+	private alignToClosingSymbol(parsedText: ParsedText, lastSymbol: Symbol) {
 		const endPos = lastSymbol.range.end;
 		for (const openedSymbol of parsedText.openedSymbols) {
 			if (openedSymbol === lastSymbol) break;
