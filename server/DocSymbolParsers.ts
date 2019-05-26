@@ -2,7 +2,7 @@ import { DocSymbol } from './DocSymbols';
 import { DocSymbolType } from './DocSymbolType';
 
 /**
- * Provides all tokens used to describe symbol
+ * Token of document symbol. (symbol building block description)
  */
 export interface DocSymbolToken extends RegExp { }
 export namespace DocSymbolToken {
@@ -33,7 +33,6 @@ export class DocSymbolParser {
 		this.isClosing = false;
 		return this.openToken.test(word) && (!this.parentType || (openedSymbols.length > 0 && this.parentType === openedSymbols[0].type));
 	}
-
 	public closeWith(word: string): boolean {
 		this.isClosing = true;
 		return this.closeToken && this.closeToken.test(word);

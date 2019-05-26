@@ -4,6 +4,9 @@ import {
 	TextDocumentSyncKind,
 } from 'vscode-languageserver';
 
+import { DocFormatting } from './DocFormattingService';
+import { DocMap } from './DocMapService';
+import { DocValidation } from './DocValidationService';
 import { pb } from './PureBasicAPI';
 
 /* --------------------------------------------------------------------------------------------
@@ -60,27 +63,27 @@ pb.connection.onInitialized(() => {
 
 pb.connection.onDidChangeConfiguration(changed => {
 	pb.settings.reset(changed);
-	pb.documentation.all().forEach(pb.validation.validate);
+	pb.documentation.all().forEach(DocValidation.Service.validate);
 });
 pb.connection.onDidChangeWatchedFiles(() => {
 	pb.connection.console.log('We received an file change event');
 });
 pb.connection.onCompletion(pb.completion.getCompletionItems);
 pb.connection.onCompletionResolve(pb.completion.getCompletionDescription);
-pb.connection.onDocumentFormatting(pb.formatter.formatAll);
-pb.connection.onDocumentRangeFormatting(pb.formatter.formatRange);
-pb.connection.onDocumentOnTypeFormatting(pb.formatter.formatOnType);
-pb.connection.onDocumentSymbol(pb.symbols.getDocumentSymbols);
-pb.connection.onWorkspaceSymbol(pb.symbols.getWorkspaceSymbols);
+pb.connection.onDocumentFormatting(p => DocFormatting.Service.formatAll(p));
+pb.connection.onDocumentRangeFormatting(p => DocFormatting.Service.formatRange(p));
+pb.connection.onDocumentOnTypeFormatting(p => DocFormatting.Service.formatOnType(p));
+pb.connection.onDocumentSymbol(p => DocMap.Service.getDocSymbols(p));
+pb.connection.onWorkspaceSymbol(p => DocMap.Service.getWorkspaceSymbols(p));
 
 pb.documentation.onDidOpen(() => {
 });
 pb.documentation.onDidClose(closed => {
 	pb.settings.delete(closed.document);
-	pb.symbols.delete(closed.document);
+	DocMap.Service.delete(closed.document);
 });
 pb.documentation.onDidChangeContent(changed => {
-	pb.validation.validate(changed.document);
+	DocValidation.Service.validate(changed.document);
 });
 
 pb.connection.listen(); 				// Listen on the pb.connection

@@ -5,7 +5,10 @@ import { ParsedSymbolSignature, ParsedText, pb } from './PureBasicAPI';
 import { DocSymbol } from './DocSymbols';
 import { DocSymbolType } from './DocSymbolType';
 
-export class PureBasicText {
+/**
+ * Service for document code mapping
+ */
+export class DocTokenizer {
 	/**
 	 * Parsers used to detect any symbols based on text tokens
 	 */
@@ -71,7 +74,6 @@ export class PureBasicText {
 			openedSymbols: [],
 		};
 	}
-
 	public nextSymbol(parsedText: ParsedText): boolean {
 		let isSuccess = pb.text.startWith(parsedText, /(?<beforeName>(?:^|:)[ \t]*)(?<name>[#]?[\w\u00C0-\u017F]+[$]?)|"(?:[^"\r\n\\]|\\.)*"?|'[^\r\n']*'?|;.*?$/gm, (res, groups) => {
 			if (/^["';]/.test(res[0])) return; // skip symbol for string or comment
@@ -93,7 +95,6 @@ export class PureBasicText {
 		});
 		return isSuccess;
 	}
-
 	private getSymbolSignature(parsedText: ParsedText, signatureRes: RegExpExecArray, signatureGroups: { [key: string]: string; }, isClosed?: boolean) {
 		const name = signatureGroups.name;
 		const returnType = signatureGroups.returnType;
@@ -110,7 +111,6 @@ export class PureBasicText {
 			selectionRange: Range.create(startPos, lastPos),
 		};
 	}
-
 	private openSymbol(parsedText: ParsedText, parser: DocSymbolParser, sign: ParsedSymbolSignature) {
 		const docSymbol = DocumentSymbol.create(sign.name, '', parser.type.icon, sign.range, sign.selectionRange, []);
 		const parsedSymbol = new DocSymbol({
@@ -127,7 +127,6 @@ export class PureBasicText {
 		}
 		parsedText.symbols.push(parsedSymbol);
 	}
-
 	private closeSymbol(parsedText: ParsedText, parser: DocSymbolParser) {
 		parsedText.openedSymbols.forEach((openedSymbol, index) => {
 			if (openedSymbol.type === parser.type) {
@@ -139,7 +138,6 @@ export class PureBasicText {
 			}
 		});
 	}
-
 	private alignToClosingSymbol(parsedText: ParsedText, lastSymbol: DocSymbol) {
 		const endPos = lastSymbol.range.end;
 		for (const openedSymbol of parsedText.openedSymbols) {
@@ -147,7 +145,6 @@ export class PureBasicText {
 			openedSymbol.range.end = endPos;
 		}
 	}
-
 	private startWith(parsedText: ParsedText, regex: RegExp, onSuccess: (res: RegExpExecArray, groups: { [key: string]: string }) => void): boolean {
 		let isSuccess: boolean;
 		regex.lastIndex = parsedText.lastIndex;
@@ -161,7 +158,6 @@ export class PureBasicText {
 		}
 		return isSuccess;
 	}
-
 	private continueWith(parsedText: ParsedText, regex: RegExp, onSuccess: (res: RegExpExecArray, groups: { [key: string]: string }) => void): boolean {
 		let isSuccess: boolean;
 		regex.lastIndex = parsedText.lastIndex;
