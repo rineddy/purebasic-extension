@@ -4,7 +4,8 @@ import {
 	TextDocumentSyncKind,
 } from 'vscode-languageserver';
 
-import { DocFormatting } from './DocFormattingService';
+import { CodeCompletion } from './CodeCompletionService';
+import { CodeFormatting } from './CodeFormattingService';
 import { DocMap } from './DocMapService';
 import { DocValidation } from './DocValidationService';
 import { LanguageSettings } from './LanguageSettingsService';
@@ -68,11 +69,11 @@ pb.connection.onDidChangeConfiguration(changed => {
 pb.connection.onDidChangeWatchedFiles(() => {
 	pb.connection.console.log('We received an file change event');
 });
-pb.connection.onCompletion(pb.completion.getCompletionItems);
-pb.connection.onCompletionResolve(pb.completion.getCompletionDescription);
-pb.connection.onDocumentFormatting(p => DocFormatting.service.formatAll(p));
-pb.connection.onDocumentRangeFormatting(p => DocFormatting.service.formatRange(p));
-pb.connection.onDocumentOnTypeFormatting(p => DocFormatting.service.formatOnType(p));
+pb.connection.onCompletion(CodeCompletion.service.getCompletionItems);
+pb.connection.onCompletionResolve(CodeCompletion.service.getCompletionDescription);
+pb.connection.onDocumentFormatting(p => CodeFormatting.service.formatAll(p));
+pb.connection.onDocumentRangeFormatting(p => CodeFormatting.service.formatRange(p));
+pb.connection.onDocumentOnTypeFormatting(p => CodeFormatting.service.formatOnType(p));
 pb.connection.onDocumentSymbol(p => DocMap.service.getDocSymbols(p));
 pb.connection.onWorkspaceSymbol(p => DocMap.service.getDocSymbolsFromWorkspace(p));
 

@@ -4,7 +4,6 @@ import {
 } from 'vscode-languageserver';
 
 import { DocTokenizer } from './DocTokenizer';
-import { PureBasicCompletion } from './PureBasicCompletion';
 import { PureBasicDocumentation } from './PureBasicDocumentation';
 import { PureBasicIndentation } from './PureBasicIndentation';
 import { PureBasicLine } from './PureBasicLine';
@@ -20,10 +19,6 @@ export namespace pb {
 	 * Provide functions used to parse and modify text structure and data
 	 */
 	export const text = new DocTokenizer();
-	/**
-	 * Provide functions used to display code autocompletion list
-	 */
-	export const completion = new PureBasicCompletion();
 	/**
 	 * Provide functions used to calculate and modify text indentation
 	 */

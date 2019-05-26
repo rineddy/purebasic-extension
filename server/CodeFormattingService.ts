@@ -9,9 +9,10 @@ import {
 import { RegexReplaceRule, pb } from './PureBasicAPI';
 
 /**
- * Service for document formatting
+ * Service for code formatting
  */
-export class DocFormatting {
+export class CodeFormatting {
+	public static service = new CodeFormatting();
 	private readonly beautificationRules: RegexReplaceRule[] = [
 		[/\s+/g, ' '],
 		[/\s+(,)/g, '$1'],
@@ -29,7 +30,6 @@ export class DocFormatting {
 		[/([^\s:])(?=:[^:])/g, '$1 '],
 		[/([^:]:)(?=[^\s:])/g, '$1 '],
 	];
-	public static service = new DocFormatting();
 
 	private constructor() { }
 

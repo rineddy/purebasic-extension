@@ -4,10 +4,14 @@ import {
 	TextDocumentPositionParams
 } from 'vscode-languageserver';
 
-export class PureBasicCompletion {
-	/**
-	 * This handler provides the initial list of the completion items.
-	 */
+/**
+ * Service for code completion
+ */
+export class CodeCompletion {
+	public static service = new CodeCompletion();
+
+	private constructor() { }
+
 	public getCompletionItems(txtDocPositionParams: TextDocumentPositionParams): CompletionItem[] {
 		// The pass parameter contains the position of the text document in
 		// which code complete got requested. For the example we ignore this
@@ -25,9 +29,6 @@ export class PureBasicCompletion {
 			}
 		];
 	}
-	/**
-	 * This handler resolve additional information for the item selected in the completion list.
-	 */
 	public getCompletionDescription(item: CompletionItem): CompletionItem {
 		if (item.data === 1) {
 			(item.detail = 'Procedure details'),

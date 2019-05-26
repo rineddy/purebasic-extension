@@ -7,12 +7,13 @@ import {
 import { ICustomSettings, pb } from './PureBasicAPI';
 
 export class LanguageSettings {
+	public static service = new LanguageSettings();
 	public initParams?: InitializeParams;
 	public clientCapabilities?: ClientCapabilities;
 	public hasWorkspaceConfigCapability: boolean = false;
 	public hasWorkspaceFolderCapability: boolean = false;
 	public hasDiagnosticRelatedInformationCapability: boolean = false;
-	public static service = new LanguageSettings();
+	private cachedDocumentSettings: Map<string, Thenable<ICustomSettings>> = new Map();
 
 	private constructor() { }
 
@@ -35,11 +36,6 @@ export class LanguageSettings {
 		]
 	};
 	/**
-	 * Cache the settings of all open documents
-	 */
-	private documentSettings: Map<string, Thenable<ICustomSettings>> = new Map();
-
-	/**
 	 * Initializes cached document settings and technical settings
 	 */
 	public initialize(params: InitializeParams) {
@@ -54,7 +50,7 @@ export class LanguageSettings {
 		// Please note that this is not the case when using this server with the client provided in this example but could happen with other clients.
 		if (!this.hasWorkspaceConfigCapability) {
 			const globalSettings = Promise.resolve(this.DEFAULT_SETTINGS);
-			this.documentSettings.set('', globalSettings);
+			this.cachedDocumentSettings.set('', globalSettings);
 		}
 	}
 	/**
@@ -63,10 +59,10 @@ export class LanguageSettings {
 	 */
 	public reset(changed: DidChangeConfigurationParams) {
 		// Clear cached document settings
-		this.documentSettings.clear();
+		this.cachedDocumentSettings.clear();
 		if (!this.hasWorkspaceConfigCapability) {
 			const globalSettings = Promise.resolve(<ICustomSettings>(changed.settings.purebasicLanguage || this.DEFAULT_SETTINGS));
-			this.documentSettings.set('', globalSettings.then(this.loadIndentationRules));
+			this.cachedDocumentSettings.set('', globalSettings.then(this.loadIndentationRules));
 		}
 	}
 	/**
@@ -74,10 +70,10 @@ export class LanguageSettings {
 	 * @param doc
 	 */
 	public load(doc: TextDocument): Thenable<ICustomSettings> {
-		let settings = this.documentSettings.get(this.hasWorkspaceConfigCapability ? doc.uri : '');
+		let settings = this.cachedDocumentSettings.get(this.hasWorkspaceConfigCapability ? doc.uri : '');
 		if (!settings) {
 			settings = pb.connection.workspace.getConfiguration({ scopeUri: doc.uri, section: 'purebasicLanguage' });
-			this.documentSettings.set(doc.uri, settings.then(this.loadIndentationRules));
+			this.cachedDocumentSettings.set(doc.uri, settings.then(this.loadIndentationRules));
 		}
 		return settings;
 	}
@@ -86,7 +82,7 @@ export class LanguageSettings {
 	 * @param doc
 	 */
 	public delete(doc: TextDocument) {
-		this.documentSettings.delete(doc.uri);
+		this.cachedDocumentSettings.delete(doc.uri);
 	}
 	/**
 	 * Load indentation rules after converting string into regex
