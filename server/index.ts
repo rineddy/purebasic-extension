@@ -69,8 +69,8 @@ pb.connection.onDidChangeConfiguration(changed => {
 pb.connection.onDidChangeWatchedFiles(() => {
 	pb.connection.console.log('We received an file change event');
 });
-pb.connection.onCompletion(CodeCompletion.service.getCompletionItems);
-pb.connection.onCompletionResolve(CodeCompletion.service.getCompletionDescription);
+pb.connection.onCompletion(p => CodeCompletion.service.getCompletionItems(p));
+pb.connection.onCompletionResolve(p => CodeCompletion.service.getCompletionDescription(p));
 pb.connection.onDocumentFormatting(p => CodeFormatting.service.formatAll(p));
 pb.connection.onDocumentRangeFormatting(p => CodeFormatting.service.formatRange(p));
 pb.connection.onDocumentOnTypeFormatting(p => CodeFormatting.service.formatOnType(p));
