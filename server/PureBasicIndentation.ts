@@ -1,10 +1,8 @@
-import {
-	FormattingOptions,
-	TextDocument
-} from 'vscode-languageserver';
-import { IndentationContext, IndentationRule, ParsedLine, pb } from './PureBasicAPI';
+import { FormattingOptions, TextDocument } from 'vscode-languageserver';
+import { IndentationContext, IndentationRule, ParsedLine } from './PureBasicDataModels';
 
-import { LanguageSettings } from './LanguageSettingsService';
+import { LanguageSettings } from './services/LanguageSettings';
+import { pb } from './PureBasicAPI';
 
 export class PureBasicIndentation {
 	private readonly INDENTATION_RULES: IndentationRule[] = [

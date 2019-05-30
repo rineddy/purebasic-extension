@@ -1,6 +1,6 @@
 import { Diagnostic, DocumentSymbol, Range } from 'vscode-languageserver';
 
-import { DocSymbolType } from './PureBasicAPI';
+import { DocSymbolType } from './DocSymbolType';
 
 /**
  * Document symbol (with nested symbols)

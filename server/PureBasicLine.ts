@@ -1,5 +1,7 @@
-import { ParsedLine, RegexReplaceRule, pb } from './PureBasicAPI';
+import { ParsedLine, RegexReplaceRule } from './PureBasicDataModels';
 import { Range, TextDocument } from 'vscode-languageserver';
+
+import { pb } from './PureBasicAPI';
 
 export class PureBasicLine {
 	/**

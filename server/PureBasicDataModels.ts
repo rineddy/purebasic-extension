@@ -1,11 +1,11 @@
 import { FormattingOptions, Position, Range, TextDocument } from 'vscode-languageserver';
 
-import { DocSymbol } from './DocSymbols';
+import { DocSymbol } from './models/DocSymbol';
 
 /**
  * Represents Purebasic settings customized by user
  */
-export interface ICustomSettings {
+export interface DocSettings {
 	diagnostics: {
 		maxNumberOfProblems: number;
 	};

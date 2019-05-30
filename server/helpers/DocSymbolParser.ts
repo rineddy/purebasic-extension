@@ -1,4 +1,5 @@
-import { DocSymbol, DocSymbolType } from './PureBasicAPI';
+import { DocSymbol } from '../models/DocSymbol';
+import { DocSymbolType } from '../models/DocSymbolType';
 
 /**
  * Token of document symbol. (symbol building block description)
@@ -21,7 +22,7 @@ export class DocSymbolParser {
 	public readonly isClosed: boolean;
 	public isClosing: boolean;
 
-	public static Unknown: DocSymbolParser = <DocSymbolParser>{ type: DocSymbolType.Unknown };
+	public static Unknown: DocSymbolParser = new DocSymbolParser({ type: DocSymbolType.Unknown });
 
 	public constructor(init?: Partial<DocSymbolParser>) {
 		Object.assign(this, init);

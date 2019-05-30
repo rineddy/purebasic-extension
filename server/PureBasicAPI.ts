@@ -1,23 +1,8 @@
-import {
-	ProposedFeatures,
-	createConnection
-} from 'vscode-languageserver';
+import { ProposedFeatures, createConnection } from 'vscode-languageserver';
 
 import { PureBasicDocumentation } from './PureBasicDocumentation';
 import { PureBasicIndentation } from './PureBasicIndentation';
 import { PureBasicLine } from './PureBasicLine';
-
-export * from './CodeCompletionService';
-export * from './PureBasicDataModels';
-export * from './DocFormattingService';
-export * from './DocSymbolMapService';
-export * from './DocSymbolParsers';
-export * from './DocSymbols';
-export * from './DocSymbolType';
-export * from './DocSymbolValidator';
-export * from './DocTokenizer';
-export * from './DocValidationService';
-export * from './LanguageSettingsService';
 
 export namespace pb {
 	/**

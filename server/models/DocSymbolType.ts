@@ -1,4 +1,4 @@
-import { DocSymbolValidator } from './PureBasicAPI';
+import { DocSymbolValidator } from '../helpers/DocSymbolValidator';
 import { SymbolKind } from 'vscode-languageserver';
 
 /**

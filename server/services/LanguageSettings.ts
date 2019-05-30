@@ -1,5 +1,7 @@
 import { ClientCapabilities, DidChangeConfigurationParams, InitializeParams, TextDocument } from 'vscode-languageserver';
-import { ICustomSettings as DocSettings, pb } from './PureBasicAPI';
+
+import { DocSettings } from '../PureBasicDataModels';
+import { pb } from '../PureBasicAPI';
 
 export class LanguageSettings {
 	public static service = new LanguageSettings();

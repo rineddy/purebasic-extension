@@ -1,6 +1,6 @@
 import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver';
 
-import { DocSymbol } from './PureBasicAPI';
+import { DocSymbol } from '../models/DocSymbol';
 
 /**
  * Describes how to validate document symbol

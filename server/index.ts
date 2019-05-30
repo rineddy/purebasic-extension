@@ -1,5 +1,11 @@
-import { CodeCompletion, DocFormatting, DocSymbolMap, DocValidation, LanguageSettings, pb } from './PureBasicAPI';
 import { DidChangeConfigurationNotification, InitializeParams, TextDocumentSyncKind } from 'vscode-languageserver';
+
+import { CodeCompletion } from './services/CodeCompletion';
+import { DocFormatting } from './services/DocFormatting';
+import { DocSymbolMap } from './services/DocSymbolMap';
+import { DocValidation } from './services/DocValidation';
+import { LanguageSettings } from './services/LanguageSettings';
+import { pb } from './PureBasicAPI';
 
 /* --------------------------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.

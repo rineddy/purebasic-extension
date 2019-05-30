@@ -1,5 +1,8 @@
 import { Diagnostic, TextDocument } from 'vscode-languageserver';
-import { DocSymbolMap, LanguageSettings, pb } from './PureBasicAPI';
+
+import { DocSymbolMap } from './DocSymbolMap';
+import { LanguageSettings } from './LanguageSettings';
+import { pb } from '../PureBasicAPI';
 
 /**
  * Service for document validation
