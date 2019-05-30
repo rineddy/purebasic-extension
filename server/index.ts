@@ -1,6 +1,7 @@
 import { DidChangeConfigurationNotification, InitializeParams, TextDocumentSyncKind } from 'vscode-languageserver';
 
 import { CodeCompletion } from './services/CodeCompletion';
+import { Doc } from './services/DocService';
 import { DocFormatting } from './services/DocFormatting';
 import { DocSymbolMap } from './services/DocSymbolMap';
 import { DocValidation } from './services/DocValidation';
@@ -60,7 +61,7 @@ pb.connection.onInitialized(() => {
 
 pb.connection.onDidChangeConfiguration(changed => {
 	LanguageSettings.service.reset(changed);
-	pb.documentation.all().forEach(DocValidation.service.validate);
+	Doc.service.all().forEach(DocValidation.service.validate);
 });
 pb.connection.onDidChangeWatchedFiles(() => {
 	pb.connection.console.log('We received an file change event');
@@ -73,15 +74,15 @@ pb.connection.onDocumentOnTypeFormatting(p => DocFormatting.service.formatOnType
 pb.connection.onDocumentSymbol(p => DocSymbolMap.service.getDocSymbols(p));
 pb.connection.onWorkspaceSymbol(p => DocSymbolMap.service.getDocSymbolsFromWorkspace(p));
 
-pb.documentation.onDidOpen(() => {
+Doc.service.onDidOpen(() => {
 });
-pb.documentation.onDidClose(closed => {
+Doc.service.onDidClose(closed => {
 	LanguageSettings.service.delete(closed.document);
 	DocSymbolMap.service.delete(closed.document);
 });
-pb.documentation.onDidChangeContent(changed => {
+Doc.service.onDidChangeContent(changed => {
 	DocValidation.service.validate(changed.document);
 });
 
 pb.connection.listen(); 				// Listen on the pb.connection
-pb.documentation.listen(pb.connection); // Make the text document manager listen on the pb.connection (for open, change and close text document events)
+Doc.service.listen(pb.connection); // Make the text document manager listen on the pb.connection (for open, change and close text document events)

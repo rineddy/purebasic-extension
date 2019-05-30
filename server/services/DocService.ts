@@ -4,20 +4,20 @@ import {
 	TextDocuments,
 } from 'vscode-languageserver';
 
-import { pb } from './PureBasicAPI';
+export class Doc extends TextDocuments {
+	public static service = new Doc();
 
-export class PureBasicDocumentation extends TextDocuments {
-	/**
-	 * Find doc instance identified by `docInfo`
-	 * @param docInfo
-	 */
+	private constructor() {
+		super();
+	}
+
 	public find(docInfo: TextDocumentIdentifier | string): Thenable<TextDocument> {
 		let doc: TextDocument | undefined;
 		if (typeof (docInfo) === 'string') {
-			doc = pb.documentation.get(docInfo);
+			doc = this.get(docInfo);
 		}
 		else {
-			doc = pb.documentation.get(docInfo.uri);
+			doc = this.get(docInfo.uri);
 		}
 		return doc ? Promise.resolve(doc) : Promise.reject(`Invalid docInfo: ${docInfo.toString()}`);
 	}

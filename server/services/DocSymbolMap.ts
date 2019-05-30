@@ -1,10 +1,10 @@
 import { DocSymbolParser, DocSymbolToken } from '../helpers/DocSymbolParser';
 import { DocumentSymbolParams, SymbolInformation, TextDocument, WorkspaceSymbolParams } from 'vscode-languageserver';
 
+import { Doc } from './DocService';
 import { DocSymbol } from '../models/DocSymbol';
 import { DocSymbolType } from '../models/DocSymbolType';
 import { DocTokenizer } from '../helpers/DocTokenizer';
-import { pb } from '../PureBasicAPI';
 
 /**
  * Service for document code mapping
@@ -92,7 +92,7 @@ export class DocSymbolMap {
 	public async getDocSymbols(params: DocumentSymbolParams): Promise<DocSymbol[]> {
 		let symbols: DocSymbol[];
 		if (!this.cachedDocSymbols.has(params.textDocument.uri)) {
-			const doc = await pb.documentation.find(params.textDocument);
+			const doc = await Doc.service.find(params.textDocument);
 			symbols = await this.load(doc);
 		}
 		else {

@@ -1,5 +1,6 @@
 import { DocumentFormattingParams, DocumentOnTypeFormattingParams, DocumentRangeFormattingParams, FormattingOptions, TextDocument, TextEdit } from 'vscode-languageserver';
 
+import { Doc } from './DocService';
 import { DocIndentation } from './../helpers/DocIndentation';
 import { LanguageSettings } from './LanguageSettings';
 import { RegexReplaceRule } from '../PureBasicDataModels';
@@ -31,15 +32,15 @@ export class DocFormatting {
 	private constructor() { }
 
 	public async formatAll(formatting: DocumentFormattingParams): Promise<TextEdit[]> {
-		const doc = await pb.documentation.find(formatting.textDocument);
+		const doc = await Doc.service.find(formatting.textDocument);
 		return this.formatLineByLine(doc, formatting.options, 0, doc.lineCount - 1);
 	}
 	public async formatRange(formatting: DocumentRangeFormattingParams): Promise<TextEdit[]> {
-		const doc = await pb.documentation.find(formatting.textDocument);
+		const doc = await Doc.service.find(formatting.textDocument);
 		return this.formatLineByLine(doc, formatting.options, formatting.range.start.line, formatting.range.end.line, formatting.range.end.character);
 	}
 	public async formatOnType(formatting: DocumentOnTypeFormattingParams): Promise<TextEdit[]> {
-		const doc = await pb.documentation.find(formatting.textDocument);
+		const doc = await Doc.service.find(formatting.textDocument);
 		return this.formatLineByLine(doc, formatting.options, formatting.position.line - 1, formatting.position.line, formatting.position.character);
 	}
 	private async formatLineByLine(doc: TextDocument, options: FormattingOptions, startLine: number, endLine: number, endLineCharacter?: number): Promise<TextEdit[]> {
