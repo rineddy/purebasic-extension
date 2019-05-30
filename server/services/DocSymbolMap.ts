@@ -1,7 +1,8 @@
+import { DocSymbolParser, DocSymbolToken } from '../helpers/DocSymbolParser';
 import { DocumentSymbolParams, SymbolInformation, TextDocument, WorkspaceSymbolParams } from 'vscode-languageserver';
 
 import { DocSymbol } from '../models/DocSymbol';
-import { DocSymbolParser } from '../helpers/DocSymbolParser';
+import { DocSymbolType } from '../models/DocSymbolType';
 import { DocTokenizer } from '../helpers/DocTokenizer';
 import { pb } from '../PureBasicAPI';
 
@@ -11,6 +12,52 @@ import { pb } from '../PureBasicAPI';
 export class DocSymbolMap {
 	public static service = new DocSymbolMap();
 	private readonly cachedDocSymbols: Map<string, DocSymbol[]> = new Map();
+	private readonly parsers: DocSymbolParser[] = [
+		new DocSymbolParser({
+			openToken: /^DeclareModule$/i, type: DocSymbolType.Module,
+			contentToken: DocSymbolToken.Name,
+			closeToken: /^EndDeclareModule$/i
+		}),
+		new DocSymbolParser({
+			openToken: /^Interface$/i, type: DocSymbolType.Interface,
+			contentToken: DocSymbolToken.Name,
+			closeToken: /^EndInterface$/i
+		}),
+		new DocSymbolParser({
+			openToken: /^Procedure(C|CDLL|DLL)?$/i, type: DocSymbolType.Procedure,
+			contentToken: DocSymbolToken.ReturnTypeName,
+			closeToken: /^EndProcedure$/i
+		}),
+		new DocSymbolParser({
+			openToken: /^Structure$/i, type: DocSymbolType.Structure,
+			contentToken: DocSymbolToken.Name,
+			closeToken: /^EndStructure$/i
+		}),
+		new DocSymbolParser({
+			openToken: /^Import(C)?$/i, type: DocSymbolType.Import,
+			contentToken: DocSymbolToken.Path,
+			closeToken: /^EndImport$/i
+		}),
+		new DocSymbolParser({
+			openToken: /^Macro$/i, type: DocSymbolType.Macro,
+			contentToken: DocSymbolToken.Name,
+			closeToken: /^EndMacro$/i
+		}),
+		new DocSymbolParser({
+			openToken: /^Enumeration(Binary)?$/i, type: DocSymbolType.Enum,
+			contentToken: DocSymbolToken.Name,
+			closeToken: /^EndEnumeration$/i
+		}),
+		new DocSymbolParser({
+			openToken: /^#.+?/, type: DocSymbolType.EnumMember,
+			contentToken: DocSymbolToken.Name,
+			parentType: DocSymbolType.Enum,
+		}),
+		new DocSymbolParser({
+			openToken: /^#.+?/, type: DocSymbolType.Constant,
+			contentToken: DocSymbolToken.Name,
+		}),
+	];
 
 	private constructor() { }
 
@@ -21,7 +68,7 @@ export class DocSymbolMap {
 			const { index, groups } = token;
 			tokenizer.startIndex = index + groups.beforeName.length;
 			const word = groups.name;
-			const parser = tokenizer.symbolParsers.find(p => p.openWith(word, tokenizer.openedSymbols)) || tokenizer.symbolParsers.find(p => p.closeWith(word)) || DocSymbolParser.Unknown;
+			const parser = this.parsers.find(p => p.openWith(word, tokenizer.openedSymbols)) || this.parsers.find(p => p.closeWith(word)) || DocSymbolParser.Unknown;
 			const { isClosed, isClosing } = parser;
 			if (isClosing) {
 				tokenizer.closeSymbol(parser);

@@ -1,8 +1,7 @@
-import { DocSymbolParser, DocSymbolToken } from './DocSymbolParser';
 import { DocumentSymbol, Position, Range, TextDocument } from 'vscode-languageserver';
 
 import { DocSymbol } from '../models/DocSymbol';
-import { DocSymbolType } from '../models/DocSymbolType';
+import { DocSymbolParser } from './DocSymbolParser';
 import { DocToken } from '../models/DocToken';
 import { ParsedSymbolSignature } from '../PureBasicDataModels';
 
@@ -17,52 +16,6 @@ export class DocTokenizer {
 	openedSymbols: DocSymbol[];
 	startIndex: number;
 	lastIndex: number;
-	public readonly symbolParsers: DocSymbolParser[] = [
-		new DocSymbolParser({
-			openToken: /^DeclareModule$/i, type: DocSymbolType.Module,
-			contentToken: DocSymbolToken.Name,
-			closeToken: /^EndDeclareModule$/i
-		}),
-		new DocSymbolParser({
-			openToken: /^Interface$/i, type: DocSymbolType.Interface,
-			contentToken: DocSymbolToken.Name,
-			closeToken: /^EndInterface$/i
-		}),
-		new DocSymbolParser({
-			openToken: /^Procedure(C|CDLL|DLL)?$/i, type: DocSymbolType.Procedure,
-			contentToken: DocSymbolToken.ReturnTypeName,
-			closeToken: /^EndProcedure$/i
-		}),
-		new DocSymbolParser({
-			openToken: /^Structure$/i, type: DocSymbolType.Structure,
-			contentToken: DocSymbolToken.Name,
-			closeToken: /^EndStructure$/i
-		}),
-		new DocSymbolParser({
-			openToken: /^Import(C)?$/i, type: DocSymbolType.Import,
-			contentToken: DocSymbolToken.Path,
-			closeToken: /^EndImport$/i
-		}),
-		new DocSymbolParser({
-			openToken: /^Macro$/i, type: DocSymbolType.Macro,
-			contentToken: DocSymbolToken.Name,
-			closeToken: /^EndMacro$/i
-		}),
-		new DocSymbolParser({
-			openToken: /^Enumeration(Binary)?$/i, type: DocSymbolType.Enum,
-			contentToken: DocSymbolToken.Name,
-			closeToken: /^EndEnumeration$/i
-		}),
-		new DocSymbolParser({
-			openToken: /^#.+?/, type: DocSymbolType.EnumMember,
-			contentToken: DocSymbolToken.Name,
-			parentType: DocSymbolType.Enum,
-		}),
-		new DocSymbolParser({
-			openToken: /^#.+?/, type: DocSymbolType.Constant,
-			contentToken: DocSymbolToken.Name,
-		}),
-	];
 
 	public constructor(doc: TextDocument) {
 		Object.assign(this, {
