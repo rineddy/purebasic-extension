@@ -5,7 +5,7 @@ import {
 } from 'vscode-languageserver';
 
 import { CodeCompletion } from './CodeCompletionService';
-import { CodeFormatting } from './CodeFormattingService';
+import { DocFormatting } from './DocFormattingService';
 import { DocMap } from './DocMapService';
 import { DocValidation } from './DocValidationService';
 import { LanguageSettings } from './LanguageSettingsService';
@@ -71,9 +71,9 @@ pb.connection.onDidChangeWatchedFiles(() => {
 });
 pb.connection.onCompletion(p => CodeCompletion.service.getCompletionItems(p));
 pb.connection.onCompletionResolve(p => CodeCompletion.service.getCompletionDescription(p));
-pb.connection.onDocumentFormatting(p => CodeFormatting.service.formatAll(p));
-pb.connection.onDocumentRangeFormatting(p => CodeFormatting.service.formatRange(p));
-pb.connection.onDocumentOnTypeFormatting(p => CodeFormatting.service.formatOnType(p));
+pb.connection.onDocumentFormatting(p => DocFormatting.service.formatAll(p));
+pb.connection.onDocumentRangeFormatting(p => DocFormatting.service.formatRange(p));
+pb.connection.onDocumentOnTypeFormatting(p => DocFormatting.service.formatOnType(p));
 pb.connection.onDocumentSymbol(p => DocMap.service.getDocSymbols(p));
 pb.connection.onWorkspaceSymbol(p => DocMap.service.getDocSymbolsFromWorkspace(p));
 

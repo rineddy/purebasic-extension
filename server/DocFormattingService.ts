@@ -11,8 +11,8 @@ import { RegexReplaceRule, pb } from './PureBasicAPI';
 /**
  * Service for code formatting
  */
-export class CodeFormatting {
-	public static service = new CodeFormatting();
+export class DocFormatting {
+	public static service = new DocFormatting();
 	private readonly beautificationRules: RegexReplaceRule[] = [
 		[/\s+/g, ' '],
 		[/\s+(,)/g, '$1'],
