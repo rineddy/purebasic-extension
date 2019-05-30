@@ -1,5 +1,7 @@
 import { DocumentFormattingParams, DocumentOnTypeFormattingParams, DocumentRangeFormattingParams, FormattingOptions, TextDocument, TextEdit } from 'vscode-languageserver';
 
+import { DocIndentation } from './../helpers/DocIndentation';
+import { LanguageSettings } from './LanguageSettings';
 import { RegexReplaceRule } from '../PureBasicDataModels';
 import { pb } from '../PureBasicAPI';
 
@@ -42,17 +44,18 @@ export class DocFormatting {
 	}
 	private async formatLineByLine(doc: TextDocument, options: FormattingOptions, startLine: number, endLine: number, endLineCharacter?: number): Promise<TextEdit[]> {
 		const textEdits: TextEdit[] = [];
-		const indentContext = await pb.indentation.create(doc, options);
+		const settings = await LanguageSettings.service.load(doc);
+		const indentation = new DocIndentation(doc, options, settings);
 		for (let line = startLine - 1; line >= 0; line--) {
 			const parsedLine = pb.line.parseLine(doc, line);
-			if (pb.indentation.pick(parsedLine, indentContext)) {
+			if (indentation.pick(parsedLine)) {
 				break;
 			}
 		}
 		for (let line = startLine; line <= endLine; line++) {
 			const parsedLine = pb.line.parseLine(doc, line, line === endLine ? endLineCharacter : undefined);
 			pb.line.updateLine(parsedLine, parsedLine => {
-				pb.indentation.update(parsedLine, indentContext);
+				indentation.update(parsedLine);
 				pb.line.beautify(parsedLine, this.beautificationRules);
 				if (parsedLine.cut) {
 					if (parsedLine.isBlank) { pb.line.trimAfterCutSpaces(parsedLine); }

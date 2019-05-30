@@ -1,4 +1,4 @@
-import { FormattingOptions, Position, Range, TextDocument } from 'vscode-languageserver';
+import { Position, Range, TextDocument } from 'vscode-languageserver';
 
 import { DocSymbol } from './models/DocSymbol';
 
@@ -19,17 +19,6 @@ export interface IndentationRule {
 	readonly flags?: string;
 	readonly before: number;
 	readonly after: number;
-}
-/**
- * Represents custom indenting context for current and next line
- */
-export interface IndentationContext {
-	current: number;
-	next: number;
-	readonly options: FormattingOptions;
-	readonly indentRules: IndentationRule[];
-	readonly oneIndent: string;
-	readonly tabSpaces: string;
 }
 /**
  * Represents parsed line structure (indentation spaces, text content, words, strings, comment)
