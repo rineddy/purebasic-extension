@@ -1,10 +1,9 @@
-import { DocSymbolValidator } from './DocSymbolValidator';
+import { DocSymbolValidator } from './PureBasicAPI';
 import { SymbolKind } from 'vscode-languageserver';
 
 /**
  * Type of document symbol
  */
-export type DocSymbolType = { readonly icon?: SymbolKind; readonly validator?: DocSymbolValidator };
 export namespace DocSymbolType {
 	export const Unknown = {};
 	export const Module = <DocSymbolType>{
@@ -44,3 +43,4 @@ export namespace DocSymbolType {
 		validator: DocSymbolValidator.ValidString,
 	};
 }
+export type DocSymbolType = { readonly icon?: SymbolKind; readonly validator?: DocSymbolValidator };

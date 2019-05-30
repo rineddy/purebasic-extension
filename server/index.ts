@@ -1,15 +1,5 @@
-import {
-	DidChangeConfigurationNotification,
-	InitializeParams,
-	TextDocumentSyncKind,
-} from 'vscode-languageserver';
-
-import { CodeCompletion } from './CodeCompletionService';
-import { DocFormatting } from './DocFormattingService';
-import { DocMap } from './DocMapService';
-import { DocValidation } from './DocValidationService';
-import { LanguageSettings } from './LanguageSettingsService';
-import { pb } from './PureBasicAPI';
+import { CodeCompletion, DocFormatting, DocSymbolMap, DocValidation, LanguageSettings, pb } from './PureBasicAPI';
+import { DidChangeConfigurationNotification, InitializeParams, TextDocumentSyncKind } from 'vscode-languageserver';
 
 /* --------------------------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -74,14 +64,14 @@ pb.connection.onCompletionResolve(p => CodeCompletion.service.getCompletionDescr
 pb.connection.onDocumentFormatting(p => DocFormatting.service.formatAll(p));
 pb.connection.onDocumentRangeFormatting(p => DocFormatting.service.formatRange(p));
 pb.connection.onDocumentOnTypeFormatting(p => DocFormatting.service.formatOnType(p));
-pb.connection.onDocumentSymbol(p => DocMap.service.getDocSymbols(p));
-pb.connection.onWorkspaceSymbol(p => DocMap.service.getDocSymbolsFromWorkspace(p));
+pb.connection.onDocumentSymbol(p => DocSymbolMap.service.getDocSymbols(p));
+pb.connection.onWorkspaceSymbol(p => DocSymbolMap.service.getDocSymbolsFromWorkspace(p));
 
 pb.documentation.onDidOpen(() => {
 });
 pb.documentation.onDidClose(closed => {
 	LanguageSettings.service.delete(closed.document);
-	DocMap.service.delete(closed.document);
+	DocSymbolMap.service.delete(closed.document);
 });
 pb.documentation.onDidChangeContent(changed => {
 	DocValidation.service.validate(changed.document);

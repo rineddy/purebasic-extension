@@ -3,22 +3,27 @@ import {
 	createConnection
 } from 'vscode-languageserver';
 
-import { DocTokenizer } from './DocTokenizer';
 import { PureBasicDocumentation } from './PureBasicDocumentation';
 import { PureBasicIndentation } from './PureBasicIndentation';
 import { PureBasicLine } from './PureBasicLine';
 
+export * from './CodeCompletionService';
 export * from './PureBasicDataModels';
+export * from './DocFormattingService';
+export * from './DocSymbolMapService';
+export * from './DocSymbolParsers';
+export * from './DocSymbols';
+export * from './DocSymbolType';
+export * from './DocSymbolValidator';
+export * from './DocTokenizer';
+export * from './DocValidationService';
+export * from './LanguageSettingsService';
 
 export namespace pb {
 	/**
 	 * Provide functions used to parse and modify line structure and data
 	 */
 	export const line = new PureBasicLine();
-	/**
-	 * Provide functions used to parse and modify text structure and data
-	 */
-	export const text = new DocTokenizer();
 	/**
 	 * Provide functions used to calculate and modify text indentation
 	 */

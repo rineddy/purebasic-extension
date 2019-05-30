@@ -1,10 +1,5 @@
-import {
-	ClientCapabilities,
-	DidChangeConfigurationParams,
-	InitializeParams,
-	TextDocument
-} from 'vscode-languageserver';
-import { ICustomSettings, pb } from './PureBasicAPI';
+import { ClientCapabilities, DidChangeConfigurationParams, InitializeParams, TextDocument } from 'vscode-languageserver';
+import { ICustomSettings as DocSettings, pb } from './PureBasicAPI';
 
 export class LanguageSettings {
 	public static service = new LanguageSettings();
@@ -13,14 +8,14 @@ export class LanguageSettings {
 	public hasWorkspaceConfigCapability: boolean = false;
 	public hasWorkspaceFolderCapability: boolean = false;
 	public hasDiagnosticRelatedInformationCapability: boolean = false;
-	private cachedDocumentSettings: Map<string, Thenable<ICustomSettings>> = new Map();
+	private cachedDocSettings: Map<string, Thenable<DocSettings>> = new Map();
 
 	private constructor() { }
 
 	/**
 	 * Default settings
 	 */
-	private readonly DEFAULT_SETTINGS = <ICustomSettings>{
+	private readonly DEFAULT_SETTINGS = <DocSettings>{
 		diagnostics: {
 			maxNumberOfProblems: 1000
 		},
@@ -35,9 +30,6 @@ export class LanguageSettings {
 			}
 		]
 	};
-	/**
-	 * Initializes cached document settings and technical settings
-	 */
 	public initialize(params: InitializeParams) {
 		this.initParams = params;
 		this.clientCapabilities = this.initParams.capabilities;
@@ -50,45 +42,29 @@ export class LanguageSettings {
 		// Please note that this is not the case when using this server with the client provided in this example but could happen with other clients.
 		if (!this.hasWorkspaceConfigCapability) {
 			const globalSettings = Promise.resolve(this.DEFAULT_SETTINGS);
-			this.cachedDocumentSettings.set('', globalSettings);
+			this.cachedDocSettings.set('', globalSettings);
 		}
 	}
-	/**
-	 * Reset settings
-	 * @param changed
-	 */
 	public reset(changed: DidChangeConfigurationParams) {
 		// Clear cached document settings
-		this.cachedDocumentSettings.clear();
+		this.cachedDocSettings.clear();
 		if (!this.hasWorkspaceConfigCapability) {
-			const globalSettings = Promise.resolve(<ICustomSettings>(changed.settings.purebasicLanguage || this.DEFAULT_SETTINGS));
-			this.cachedDocumentSettings.set('', globalSettings.then(this.loadIndentationRules));
+			const globalSettings = Promise.resolve(<DocSettings>(changed.settings.purebasicLanguage || this.DEFAULT_SETTINGS));
+			this.cachedDocSettings.set('', globalSettings.then(this.loadIndentationRules));
 		}
 	}
-	/**
-	 * Load settings after opening document
-	 * @param doc
-	 */
-	public load(doc: TextDocument): Thenable<ICustomSettings> {
-		let settings = this.cachedDocumentSettings.get(this.hasWorkspaceConfigCapability ? doc.uri : '');
+	public load(doc: TextDocument): Thenable<DocSettings> {
+		let settings = this.cachedDocSettings.get(this.hasWorkspaceConfigCapability ? doc.uri : '');
 		if (!settings) {
 			settings = pb.connection.workspace.getConfiguration({ scopeUri: doc.uri, section: 'purebasicLanguage' });
-			this.cachedDocumentSettings.set(doc.uri, settings.then(this.loadIndentationRules));
+			this.cachedDocSettings.set(doc.uri, settings.then(this.loadIndentationRules));
 		}
 		return settings;
 	}
-	/**
-	 * Delete settings before closing document
-	 * @param doc
-	 */
 	public delete(doc: TextDocument) {
-		this.cachedDocumentSettings.delete(doc.uri);
+		this.cachedDocSettings.delete(doc.uri);
 	}
-	/**
-	 * Load indentation rules after converting string into regex
-	 * @param settings
-	 */
-	private loadIndentationRules(settings: ICustomSettings): PromiseLike<ICustomSettings> {
+	private loadIndentationRules(settings: DocSettings): PromiseLike<DocSettings> {
 		settings.indentationRules.forEach(r => {
 			// convert indent rules from string to RegExp
 			if (typeof (r.regex) === 'string') { r.regex = new RegExp(r.regex, r.flags); }

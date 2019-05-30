@@ -1,8 +1,4 @@
-import {
-	CompletionItem,
-	CompletionItemKind,
-	TextDocumentPositionParams
-} from 'vscode-languageserver';
+import { CompletionItem, CompletionItemKind, TextDocumentPositionParams } from 'vscode-languageserver';
 
 /**
  * Service for code completion

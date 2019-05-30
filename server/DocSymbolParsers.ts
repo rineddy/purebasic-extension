@@ -1,5 +1,4 @@
-import { DocSymbol } from './DocSymbols';
-import { DocSymbolType } from './DocSymbolType';
+import { DocSymbol, DocSymbolType } from './PureBasicAPI';
 
 /**
  * Token of document symbol. (symbol building block description)

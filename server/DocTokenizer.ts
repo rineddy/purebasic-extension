@@ -1,17 +1,17 @@
-import { DocSymbolParser, DocSymbolToken } from './DocSymbolParsers';
+import { DocSymbol, DocSymbolParser, DocSymbolToken, DocSymbolType, ParsedSymbolSignature, ParsedText, pb } from './PureBasicAPI';
 import { DocumentSymbol, Position, Range, TextDocument } from 'vscode-languageserver';
-import { ParsedSymbolSignature, ParsedText, pb } from './PureBasicAPI';
-
-import { DocSymbol } from './DocSymbols';
-import { DocSymbolType } from './DocSymbolType';
 
 /**
  * Service for document code mapping
  */
 export class DocTokenizer {
-	/**
-	 * Parsers used to detect any symbols based on text tokens
-	 */
+	readonly text: string;
+	readonly doc: TextDocument;
+	readonly docLastPos: Position;
+	readonly symbols: DocSymbol[];
+	readonly openedSymbols: DocSymbol[];
+	startIndex: number;
+	lastIndex: number;
 	private readonly SymbolParsers: DocSymbolParser[] = [
 		new DocSymbolParser({
 			openToken: /^DeclareModule$/i, type: DocSymbolType.Module,
@@ -58,23 +58,24 @@ export class DocTokenizer {
 			contentToken: DocSymbolToken.Name,
 		}),
 	];
-	/**
-	 * Read document text to parse
-	 * @param doc
-	 */
-	public parseText(doc: TextDocument): ParsedText {
-		const readText = doc.getText();
-		return <ParsedText>{
-			text: readText,
+
+	public constructor(doc: TextDocument) {
+		Object.assign(this, {
+			text: doc.getText(),
 			doc: doc,
 			docLastPos: Position.create(doc.lineCount, 0),
 			startIndex: 0,
 			lastIndex: 0,
 			symbols: [],
 			openedSymbols: [],
-		};
+		});
 	}
-	public nextSymbol(parsedText: ParsedText): boolean {
+
+	public *nextToken(): Iterable<Boolean> {
+	}
+
+	public *nextSymbol(parsedText: ParsedText): Iterable<Boolean> {
+		yield true;
 		let isSuccess = pb.text.startWith(parsedText, /(?<beforeName>(?:^|:)[ \t]*)(?<name>[#]?[\w\u00C0-\u017F]+[$]?)|"(?:[^"\r\n\\]|\\.)*"?|'[^\r\n']*'?|;.*?$/gm, (res, groups) => {
 			if (/^["';]/.test(res[0])) return; // skip symbol for string or comment
 			parsedText.startIndex = res.index + groups.beforeName.length;

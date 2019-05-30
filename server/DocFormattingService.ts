@@ -1,11 +1,4 @@
-import {
-	DocumentFormattingParams,
-	DocumentOnTypeFormattingParams,
-	DocumentRangeFormattingParams,
-	FormattingOptions,
-	TextDocument,
-	TextEdit,
-} from 'vscode-languageserver';
+import { DocumentFormattingParams, DocumentOnTypeFormattingParams, DocumentRangeFormattingParams, FormattingOptions, TextDocument, TextEdit } from 'vscode-languageserver';
 import { RegexReplaceRule, pb } from './PureBasicAPI';
 
 /**
