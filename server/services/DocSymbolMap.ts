@@ -17,7 +17,7 @@ export class DocSymbolMap {
 	public async load(doc: TextDocument): Promise<DocSymbol[]> {
 		const tokenizer = new DocTokenizer(doc);
 		let symbols = [];
-		while (tokenizer.nextToken(/(?<beforeName>(?:^|:)[ \t]*)(?<name>[#]?[\w\u00C0-\u017F]+[$]?)|"(?:[^"\r\n\\]|\\.)*"?|'[^\r\n']*'?|;.*?$/gm, token => {
+		for (const token of tokenizer.nextToken(/(?<beforeName>(?:^|:)[ \t]*)(?<name>[#]?[\w\u00C0-\u017F]+[$]?)|"(?:[^"\r\n\\]|\\.)*"?|'[^\r\n']*'?|;.*?$/gm)) {
 			const { index, groups } = token;
 			tokenizer.startIndex = index + groups.beforeName.length;
 			const word = groups.name;
@@ -29,12 +29,12 @@ export class DocSymbolMap {
 				const signature = tokenizer.getSymbolSignature(token, true);
 				tokenizer.openSymbol(parser, signature);
 			} else if (parser !== DocSymbolParser.Unknown) {
-				tokenizer.siblingToken(parser.contentToken, token => {
+				for (const token of tokenizer.siblingToken(parser.contentToken, 1)) {
 					const signature = tokenizer.getSymbolSignature(token);
 					tokenizer.openSymbol(parser, signature);
-				});
+				}
 			}
-		}));
+		}
 		symbols = tokenizer.symbols;
 		this.cachedDocSymbols.set(doc.uri, symbols);
 		return Promise.resolve(symbols);

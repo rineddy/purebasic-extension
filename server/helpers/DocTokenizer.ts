@@ -76,22 +76,27 @@ export class DocTokenizer {
 		});
 	}
 
-	public nextToken(regex: RegExp, onSuccess: (token: DocToken) => void): boolean {
-		let isSuccess: boolean;
-		regex.lastIndex = this.lastIndex;
-		const res = regex.exec(this.text);
-		if (res) {
+	public *nextToken(regex: RegExp, count = -1) {
+		let res: RegExpExecArray;
+		while ((res = regex.exec(this.text)) && count-- !== 0) {
 			this.lastIndex = regex.lastIndex;
-			const token = new DocToken({
+			yield new DocToken({
 				index: res.index,
 				groups: res['groups'] || {}
 			});
-			onSuccess(token);
-			isSuccess = true;
-		} else {
-			isSuccess = false;
+			regex.lastIndex = this.lastIndex;
 		}
-		return isSuccess;
+	}
+	public *siblingToken(regex: RegExp, count = -1) {
+		let res: RegExpExecArray;
+		while ((res = regex.exec(this.text)) && res.index === this.lastIndex && count-- !== 0) {
+			this.lastIndex = regex.lastIndex;
+			yield new DocToken({
+				index: res.index,
+				groups: res['groups'] || {}
+			});
+			regex.lastIndex = this.lastIndex;
+		}
 	}
 	public getSymbolSignature(token: DocToken, isClosed?: boolean) {
 		const { groups, index } = token;
@@ -144,21 +149,5 @@ export class DocTokenizer {
 			openedSymbol.range.end = endPos;
 		}
 	}
-	public siblingToken(regex: RegExp, onSuccess: (token: DocToken) => void): boolean {
-		let isSuccess: boolean;
-		regex.lastIndex = this.lastIndex;
-		const res = regex.exec(this.text);
-		if (res && res.index === this.lastIndex) {
-			this.lastIndex = regex.lastIndex;
-			const token = new DocToken({
-				index: res.index,
-				groups: res['groups'] || {}
-			});
-			onSuccess(token);
-			isSuccess = true;
-		} else {
-			isSuccess = false;
-		}
-		return isSuccess;
-	}
+
 }
