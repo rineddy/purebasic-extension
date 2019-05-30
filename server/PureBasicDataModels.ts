@@ -1,25 +1,5 @@
-import { Position, Range, TextDocument } from 'vscode-languageserver';
+import { Range } from 'vscode-languageserver';
 
-import { DocSymbol } from './models/DocSymbol';
-
-/**
- * Represents Purebasic settings customized by user
- */
-export interface DocSettings {
-	diagnostics: {
-		maxNumberOfProblems: number;
-	};
-	indentationRules: IndentationRule[];
-}
-/**
- * Represents Purebasic indentation rules
- */
-export interface IndentationRule {
-	regex: string | RegExp;
-	readonly flags?: string;
-	readonly before: number;
-	readonly after: number;
-}
 /**
  * Represents parsed line structure (indentation spaces, text content, words, strings, comment)
  */
@@ -40,19 +20,6 @@ export interface ParsedLine {
 	comment: string;
 	endSpaces: string;
 }
-/**
- * Represents parsed text structure (text, strings, comments)
- */
-export interface ParsedText {
-	readonly text: string;
-	readonly doc: TextDocument;
-	readonly docLastPos: Position;
-	startIndex: number;
-	lastIndex: number;
-	symbols: DocSymbol[];
-	openedSymbols: DocSymbol[];
-}
-
 /**
  * Represents parsed symbol signature info
  */

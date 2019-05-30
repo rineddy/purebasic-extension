@@ -1,6 +1,6 @@
 import { ClientCapabilities, DidChangeConfigurationParams, InitializeParams, TextDocument } from 'vscode-languageserver';
 
-import { DocSettings } from '../PureBasicDataModels';
+import { DocSettings } from '../models/DocSettings';
 import { pb } from '../PureBasicAPI';
 
 export class LanguageSettings {
