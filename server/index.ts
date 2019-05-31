@@ -3,7 +3,7 @@ import { DidChangeConfigurationNotification, InitializeParams, TextDocumentSyncK
 import { Client } from './services/Client';
 import { ClientSettings } from './services/ClientSettings';
 import { CodeCompletion } from './services/CodeCompletion';
-import { Doc } from './services/DocService';
+import { DocCollection } from './services/DocCollection';
 import { DocFormatting } from './services/DocFormatting';
 import { DocSymbolMap } from './services/DocSymbolMap';
 import { DocValidation } from './services/DocValidation';
@@ -61,7 +61,7 @@ Client.connection.onInitialized(() => {
 
 Client.connection.onDidChangeConfiguration(changed => {
 	ClientSettings.service.reset(changed);
-	Doc.service.all().forEach(DocValidation.service.validate);
+	DocCollection.service.all().forEach(DocValidation.service.validate);
 });
 Client.connection.onDidChangeWatchedFiles(() => {
 	Client.connection.console.log('We received an file change event');
@@ -74,15 +74,15 @@ Client.connection.onDocumentOnTypeFormatting(p => DocFormatting.service.formatOn
 Client.connection.onDocumentSymbol(p => DocSymbolMap.service.getDocSymbols(p));
 Client.connection.onWorkspaceSymbol(p => DocSymbolMap.service.getDocSymbolsFromWorkspace(p));
 
-Doc.service.onDidOpen(() => {
+DocCollection.service.onDidOpen(() => {
 });
-Doc.service.onDidClose(closed => {
+DocCollection.service.onDidClose(closed => {
 	ClientSettings.service.delete(closed.document);
 	DocSymbolMap.service.delete(closed.document);
 });
-Doc.service.onDidChangeContent(changed => {
+DocCollection.service.onDidChangeContent(changed => {
 	DocValidation.service.validate(changed.document);
 });
 
 Client.connection.listen(); 				// Listen on the Connection.service
-Doc.service.listen(Client.connection); // Make the text document manager listen on the Connection.service (for open, change and close text document events)
+DocCollection.service.listen(Client.connection); // Make the text document manager listen on the Connection.service (for open, change and close text document events)
