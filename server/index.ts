@@ -1,11 +1,11 @@
 import { DidChangeConfigurationNotification, InitializeParams, TextDocumentSyncKind } from 'vscode-languageserver';
 
 import { Client } from './services/Client';
-import { ClientSettings } from './services/ClientSettings';
 import { CodeCompletion } from './services/CodeCompletion';
 import { DocFormatting } from './services/DocFormatting';
 import { DocHandling } from './services/DocHandling';
 import { DocMapping } from './services/DocMapping';
+import { DocSettings } from './services/DocSettings';
 import { DocValidation } from './services/DocValidation';
 
 /* --------------------------------------------------------------------------------------------
@@ -15,7 +15,7 @@ import { DocValidation } from './services/DocValidation';
 'use strict';
 
 Client.connection.onInitialize((params: InitializeParams) => {
-	ClientSettings.service.initialize(params);
+	DocSettings.service.initialize(params);
 	return {
 		capabilities: {
 			textDocumentSync: TextDocumentSyncKind.Full,
@@ -45,11 +45,11 @@ Client.connection.onInitialize((params: InitializeParams) => {
 });
 
 Client.connection.onInitialized(() => {
-	if (ClientSettings.service.hasWorkspaceConfigCapability) {
+	if (DocSettings.service.hasWorkspaceConfigCapability) {
 		// Register for all configuration changes.
 		Client.connection.client.register(DidChangeConfigurationNotification.type);
 	}
-	if (ClientSettings.service.hasWorkspaceFolderCapability) {
+	if (DocSettings.service.hasWorkspaceFolderCapability) {
 		Client.connection.workspace.getWorkspaceFolders().then(folders => folders.forEach(folder => {
 			Client.connection.console.log(folder.uri);
 		}));
@@ -60,7 +60,7 @@ Client.connection.onInitialized(() => {
 });
 
 Client.connection.onDidChangeConfiguration(changed => {
-	ClientSettings.service.reset(changed);
+	DocSettings.service.reset(changed);
 	DocHandling.service.all().forEach(DocValidation.service.validate);
 });
 Client.connection.onDidChangeWatchedFiles(() => {
@@ -77,7 +77,7 @@ Client.connection.onWorkspaceSymbol(p => DocMapping.service.getDocSymbolsFromWor
 DocHandling.service.onDidOpen(() => {
 });
 DocHandling.service.onDidClose(closed => {
-	ClientSettings.service.delete(closed.document);
+	DocSettings.service.delete(closed.document);
 	DocMapping.service.delete(closed.document);
 });
 DocHandling.service.onDidChangeContent(changed => {

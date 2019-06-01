@@ -1,9 +1,9 @@
 import { DocumentFormattingParams, DocumentOnTypeFormattingParams, DocumentRangeFormattingParams, FormattingOptions, TextDocument, TextEdit } from 'vscode-languageserver';
 
 import { BeautificationRule } from '../models/BeautificationRule';
-import { ClientSettings } from './ClientSettings';
 import { DocHandling } from './DocHandling';
 import { DocIndentation } from './../helpers/DocIndentation';
+import { DocSettings } from './DocSettings';
 import { LineParser } from '../helpers/LineParser';
 
 /**
@@ -45,7 +45,7 @@ export class DocFormatting {
 	}
 	private async formatLineByLine(doc: TextDocument, options: FormattingOptions, startLine: number, endLine: number, endLineCharacter?: number): Promise<TextEdit[]> {
 		const textEdits: TextEdit[] = [];
-		const settings = await ClientSettings.service.load(doc);
+		const settings = await DocSettings.service.load(doc);
 		const indentation = new DocIndentation(doc, options, settings);
 		for (let line = startLine - 1; line >= 0; line--) {
 			const parsedLine = new LineParser(doc, line);

@@ -1,8 +1,8 @@
 import { FormattingOptions, TextDocument } from 'vscode-languageserver';
 
-import { DocSettings } from '../models/DocSettings';
 import { IndentationRule } from '../models/IndentationRule';
 import { LineParser } from './LineParser';
+import { PurebasicSettings } from '../models/PurebasicSettings';
 
 export class DocIndentation {
 	public readonly options: FormattingOptions;
@@ -34,7 +34,7 @@ export class DocIndentation {
 		},
 	];
 
-	public constructor(doc: TextDocument, options: FormattingOptions, settings: DocSettings) {
+	public constructor(doc: TextDocument, options: FormattingOptions, settings: PurebasicSettings) {
 		Object.assign(this, {
 			current: 0,
 			next: 0,
