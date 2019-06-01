@@ -11,14 +11,8 @@ export class DocRegistering extends TextDocuments {
 		super();
 	}
 
-	public find(docInfo: TextDocumentIdentifier | string): Thenable<TextDocument> {
-		let doc: TextDocument | undefined;
-		if (typeof (docInfo) === 'string') {
-			doc = this.get(docInfo);
-		}
-		else {
-			doc = this.get(docInfo.uri);
-		}
-		return doc ? Promise.resolve(doc) : Promise.reject(`Invalid docInfo: ${docInfo.toString()}`);
+	public find(docIdentifier: TextDocumentIdentifier): Thenable<TextDocument> {
+		const doc = this.get(docIdentifier.uri);
+		return doc ? Promise.resolve(doc) : Promise.reject(`doc '${docIdentifier.uri}' not found!`);
 	}
 }

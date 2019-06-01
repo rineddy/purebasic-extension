@@ -65,10 +65,9 @@ export class DocMapping {
 		const tokenizer = new DocTokenizer(doc);
 		let symbols = [];
 		for (const token of tokenizer.nextToken(/(?<beforeName>(?:^|:)[ \t]*)(?<name>[#]?[\w\u00C0-\u017F]+[$]?)|"(?:[^"\r\n\\]|\\.)*"?|'[^\r\n']*'?|;.*?$/gm)) {
-			const { index, groups } = token;
-			tokenizer.startIndex = index + groups.beforeName.length;
-			const word = groups.name;
-			const parser = this.parsers.find(p => p.openWith(word, tokenizer.openedSymbols)) || this.parsers.find(p => p.closeWith(word)) || DocSymbolParser.Unknown;
+			const { index, groups: { name, beforeName } } = token;
+			tokenizer.startIndex = index + beforeName.length;
+			const parser = this.parsers.find(p => p.openWith(name, tokenizer.openedSymbols)) || this.parsers.find(p => p.closeWith(name)) || DocSymbolParser.Unknown;
 			const { isClosed, isClosing } = parser;
 			if (isClosing) {
 				tokenizer.closeSymbol(parser);
@@ -90,15 +89,11 @@ export class DocMapping {
 		this.cachedDocSymbols.delete(doc.uri);
 	}
 	public async getDocSymbols(params: DocumentSymbolParams): Promise<DocSymbol[]> {
-		let symbols: DocSymbol[];
 		if (!this.cachedDocSymbols.has(params.textDocument.uri)) {
 			const doc = await DocRegistering.service.find(params.textDocument);
-			symbols = await this.load(doc);
+			await this.load(doc);
 		}
-		else {
-			symbols = this.cachedDocSymbols.get(params.textDocument.uri);
-		}
-		return symbols.filter(s => s.isRootSymbol);
+		return this.cachedDocSymbols.get(params.textDocument.uri).filter(s => s.isRootSymbol);
 	}
 	public async getDocSymbolsFromWorkspace(params: WorkspaceSymbolParams): Promise<SymbolInformation[]> {
 		// params.query
