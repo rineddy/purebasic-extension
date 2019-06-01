@@ -1,12 +1,5 @@
+import { Client, CodeCompletion, DocFormatting, DocHandling, DocMapping, DocSettings, DocValidation } from './services';
 import { DidChangeConfigurationNotification, InitializeParams, TextDocumentSyncKind } from 'vscode-languageserver';
-
-import { Client } from './services/Client';
-import { CodeCompletion } from './services/CodeCompletion';
-import { DocFormatting } from './services/DocFormatting';
-import { DocHandling } from './services/DocHandling';
-import { DocMapping } from './services/DocMapping';
-import { DocSettings } from './services/DocSettings';
-import { DocValidation } from './services/DocValidation';
 
 /* --------------------------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.

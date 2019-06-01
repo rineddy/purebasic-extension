@@ -1,10 +1,7 @@
 import { DocumentFormattingParams, DocumentOnTypeFormattingParams, DocumentRangeFormattingParams, FormattingOptions, TextDocument, TextEdit } from 'vscode-languageserver';
-
-import { BeautificationRule } from '../models/BeautificationRule';
-import { DocHandling } from './DocHandling';
-import { DocIndentation } from './../helpers/DocIndentation';
-import { DocSettings } from './DocSettings';
-import { LineParser } from '../helpers/LineParser';
+import { BeautificationRule } from '../models';
+import { DocIndentation, LineParser } from '../helpers';
+import { DocHandling, DocSettings } from '.';
 
 /**
  * Service for doc text formatting

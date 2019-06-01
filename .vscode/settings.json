@@ -13,6 +13,8 @@
 		"**/out": true, // set this to false to include "out" folder in search results
 		"**/node_modules": true // set this to true to hide the "out" folder with the compiled JS files
 	},
+	"sort-imports.default-sort-style": "eslint",
+	"sort-imports.on-save": false,
 	"typescript.tsc.autoDetect": "off",
 	"typescript.preferences.quoteStyle": "single",
 	"editor.formatOnPaste": true,

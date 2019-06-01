@@ -1,12 +1,8 @@
-import { DocumentSymbolParams, SymbolInformation, TextDocument, WorkspaceSymbolParams } from 'vscode-languageserver';
+import { TextDocument, DocumentSymbolParams, WorkspaceSymbolParams, SymbolInformation } from 'vscode-languageserver';
+import { DocSymbol, DocSymbolType, DocTokenRegex, ParsingContext } from '../models';
+import { DocTokenParser, DocTokenizer } from '../helpers';
+import { DocHandling } from '.';
 
-import { DocHandling } from './DocHandling';
-import { DocSymbol } from '../models/DocSymbol';
-import { DocSymbolType } from '../models/DocSymbolType';
-import { DocTokenParser } from '../helpers/DocTokenParser';
-import { DocTokenRegex } from '../models/DocTokenRegex';
-import { DocTokenizer } from '../helpers/DocTokenizer';
-import { ParsingContext } from '../models/ParsingContext';
 
 /**
  * Service for document symbol mapping

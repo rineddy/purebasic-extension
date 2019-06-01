@@ -1,6 +1,5 @@
 import { Range, TextDocument } from 'vscode-languageserver';
-
-import { BeautificationRule } from '../models/BeautificationRule';
+import { BeautificationRule } from '../models';
 
 export class LineParser {
 	public newText: string;

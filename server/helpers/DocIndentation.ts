@@ -1,8 +1,6 @@
 import { FormattingOptions, TextDocument } from 'vscode-languageserver';
-
-import { IndentationRule } from '../models/IndentationRule';
-import { LineParser } from './LineParser';
-import { PurebasicSettings } from '../models/PurebasicSettings';
+import { IndentationRule, PurebasicSettings } from '../models';
+import { LineParser } from '.';
 
 export class DocIndentation {
 	public readonly options: FormattingOptions;

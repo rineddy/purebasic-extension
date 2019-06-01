@@ -1,4 +1,4 @@
-import { IndentationRule } from './IndentationRule';
+import { IndentationRule } from '.';
 
 /**
  * Represents Purebasic settings customized by user

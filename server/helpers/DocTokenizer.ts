@@ -1,8 +1,5 @@
 import { Position, TextDocument } from 'vscode-languageserver';
-
-import { DocSymbol } from '../models/DocSymbol';
-import { DocToken } from '../models/DocToken';
-import { DocTokenRegex } from '../models/DocTokenRegex';
+import { DocSymbol, DocToken, DocTokenRegex } from '../models';
 
 /**
  * Service for document code mapping

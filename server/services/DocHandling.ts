@@ -1,8 +1,4 @@
-import {
-	TextDocument,
-	TextDocumentIdentifier,
-	TextDocuments,
-} from 'vscode-languageserver';
+import { TextDocument, TextDocumentIdentifier, TextDocuments, } from 'vscode-languageserver';
 
 /**
  * Service for document handling (register doc / search doc / doc events)

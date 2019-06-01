@@ -1,5 +1,4 @@
-import { ClosureStatus } from './ClosureStatus';
-import { DocSymbolType } from './DocSymbolType';
+import { ClosureStatus, DocSymbolType } from '.';
 
 /**
  * Text token extracted from document

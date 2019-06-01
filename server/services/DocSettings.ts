@@ -1,7 +1,6 @@
 import { ClientCapabilities, DidChangeConfigurationParams, InitializeParams, TextDocument } from 'vscode-languageserver';
-
-import { Client } from './Client';
-import { PurebasicSettings } from '../models/PurebasicSettings';
+import { PurebasicSettings } from '../models';
+import { Client } from '.';
 
 /**
  * Service for doc user settings

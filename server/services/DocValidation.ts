@@ -1,8 +1,5 @@
 import { Diagnostic, TextDocument } from 'vscode-languageserver';
-
-import { Client } from './Client';
-import { DocMapping } from './DocMapping';
-import { DocSettings } from './DocSettings';
+import { Client, DocMapping, DocSettings } from '.';
 
 /**
  * Service for document validation

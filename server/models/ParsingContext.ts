@@ -1,5 +1,5 @@
-import { DocSymbol } from './DocSymbol';
-import { DocTokenizer } from '../helpers/DocTokenizer';
+import { DocTokenizer } from '../helpers';
+import { DocSymbol } from '.';
 
 export interface ParsingContext {
 	tokenizer: DocTokenizer;

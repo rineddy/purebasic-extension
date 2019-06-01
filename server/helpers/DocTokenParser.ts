@@ -1,11 +1,5 @@
 import { DocumentSymbol, Range } from 'vscode-languageserver';
-
-import { ClosureStatus } from '../models/ClosureStatus';
-import { DocSymbol } from '../models/DocSymbol';
-import { DocSymbolType } from '../models/DocSymbolType';
-import { DocToken } from '../models/DocToken';
-import { DocTokenRegex } from '../models/DocTokenRegex';
-import { ParsingContext } from '../models/ParsingContext';
+import { ClosureStatus, DocSymbol, DocSymbolType, DocToken, DocTokenRegex, ParsingContext } from '../models';
 
 /**
  * Describes how to parse document tokens to detect any type of symbol

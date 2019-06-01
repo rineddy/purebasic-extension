@@ -1,5 +1,5 @@
-import { DocSymbolValidator } from '../helpers/DocSymbolValidator';
 import { SymbolKind } from 'vscode-languageserver';
+import { DocSymbolValidator } from '../helpers';
 
 /**
  * Type of document symbol
