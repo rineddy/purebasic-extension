@@ -4,7 +4,6 @@ import { ClosureStatus } from '../models/ClosureStatus';
 import { DocSymbol } from '../models/DocSymbol';
 import { DocToken } from '../models/DocToken';
 import { DocTokenRegex } from '../models/DocTokenRegex';
-import { ParsedSymbolSignature } from '../models/ParsedSymbolSignature';
 
 /**
  * Service for document code mapping
@@ -72,13 +71,13 @@ export class DocTokenizer {
 		this.symbols.push(parsedSymbol);
 	}
 	public closeSymbol(token: DocToken) {
-		this.openedSymbols.forEach((openedSymbol, index) => {
+		this.openedSymbols.some((openedSymbol, index) => {
 			if (openedSymbol.type === token.type) {
 				openedSymbol.detail = `(closed at ${this.lastIndex})`;
 				openedSymbol.range.end = this.doc.positionAt(this.lastIndex);
 				this.alignToClosingSymbol(openedSymbol);
 				this.openedSymbols = this.openedSymbols.splice(index + 1);
-				return;
+				return true;
 			}
 		});
 	}
@@ -98,7 +97,7 @@ export class DocTokenizer {
 		const beforeName = groups.beforeName;
 		const nameStartPos = this.doc.positionAt(index + beforeName.length);
 		const nameLastPos = this.doc.positionAt(index + beforeName.length + name.length);
-		return <ParsedSymbolSignature>{
+		return {
 			name: name,
 			returnType: returnType,
 			range: Range.create(startPos, closure === ClosureStatus.Closed ? lastPos : this.docLastPos),
