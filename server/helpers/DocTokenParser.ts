@@ -8,11 +8,11 @@ import { DocTokenRegex } from '../models/DocTokenRegex';
  * Describes how to parse document tokens to detect any type of symbol
  */
 export class DocTokenParser {
-	public readonly parentType?: DocSymbolType;
-	public readonly type: DocSymbolType;
 	public readonly openRegex: DocTokenRegex;
 	public readonly contentRegex?: DocTokenRegex;
 	public readonly closeRegex?: DocTokenRegex;
+	public readonly parentType?: DocSymbolType;
+	public readonly type: DocSymbolType;
 	public symbolToken?: DocToken;
 
 	public constructor(init?: Partial<DocTokenParser>) {
