@@ -54,28 +54,12 @@ export class DocTokenizer {
 			regex.lastIndex = this.lastIndex;
 		}
 	}
-	public getSymbolSignature(token: DocToken) {
-		const { groups, index, closure } = token;
-		const name = groups.name;
-		const returnType = groups.returnType;
-		const startPos = this.doc.positionAt(this.startIndex);
-		const lastPos = this.doc.positionAt(this.lastIndex);
-		const beforeName = groups.beforeName;
-		const nameStartPos = this.doc.positionAt(index + beforeName.length);
-		const nameLastPos = this.doc.positionAt(index + beforeName.length + name.length);
-		return <ParsedSymbolSignature>{
-			name: name,
-			returnType: returnType,
-			range: Range.create(startPos, closure === ClosureStatus.Closed ? lastPos : this.docLastPos),
-			nameRange: Range.create(nameStartPos, nameLastPos),
-			selectionRange: Range.create(startPos, lastPos),
-		};
-	}
-	public openSymbol(token: DocToken, sign: ParsedSymbolSignature) {
-		const docSymbol = DocumentSymbol.create(sign.name, '', token.type.icon, sign.range, sign.selectionRange, []);
+	public openSymbol(token: DocToken) {
+		const { name, range, selectionRange, nameRange } = this.extractSymbolInfo(token);
+		const docSymbol = DocumentSymbol.create(name, '', token.type.icon, range, selectionRange, []);
 		const parsedSymbol = new DocSymbol({
 			...docSymbol,
-			nameRange: sign.nameRange,
+			nameRange: nameRange,
 			type: token.type,
 		});
 		if (this.openedSymbols.length > 0) {
@@ -105,5 +89,21 @@ export class DocTokenizer {
 			openedSymbol.range.end = endPos;
 		}
 	}
-
+	private extractSymbolInfo(token: DocToken) {
+		const { groups, index, closure } = token;
+		const name = groups.name;
+		const returnType = groups.returnType;
+		const startPos = this.doc.positionAt(this.startIndex);
+		const lastPos = this.doc.positionAt(this.lastIndex);
+		const beforeName = groups.beforeName;
+		const nameStartPos = this.doc.positionAt(index + beforeName.length);
+		const nameLastPos = this.doc.positionAt(index + beforeName.length + name.length);
+		return <ParsedSymbolSignature>{
+			name: name,
+			returnType: returnType,
+			range: Range.create(startPos, closure === ClosureStatus.Closed ? lastPos : this.docLastPos),
+			nameRange: Range.create(nameStartPos, nameLastPos),
+			selectionRange: Range.create(startPos, lastPos),
+		};
+	}
 }

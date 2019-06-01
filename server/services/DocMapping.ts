@@ -72,16 +72,13 @@ export class DocMapping {
 			if (beforeName === undefined) continue;
 			tokenizer.startIndex = index + beforeName.length;
 			const { symbolToken, contentRegex } = this.parsers.find(p => p.parse(token, tokenizer.openedSymbols)) || <DocTokenParser>{ symbolToken: <DocToken>{}, contentRegex: undefined };
-			const { type, closure } = symbolToken;
-			if (closure === ClosureStatus.Closing) {
+			if (symbolToken.closure === ClosureStatus.Closing) {
 				tokenizer.closeSymbol(symbolToken);
-			} else if (closure === ClosureStatus.Closed) {
-				const signature = tokenizer.getSymbolSignature(token);
-				tokenizer.openSymbol(symbolToken, signature);
-			} else if (type !== undefined) {
+			} else if (symbolToken.closure === ClosureStatus.Closed) {
+				tokenizer.openSymbol(symbolToken);
+			} else if (symbolToken.type) {
 				for (const token of tokenizer.siblingToken(contentRegex, 1)) {
-					const signature = tokenizer.getSymbolSignature(token);
-					tokenizer.openSymbol(symbolToken, signature);
+					tokenizer.openSymbol(symbolToken);
 				}
 			}
 		}
