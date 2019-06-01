@@ -1,10 +1,8 @@
 import { DocumentSymbolParams, SymbolInformation, TextDocument, WorkspaceSymbolParams } from 'vscode-languageserver';
 
-import { ClosureStatus } from '../models/ClosureStatus';
 import { DocHandling } from './DocHandling';
 import { DocSymbol } from '../models/DocSymbol';
 import { DocSymbolType } from '../models/DocSymbolType';
-import { DocToken } from './../models/DocToken';
 import { DocTokenParser } from '../helpers/DocTokenParser';
 import { DocTokenRegex } from '../models/DocTokenRegex';
 import { DocTokenizer } from '../helpers/DocTokenizer';
@@ -66,25 +64,15 @@ export class DocMapping {
 
 	public async load(doc: TextDocument): Promise<DocSymbol[]> {
 		const tokenizer = new DocTokenizer(doc);
-		let symbols = [];
+		const context = { symbols: [], openedSymbols: [], tokenizer };
 		for (const token of tokenizer.nextToken(/(?<beforeName>(?:^|:)[ \t]*)(?<name>[#]?[\w\u00C0-\u017F]+[$]?)|"(?:[^"\r\n\\]|\\.)*"?|'[^\r\n']*'?|;.*?$/gm)) {
 			const { index, groups: { beforeName } } = token;
 			if (beforeName === undefined) continue;
-			tokenizer.startIndex = index + beforeName.length;
-			const { symbolToken, contentRegex } = this.parsers.find(p => p.parse(token, tokenizer.openedSymbols)) || <DocTokenParser>{ symbolToken: <DocToken>{}, contentRegex: undefined };
-			if (symbolToken.closure === ClosureStatus.Closing) {
-				tokenizer.closeSymbol(symbolToken);
-			} else if (symbolToken.closure === ClosureStatus.Closed) {
-				tokenizer.openSymbol(symbolToken);
-			} else if (symbolToken.type) {
-				for (const token of tokenizer.siblingToken(contentRegex, 1)) {
-					tokenizer.openSymbol(symbolToken);
-				}
-			}
+			token.startIndex += index + beforeName.length;
+			this.parsers.some(p => p.parse(token, context));
 		}
-		symbols = tokenizer.symbols;
-		this.cachedDocSymbols.set(doc.uri, symbols);
-		return Promise.resolve(symbols);
+		this.cachedDocSymbols.set(doc.uri, context.symbols);
+		return Promise.resolve(context.symbols);
 	}
 	public delete(doc: TextDocument) {
 		this.cachedDocSymbols.delete(doc.uri);

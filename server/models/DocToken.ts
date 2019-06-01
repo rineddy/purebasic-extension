@@ -5,6 +5,7 @@ import { DocSymbolType } from './DocSymbolType';
  * Text token extracted from document
  */
 export class DocToken {
+	public startIndex?: number;
 	public readonly index: number;
 	public readonly lastIndex: number;
 	public readonly groups: { [key: string]: string };
