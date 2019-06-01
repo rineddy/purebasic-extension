@@ -6,6 +6,7 @@ import { DocSymbolType } from './DocSymbolType';
  */
 export class DocToken {
 	public readonly index: number;
+	public readonly lastIndex: number;
 	public readonly groups: { [key: string]: string };
 	closure?: ClosureStatus;
 	type?: DocSymbolType;

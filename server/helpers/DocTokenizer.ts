@@ -36,6 +36,7 @@ export class DocTokenizer {
 			this.lastIndex = regex.lastIndex;
 			yield new DocToken({
 				index: res.index,
+				lastIndex: this.lastIndex,
 				groups: res['groups'] || {}
 			});
 			regex.lastIndex = this.lastIndex;
@@ -48,6 +49,7 @@ export class DocTokenizer {
 			this.lastIndex = regex.lastIndex;
 			yield new DocToken({
 				index: res.index,
+				lastIndex: this.lastIndex,
 				groups: res['groups'] || {}
 			});
 			regex.lastIndex = this.lastIndex;
@@ -71,12 +73,12 @@ export class DocTokenizer {
 		this.symbols.push(parsedSymbol);
 	}
 	public closeSymbol(token: DocToken) {
-		this.openedSymbols.some((openedSymbol, index) => {
+		this.openedSymbols.some((openedSymbol, id) => {
 			if (openedSymbol.type === token.type) {
-				openedSymbol.detail = `(closed at ${this.lastIndex})`;
-				openedSymbol.range.end = this.doc.positionAt(this.lastIndex);
+				openedSymbol.detail = `(closed at ${token.lastIndex})`;
+				openedSymbol.range.end = this.doc.positionAt(token.lastIndex);
 				this.alignToClosingSymbol(openedSymbol);
-				this.openedSymbols = this.openedSymbols.splice(index + 1);
+				this.openedSymbols = this.openedSymbols.splice(id + 1);
 				return true;
 			}
 		});
