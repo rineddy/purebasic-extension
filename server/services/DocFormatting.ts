@@ -1,17 +1,17 @@
 import { DocumentFormattingParams, DocumentOnTypeFormattingParams, DocumentRangeFormattingParams, FormattingOptions, TextDocument, TextEdit } from 'vscode-languageserver';
 
+import { BeautificationRule } from '../models/BeautificationRule';
 import { ClientSettings } from './ClientSettings';
+import { DocHandling } from './DocHandling';
 import { DocIndentation } from './../helpers/DocIndentation';
-import { DocRegistering } from './DocRegistering';
 import { LineParser } from '../helpers/LineParser';
-import { RegexReplaceRule } from '../PureBasicDataModels';
 
 /**
- * Service for code formatting
+ * Service for doc text formatting
  */
 export class DocFormatting {
 	public static service = new DocFormatting();
-	private readonly beautificationRules: RegexReplaceRule[] = [
+	private readonly beautificationRules: BeautificationRule[] = [
 		[/\s+/g, ' '],
 		[/\s+(,)/g, '$1'],
 		[/(,)(?=\S)/g, '$1 '],
@@ -32,15 +32,15 @@ export class DocFormatting {
 	private constructor() { }
 
 	public async formatAll(formatting: DocumentFormattingParams): Promise<TextEdit[]> {
-		const doc = await DocRegistering.service.find(formatting.textDocument);
+		const doc = await DocHandling.service.find(formatting.textDocument);
 		return this.formatLineByLine(doc, formatting.options, 0, doc.lineCount - 1);
 	}
 	public async formatRange(formatting: DocumentRangeFormattingParams): Promise<TextEdit[]> {
-		const doc = await DocRegistering.service.find(formatting.textDocument);
+		const doc = await DocHandling.service.find(formatting.textDocument);
 		return this.formatLineByLine(doc, formatting.options, formatting.range.start.line, formatting.range.end.line, formatting.range.end.character);
 	}
 	public async formatOnType(formatting: DocumentOnTypeFormattingParams): Promise<TextEdit[]> {
-		const doc = await DocRegistering.service.find(formatting.textDocument);
+		const doc = await DocHandling.service.find(formatting.textDocument);
 		return this.formatLineByLine(doc, formatting.options, formatting.position.line - 1, formatting.position.line, formatting.position.character);
 	}
 	private async formatLineByLine(doc: TextDocument, options: FormattingOptions, startLine: number, endLine: number, endLineCharacter?: number): Promise<TextEdit[]> {

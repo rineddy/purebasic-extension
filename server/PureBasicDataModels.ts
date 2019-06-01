@@ -11,11 +11,4 @@ export interface ParsedSymbolSignature {
 	readonly selectionRange: Range;
 }
 
-/**
- * Represents regex replacer
- * @example let replacer: RegexReplaceRule = [ /\s(\w+)/g, '$1' ]
- */
-export interface RegexReplaceRule {
-	0: RegExp;
-	1: string;
-}
+

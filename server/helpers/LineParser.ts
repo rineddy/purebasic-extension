@@ -1,6 +1,6 @@
 import { Range, TextDocument } from 'vscode-languageserver';
 
-import { RegexReplaceRule } from '../PureBasicDataModels';
+import { BeautificationRule } from '../models/BeautificationRule';
 
 export class LineParser {
 	public newText: string;
@@ -98,7 +98,7 @@ export class LineParser {
 			this.endSpaces = '';
 		}
 	}
-	public beautify(rules: RegexReplaceRule[]) {
+	public beautify(rules: BeautificationRule[]) {
 		for (const rule of rules) {
 			this.content = this.content.replace(rule[0], rule[1]);
 		}

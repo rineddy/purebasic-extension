@@ -1,14 +1,14 @@
 import { ClosureStatus, DocSymbolToken, DocTokenParser } from '../helpers/DocTokenParser';
 import { DocumentSymbolParams, SymbolInformation, TextDocument, WorkspaceSymbolParams } from 'vscode-languageserver';
 
-import { DocRegistering } from './DocRegistering';
+import { DocHandling } from './DocHandling';
 import { DocSymbol } from '../models/DocSymbol';
 import { DocSymbolType } from '../models/DocSymbolType';
 import { DocToken } from './../models/DocToken';
 import { DocTokenizer } from '../helpers/DocTokenizer';
 
 /**
- * Service for document code mapping
+ * Service for document symbol mapping
  */
 export class DocMapping {
 	public static service = new DocMapping();
@@ -92,7 +92,7 @@ export class DocMapping {
 	}
 	public async getDocSymbols(params: DocumentSymbolParams): Promise<DocSymbol[]> {
 		if (!this.cachedDocSymbols.has(params.textDocument.uri)) {
-			const doc = await DocRegistering.service.find(params.textDocument);
+			const doc = await DocHandling.service.find(params.textDocument);
 			await this.load(doc);
 		}
 		return this.cachedDocSymbols.get(params.textDocument.uri).filter(s => s.isRootSymbol);
