@@ -5,7 +5,6 @@ import { SymbolKind } from 'vscode-languageserver';
  * Type of document symbol
  */
 export namespace DocSymbolType {
-	export const Unknown = {};
 	export const Module = <DocSymbolType>{
 		icon: SymbolKind.Module,
 		validator: DocSymbolValidator.ValidName,

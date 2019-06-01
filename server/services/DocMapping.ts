@@ -1,9 +1,10 @@
-import { DocSymbolParser, DocSymbolToken } from '../helpers/DocSymbolParser';
+import { ClosureStatus, DocSymbolToken, DocTokenParser } from '../helpers/DocTokenParser';
 import { DocumentSymbolParams, SymbolInformation, TextDocument, WorkspaceSymbolParams } from 'vscode-languageserver';
 
 import { DocRegistering } from './DocRegistering';
 import { DocSymbol } from '../models/DocSymbol';
 import { DocSymbolType } from '../models/DocSymbolType';
+import { DocToken } from './../models/DocToken';
 import { DocTokenizer } from '../helpers/DocTokenizer';
 
 /**
@@ -12,48 +13,48 @@ import { DocTokenizer } from '../helpers/DocTokenizer';
 export class DocMapping {
 	public static service = new DocMapping();
 	private readonly cachedDocSymbols: Map<string, DocSymbol[]> = new Map();
-	private readonly parsers: DocSymbolParser[] = [
-		new DocSymbolParser({
+	private readonly parsers: DocTokenParser[] = [
+		new DocTokenParser({
 			openToken: /^DeclareModule$/i, type: DocSymbolType.Module,
 			contentToken: DocSymbolToken.Name,
 			closeToken: /^EndDeclareModule$/i
 		}),
-		new DocSymbolParser({
+		new DocTokenParser({
 			openToken: /^Interface$/i, type: DocSymbolType.Interface,
 			contentToken: DocSymbolToken.Name,
 			closeToken: /^EndInterface$/i
 		}),
-		new DocSymbolParser({
+		new DocTokenParser({
 			openToken: /^Procedure(C|CDLL|DLL)?$/i, type: DocSymbolType.Procedure,
 			contentToken: DocSymbolToken.ReturnTypeName,
 			closeToken: /^EndProcedure$/i
 		}),
-		new DocSymbolParser({
+		new DocTokenParser({
 			openToken: /^Structure$/i, type: DocSymbolType.Structure,
 			contentToken: DocSymbolToken.Name,
 			closeToken: /^EndStructure$/i
 		}),
-		new DocSymbolParser({
+		new DocTokenParser({
 			openToken: /^Import(C)?$/i, type: DocSymbolType.Import,
 			contentToken: DocSymbolToken.Path,
 			closeToken: /^EndImport$/i
 		}),
-		new DocSymbolParser({
+		new DocTokenParser({
 			openToken: /^Macro$/i, type: DocSymbolType.Macro,
 			contentToken: DocSymbolToken.Name,
 			closeToken: /^EndMacro$/i
 		}),
-		new DocSymbolParser({
+		new DocTokenParser({
 			openToken: /^Enumeration(Binary)?$/i, type: DocSymbolType.Enum,
 			contentToken: DocSymbolToken.Name,
 			closeToken: /^EndEnumeration$/i
 		}),
-		new DocSymbolParser({
+		new DocTokenParser({
 			openToken: /^#.+?/, type: DocSymbolType.EnumMember,
 			contentToken: DocSymbolToken.Name,
 			parentType: DocSymbolType.Enum,
 		}),
-		new DocSymbolParser({
+		new DocTokenParser({
 			openToken: /^#.+?/, type: DocSymbolType.Constant,
 			contentToken: DocSymbolToken.Name,
 		}),
@@ -65,19 +66,20 @@ export class DocMapping {
 		const tokenizer = new DocTokenizer(doc);
 		let symbols = [];
 		for (const token of tokenizer.nextToken(/(?<beforeName>(?:^|:)[ \t]*)(?<name>[#]?[\w\u00C0-\u017F]+[$]?)|"(?:[^"\r\n\\]|\\.)*"?|'[^\r\n']*'?|;.*?$/gm)) {
-			const { index, groups: { name, beforeName } } = token;
+			const { index, groups: { beforeName } } = token;
+			if (beforeName === undefined) continue;
 			tokenizer.startIndex = index + beforeName.length;
-			const parser = this.parsers.find(p => p.openWith(name, tokenizer.openedSymbols)) || this.parsers.find(p => p.closeWith(name)) || DocSymbolParser.Unknown;
-			const { isClosed, isClosing } = parser;
-			if (isClosing) {
-				tokenizer.closeSymbol(parser);
-			} else if (isClosed) {
-				const signature = tokenizer.getSymbolSignature(token, true);
-				tokenizer.openSymbol(parser, signature);
-			} else if (parser !== DocSymbolParser.Unknown) {
-				for (const token of tokenizer.siblingToken(parser.contentToken, 1)) {
+			const { symbolToken, contentToken } = this.parsers.find(p => p.parse(token, tokenizer.openedSymbols)) || { symbolToken: <DocToken>{}, contentToken: undefined };
+			const { type, closure } = symbolToken;
+			if (closure === ClosureStatus.Closing) {
+				tokenizer.closeSymbol(symbolToken);
+			} else if (closure === ClosureStatus.Closed) {
+				const signature = tokenizer.getSymbolSignature(token);
+				tokenizer.openSymbol(symbolToken, signature);
+			} else if (type !== undefined) {
+				for (const token of tokenizer.siblingToken(contentToken, 1)) {
 					const signature = tokenizer.getSymbolSignature(token);
-					tokenizer.openSymbol(parser, signature);
+					tokenizer.openSymbol(symbolToken, signature);
 				}
 			}
 		}

@@ -1,7 +1,7 @@
 import { DocumentSymbol, Position, Range, TextDocument } from 'vscode-languageserver';
 
+import { ClosureStatus } from './DocTokenParser';
 import { DocSymbol } from '../models/DocSymbol';
-import { DocSymbolParser } from './DocSymbolParser';
 import { DocToken } from '../models/DocToken';
 import { ParsedSymbolSignature } from '../PureBasicDataModels';
 
@@ -31,6 +31,7 @@ export class DocTokenizer {
 
 	public *nextToken(regex: RegExp, count = -1) {
 		let res: RegExpExecArray;
+		regex.lastIndex = this.lastIndex;
 		while ((res = regex.exec(this.text)) && count-- !== 0) {
 			this.lastIndex = regex.lastIndex;
 			yield new DocToken({
@@ -42,6 +43,7 @@ export class DocTokenizer {
 	}
 	public *siblingToken(regex: RegExp, count = -1) {
 		let res: RegExpExecArray;
+		regex.lastIndex = this.lastIndex;
 		while ((res = regex.exec(this.text)) && res.index === this.lastIndex && count-- !== 0) {
 			this.lastIndex = regex.lastIndex;
 			yield new DocToken({
@@ -51,8 +53,8 @@ export class DocTokenizer {
 			regex.lastIndex = this.lastIndex;
 		}
 	}
-	public getSymbolSignature(token: DocToken, isClosed?: boolean) {
-		const { groups, index } = token;
+	public getSymbolSignature(token: DocToken) {
+		const { groups, index, closure } = token;
 		const name = groups.name;
 		const returnType = groups.returnType;
 		const startPos = this.doc.positionAt(this.startIndex);
@@ -63,30 +65,30 @@ export class DocTokenizer {
 		return <ParsedSymbolSignature>{
 			name: name,
 			returnType: returnType,
-			range: Range.create(startPos, isClosed ? lastPos : this.docLastPos),
+			range: Range.create(startPos, closure === ClosureStatus.Closed ? lastPos : this.docLastPos),
 			nameRange: Range.create(nameStartPos, nameLastPos),
 			selectionRange: Range.create(startPos, lastPos),
 		};
 	}
-	public openSymbol(parser: DocSymbolParser, sign: ParsedSymbolSignature) {
-		const docSymbol = DocumentSymbol.create(sign.name, '', parser.type.icon, sign.range, sign.selectionRange, []);
+	public openSymbol(token: DocToken, sign: ParsedSymbolSignature) {
+		const docSymbol = DocumentSymbol.create(sign.name, '', token.type.icon, sign.range, sign.selectionRange, []);
 		const parsedSymbol = new DocSymbol({
 			...docSymbol,
 			nameRange: sign.nameRange,
-			type: parser.type,
+			type: token.type,
 		});
 		if (this.openedSymbols.length > 0) {
 			this.openedSymbols[0].children.push(parsedSymbol);
-			if (!parser.isClosed) { this.openedSymbols.unshift(parsedSymbol); }
+			if (token.closure !== ClosureStatus.Closed) { this.openedSymbols.unshift(parsedSymbol); }
 		} else {
-			if (!parser.isClosed) { this.openedSymbols.unshift(parsedSymbol); }
+			if (token.closure !== ClosureStatus.Closed) { this.openedSymbols.unshift(parsedSymbol); }
 			parsedSymbol.isRootSymbol = true;
 		}
 		this.symbols.push(parsedSymbol);
 	}
-	public closeSymbol(parser: DocSymbolParser) {
+	public closeSymbol(token: DocToken) {
 		this.openedSymbols.forEach((openedSymbol, index) => {
-			if (openedSymbol.type === parser.type) {
+			if (openedSymbol.type === token.type) {
 				openedSymbol.detail = `(closed at ${this.lastIndex})`;
 				openedSymbol.range.end = this.doc.positionAt(this.lastIndex);
 				this.alignToClosingSymbol(openedSymbol);
