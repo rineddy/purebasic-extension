@@ -5,7 +5,7 @@ import { ClientSettings } from './services/ClientSettings';
 import { CodeCompletion } from './services/CodeCompletion';
 import { DocCollection } from './services/DocCollection';
 import { DocFormatting } from './services/DocFormatting';
-import { DocSymbolMap } from './services/DocSymbolMap';
+import { DocMapping } from './services/DocMapping';
 import { DocValidation } from './services/DocValidation';
 
 /* --------------------------------------------------------------------------------------------
@@ -71,14 +71,14 @@ Client.connection.onCompletionResolve(p => CodeCompletion.service.getCompletionD
 Client.connection.onDocumentFormatting(p => DocFormatting.service.formatAll(p));
 Client.connection.onDocumentRangeFormatting(p => DocFormatting.service.formatRange(p));
 Client.connection.onDocumentOnTypeFormatting(p => DocFormatting.service.formatOnType(p));
-Client.connection.onDocumentSymbol(p => DocSymbolMap.service.getDocSymbols(p));
-Client.connection.onWorkspaceSymbol(p => DocSymbolMap.service.getDocSymbolsFromWorkspace(p));
+Client.connection.onDocumentSymbol(p => DocMapping.service.getDocSymbols(p));
+Client.connection.onWorkspaceSymbol(p => DocMapping.service.getDocSymbolsFromWorkspace(p));
 
 DocCollection.service.onDidOpen(() => {
 });
 DocCollection.service.onDidClose(closed => {
 	ClientSettings.service.delete(closed.document);
-	DocSymbolMap.service.delete(closed.document);
+	DocMapping.service.delete(closed.document);
 });
 DocCollection.service.onDidChangeContent(changed => {
 	DocValidation.service.validate(changed.document);

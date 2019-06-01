@@ -2,7 +2,7 @@ import { Diagnostic, TextDocument } from 'vscode-languageserver';
 
 import { Client } from './Client';
 import { ClientSettings } from './ClientSettings';
-import { DocSymbolMap } from './DocSymbolMap';
+import { DocMapping } from './DocMapping';
 
 /**
  * Service for document validation
@@ -15,7 +15,7 @@ export class DocValidation {
 	public async validate(doc: TextDocument) {
 		// get settings and doc symbols for every validate run.
 		const settings = await ClientSettings.service.load(doc);
-		const symbols = await DocSymbolMap.service.load(doc);
+		const symbols = await DocMapping.service.load(doc);
 
 		let diagnosticMax = settings.diagnostics.maxNumberOfProblems;
 		let diagnostics: Diagnostic[] = symbols.map(s => s.type.validator.validate(s))

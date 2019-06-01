@@ -9,8 +9,8 @@ import { DocTokenizer } from '../helpers/DocTokenizer';
 /**
  * Service for document code mapping
  */
-export class DocSymbolMap {
-	public static service = new DocSymbolMap();
+export class DocMapping {
+	public static service = new DocMapping();
 	private readonly cachedDocSymbols: Map<string, DocSymbol[]> = new Map();
 	private readonly parsers: DocSymbolParser[] = [
 		new DocSymbolParser({
