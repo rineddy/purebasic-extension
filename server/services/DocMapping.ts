@@ -1,10 +1,12 @@
-import { ClosureStatus, DocSymbolToken, DocTokenParser } from '../helpers/DocTokenParser';
 import { DocumentSymbolParams, SymbolInformation, TextDocument, WorkspaceSymbolParams } from 'vscode-languageserver';
 
+import { ClosureStatus } from '../models/ClosureStatus';
 import { DocHandling } from './DocHandling';
 import { DocSymbol } from '../models/DocSymbol';
 import { DocSymbolType } from '../models/DocSymbolType';
 import { DocToken } from './../models/DocToken';
+import { DocTokenParser } from '../helpers/DocTokenParser';
+import { DocTokenRegex } from '../models/DocTokenRegex';
 import { DocTokenizer } from '../helpers/DocTokenizer';
 
 /**
@@ -15,48 +17,48 @@ export class DocMapping {
 	private readonly cachedDocSymbols: Map<string, DocSymbol[]> = new Map();
 	private readonly parsers: DocTokenParser[] = [
 		new DocTokenParser({
-			openToken: /^DeclareModule$/i, type: DocSymbolType.Module,
-			contentToken: DocSymbolToken.Name,
-			closeToken: /^EndDeclareModule$/i
+			openRegex: /^DeclareModule$/i, type: DocSymbolType.Module,
+			contentRegex: DocTokenRegex.Name,
+			closeRegex: /^EndDeclareModule$/i
 		}),
 		new DocTokenParser({
-			openToken: /^Interface$/i, type: DocSymbolType.Interface,
-			contentToken: DocSymbolToken.Name,
-			closeToken: /^EndInterface$/i
+			openRegex: /^Interface$/i, type: DocSymbolType.Interface,
+			contentRegex: DocTokenRegex.Name,
+			closeRegex: /^EndInterface$/i
 		}),
 		new DocTokenParser({
-			openToken: /^Procedure(C|CDLL|DLL)?$/i, type: DocSymbolType.Procedure,
-			contentToken: DocSymbolToken.ReturnTypeName,
-			closeToken: /^EndProcedure$/i
+			openRegex: /^Procedure(C|CDLL|DLL)?$/i, type: DocSymbolType.Procedure,
+			contentRegex: DocTokenRegex.ReturnTypeName,
+			closeRegex: /^EndProcedure$/i
 		}),
 		new DocTokenParser({
-			openToken: /^Structure$/i, type: DocSymbolType.Structure,
-			contentToken: DocSymbolToken.Name,
-			closeToken: /^EndStructure$/i
+			openRegex: /^Structure$/i, type: DocSymbolType.Structure,
+			contentRegex: DocTokenRegex.Name,
+			closeRegex: /^EndStructure$/i
 		}),
 		new DocTokenParser({
-			openToken: /^Import(C)?$/i, type: DocSymbolType.Import,
-			contentToken: DocSymbolToken.Path,
-			closeToken: /^EndImport$/i
+			openRegex: /^Import(C)?$/i, type: DocSymbolType.Import,
+			contentRegex: DocTokenRegex.Path,
+			closeRegex: /^EndImport$/i
 		}),
 		new DocTokenParser({
-			openToken: /^Macro$/i, type: DocSymbolType.Macro,
-			contentToken: DocSymbolToken.Name,
-			closeToken: /^EndMacro$/i
+			openRegex: /^Macro$/i, type: DocSymbolType.Macro,
+			contentRegex: DocTokenRegex.Name,
+			closeRegex: /^EndMacro$/i
 		}),
 		new DocTokenParser({
-			openToken: /^Enumeration(Binary)?$/i, type: DocSymbolType.Enum,
-			contentToken: DocSymbolToken.Name,
-			closeToken: /^EndEnumeration$/i
+			openRegex: /^Enumeration(Binary)?$/i, type: DocSymbolType.Enum,
+			contentRegex: DocTokenRegex.Name,
+			closeRegex: /^EndEnumeration$/i
 		}),
 		new DocTokenParser({
-			openToken: /^#.+?/, type: DocSymbolType.EnumMember,
-			contentToken: DocSymbolToken.Name,
+			openRegex: /^#.+?/, type: DocSymbolType.EnumMember,
+			contentRegex: DocTokenRegex.Name,
 			parentType: DocSymbolType.Enum,
 		}),
 		new DocTokenParser({
-			openToken: /^#.+?/, type: DocSymbolType.Constant,
-			contentToken: DocSymbolToken.Name,
+			openRegex: /^#.+?/, type: DocSymbolType.Constant,
+			contentRegex: DocTokenRegex.Name,
 		}),
 	];
 
@@ -69,7 +71,7 @@ export class DocMapping {
 			const { index, groups: { beforeName } } = token;
 			if (beforeName === undefined) continue;
 			tokenizer.startIndex = index + beforeName.length;
-			const { symbolToken, contentToken } = this.parsers.find(p => p.parse(token, tokenizer.openedSymbols)) || { symbolToken: <DocToken>{}, contentToken: undefined };
+			const { symbolToken, contentRegex } = this.parsers.find(p => p.parse(token, tokenizer.openedSymbols)) || <DocTokenParser>{ symbolToken: <DocToken>{}, contentRegex: undefined };
 			const { type, closure } = symbolToken;
 			if (closure === ClosureStatus.Closing) {
 				tokenizer.closeSymbol(symbolToken);
@@ -77,7 +79,7 @@ export class DocMapping {
 				const signature = tokenizer.getSymbolSignature(token);
 				tokenizer.openSymbol(symbolToken, signature);
 			} else if (type !== undefined) {
-				for (const token of tokenizer.siblingToken(contentToken, 1)) {
+				for (const token of tokenizer.siblingToken(contentRegex, 1)) {
 					const signature = tokenizer.getSymbolSignature(token);
 					tokenizer.openSymbol(symbolToken, signature);
 				}

@@ -1,9 +1,10 @@
 import { DocumentSymbol, Position, Range, TextDocument } from 'vscode-languageserver';
 
-import { ClosureStatus } from './DocTokenParser';
+import { ClosureStatus } from '../models/ClosureStatus';
 import { DocSymbol } from '../models/DocSymbol';
 import { DocToken } from '../models/DocToken';
-import { ParsedSymbolSignature } from '../PureBasicDataModels';
+import { DocTokenRegex } from '../models/DocTokenRegex';
+import { ParsedSymbolSignature } from '../models/ParsedSymbolSignature';
 
 /**
  * Service for document code mapping
@@ -29,7 +30,7 @@ export class DocTokenizer {
 		});
 	}
 
-	public *nextToken(regex: RegExp, count = -1) {
+	public *nextToken(regex: DocTokenRegex, count = -1) {
 		let res: RegExpExecArray;
 		regex.lastIndex = this.lastIndex;
 		while ((res = regex.exec(this.text)) && count-- !== 0) {
@@ -41,7 +42,7 @@ export class DocTokenizer {
 			regex.lastIndex = this.lastIndex;
 		}
 	}
-	public *siblingToken(regex: RegExp, count = -1) {
+	public *siblingToken(regex: DocTokenRegex, count = -1) {
 		let res: RegExpExecArray;
 		regex.lastIndex = this.lastIndex;
 		while ((res = regex.exec(this.text)) && res.index === this.lastIndex && count-- !== 0) {

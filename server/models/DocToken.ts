@@ -1,4 +1,4 @@
-import { ClosureStatus } from '../helpers/DocTokenParser';
+import { ClosureStatus } from './ClosureStatus';
 import { DocSymbolType } from './DocSymbolType';
 
 /**
