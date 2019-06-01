@@ -5,9 +5,14 @@ import { DocSymbolValidator } from '../helpers';
  * Type of document symbol
  */
 export namespace DocSymbolType {
-	export const Module = <DocSymbolType>{
+	export const DeclareModule = <DocSymbolType>{
 		icon: SymbolKind.Module,
 		validator: DocSymbolValidator.ValidName,
+		detail: '(DeclareModule)'
+	};
+	export const Module = <DocSymbolType>{
+		icon: SymbolKind.Module,
+		validator: DocSymbolValidator.ValidName
 	};
 	export const Procedure = <DocSymbolType>{
 		icon: SymbolKind.Function,
@@ -42,4 +47,8 @@ export namespace DocSymbolType {
 		validator: DocSymbolValidator.ValidString,
 	};
 }
-export type DocSymbolType = { readonly icon?: SymbolKind; readonly validator?: DocSymbolValidator };
+export type DocSymbolType = {
+	readonly icon?: SymbolKind;
+	readonly detail?: string;
+	readonly validator?: DocSymbolValidator
+};

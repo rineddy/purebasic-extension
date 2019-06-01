@@ -44,7 +44,7 @@ export class DocTokenParser {
 	private openSymbol(token: DocToken, context: ParsingContext) {
 		const { symbols, openedSymbols } = context;
 		const { name, range, selectionRange, nameRange } = this.extractSymbolInfo(token, context);
-		const docSymbol = DocumentSymbol.create(name, '', token.type.icon, range, selectionRange, []);
+		const docSymbol = DocumentSymbol.create(name, token.type.detail, token.type.icon, range, selectionRange, []);
 		const parsedSymbol = new DocSymbol({
 			...docSymbol,
 			nameRange: nameRange,
@@ -63,7 +63,6 @@ export class DocTokenParser {
 		const { tokenizer: { doc }, openedSymbols } = context;
 		openedSymbols.some((openedSymbol, id) => {
 			if (openedSymbol.type === token.type) {
-				openedSymbol.detail = `(closed at ${token.lastIndex})`;
 				openedSymbol.range.end = doc.positionAt(token.lastIndex);
 				this.alignToClosingSymbol(openedSymbol, context);
 				context.openedSymbols = openedSymbols.splice(id + 1);

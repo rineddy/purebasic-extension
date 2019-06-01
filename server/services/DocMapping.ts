@@ -12,9 +12,14 @@ export class DocMapping {
 	private readonly cachedDocSymbols: Map<string, DocSymbol[]> = new Map();
 	private readonly parsers: DocTokenParser[] = [
 		new DocTokenParser({
-			openRegex: /^DeclareModule$/i, type: DocSymbolType.Module,
+			openRegex: /^DeclareModule$/i, type: DocSymbolType.DeclareModule,
 			contentRegex: DocTokenRegex.Name,
 			closeRegex: /^EndDeclareModule$/i
+		}),
+		new DocTokenParser({
+			openRegex: /^Module$/i, type: DocSymbolType.Module,
+			contentRegex: DocTokenRegex.Name,
+			closeRegex: /^EndModule$/i
 		}),
 		new DocTokenParser({
 			openRegex: /^Interface$/i, type: DocSymbolType.Interface,
