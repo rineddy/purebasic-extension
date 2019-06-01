@@ -5,7 +5,7 @@ import { DocSymbol } from '../models/DocSymbol';
 import { DocSymbolType } from '../models/DocSymbolType';
 import { DocToken } from '../models/DocToken';
 import { DocTokenRegex } from '../models/DocTokenRegex';
-import { DocTokenizer } from './DocTokenizer';
+import { ParsingContext } from '../models/ParsingContext';
 
 /**
  * Describes how to parse document tokens to detect any type of symbol
@@ -21,7 +21,7 @@ export class DocTokenParser {
 		Object.assign(this, init);
 	}
 
-	public parse(token: DocToken, context: { tokenizer: DocTokenizer, symbols: DocSymbol[], openedSymbols: DocSymbol[] }): boolean {
+	public parse(token: DocToken, context: ParsingContext): boolean {
 		const { tokenizer, openedSymbols } = context;
 		let symbolToken: DocToken;
 		if (this.openRegex.test(token.groups.name) && (!this.parentType || (openedSymbols.length > 0 && this.parentType === openedSymbols[0].type))) {
@@ -47,7 +47,7 @@ export class DocTokenParser {
 			return true;
 		}
 	}
-	public openSymbol(token: DocToken, context: { tokenizer: DocTokenizer, symbols: DocSymbol[], openedSymbols: DocSymbol[] }) {
+	private openSymbol(token: DocToken, context: ParsingContext) {
 		const { symbols, openedSymbols } = context;
 		const { name, range, selectionRange, nameRange } = this.extractSymbolInfo(token, context);
 		const docSymbol = DocumentSymbol.create(name, '', token.type.icon, range, selectionRange, []);
@@ -65,7 +65,7 @@ export class DocTokenParser {
 		}
 		symbols.push(parsedSymbol);
 	}
-	public closeSymbol(token: DocToken, context: { tokenizer: DocTokenizer, symbols: DocSymbol[], openedSymbols: DocSymbol[] }) {
+	private closeSymbol(token: DocToken, context: ParsingContext) {
 		const { tokenizer: { doc }, openedSymbols } = context;
 		openedSymbols.some((openedSymbol, id) => {
 			if (openedSymbol.type === token.type) {
@@ -77,7 +77,7 @@ export class DocTokenParser {
 			}
 		});
 	}
-	private alignToClosingSymbol(lastSymbol: DocSymbol, context: { tokenizer: DocTokenizer, symbols: DocSymbol[], openedSymbols: DocSymbol[] }) {
+	private alignToClosingSymbol(lastSymbol: DocSymbol, context: ParsingContext) {
 		const { openedSymbols } = context;
 		const endPos = lastSymbol.range.end;
 		for (const openedSymbol of openedSymbols) {
@@ -85,9 +85,9 @@ export class DocTokenParser {
 			openedSymbol.range.end = endPos;
 		}
 	}
-	private extractSymbolInfo(token: DocToken, context: { tokenizer: DocTokenizer, symbols: DocSymbol[], openedSymbols: DocSymbol[] }) {
-		const { tokenizer: { doc, docLastPos, startIndex } } = context;
-		const { groups, index, lastIndex, closure } = token;
+	private extractSymbolInfo(token: DocToken, context: ParsingContext) {
+		const { tokenizer: { doc, docLastPos } } = context;
+		const { groups, startIndex, index, lastIndex, closure } = token;
 		const name = groups.name;
 		const returnType = groups.returnType;
 		const startPos = doc.positionAt(startIndex);

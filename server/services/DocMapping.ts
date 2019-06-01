@@ -6,6 +6,7 @@ import { DocSymbolType } from '../models/DocSymbolType';
 import { DocTokenParser } from '../helpers/DocTokenParser';
 import { DocTokenRegex } from '../models/DocTokenRegex';
 import { DocTokenizer } from '../helpers/DocTokenizer';
+import { ParsingContext } from '../models/ParsingContext';
 
 /**
  * Service for document symbol mapping
@@ -64,11 +65,11 @@ export class DocMapping {
 
 	public async load(doc: TextDocument): Promise<DocSymbol[]> {
 		const tokenizer = new DocTokenizer(doc);
-		const context = { symbols: [], openedSymbols: [], tokenizer };
+		const context = <ParsingContext>{ symbols: [], openedSymbols: [], tokenizer };
 		for (const token of tokenizer.nextToken(/(?<beforeName>(?:^|:)[ \t]*)(?<name>[#]?[\w\u00C0-\u017F]+[$]?)|"(?:[^"\r\n\\]|\\.)*"?|'[^\r\n']*'?|;.*?$/gm)) {
 			const { index, groups: { beforeName } } = token;
 			if (beforeName === undefined) continue;
-			token.startIndex += index + beforeName.length;
+			token.startIndex = index + beforeName.length;
 			this.parsers.some(p => p.parse(token, context));
 		}
 		this.cachedDocSymbols.set(doc.uri, context.symbols);

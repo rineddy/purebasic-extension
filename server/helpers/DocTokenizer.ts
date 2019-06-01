@@ -13,7 +13,6 @@ export class DocTokenizer {
 	readonly docLastPos: Position;
 	readonly symbols: DocSymbol[];
 	openedSymbols: DocSymbol[];
-	startIndex: number;
 	lastIndex: number;
 
 	public constructor(doc: TextDocument) {
@@ -21,7 +20,6 @@ export class DocTokenizer {
 			text: doc.getText(),
 			doc: doc,
 			docLastPos: Position.create(doc.lineCount, 0),
-			startIndex: 0,
 			lastIndex: 0,
 			symbols: [],
 			openedSymbols: [],
