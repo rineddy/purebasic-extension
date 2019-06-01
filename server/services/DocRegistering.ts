@@ -4,8 +4,8 @@ import {
 	TextDocuments,
 } from 'vscode-languageserver';
 
-export class DocCollection extends TextDocuments {
-	public static service = new DocCollection();
+export class DocRegistering extends TextDocuments {
+	public static service = new DocRegistering();
 
 	private constructor() {
 		super();

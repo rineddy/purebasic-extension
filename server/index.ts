@@ -3,9 +3,9 @@ import { DidChangeConfigurationNotification, InitializeParams, TextDocumentSyncK
 import { Client } from './services/Client';
 import { ClientSettings } from './services/ClientSettings';
 import { CodeCompletion } from './services/CodeCompletion';
-import { DocCollection } from './services/DocCollection';
 import { DocFormatting } from './services/DocFormatting';
 import { DocMapping } from './services/DocMapping';
+import { DocRegistering } from './services/DocRegistering';
 import { DocValidation } from './services/DocValidation';
 
 /* --------------------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ Client.connection.onInitialized(() => {
 
 Client.connection.onDidChangeConfiguration(changed => {
 	ClientSettings.service.reset(changed);
-	DocCollection.service.all().forEach(DocValidation.service.validate);
+	DocRegistering.service.all().forEach(DocValidation.service.validate);
 });
 Client.connection.onDidChangeWatchedFiles(() => {
 	Client.connection.console.log('We received an file change event');
@@ -74,15 +74,15 @@ Client.connection.onDocumentOnTypeFormatting(p => DocFormatting.service.formatOn
 Client.connection.onDocumentSymbol(p => DocMapping.service.getDocSymbols(p));
 Client.connection.onWorkspaceSymbol(p => DocMapping.service.getDocSymbolsFromWorkspace(p));
 
-DocCollection.service.onDidOpen(() => {
+DocRegistering.service.onDidOpen(() => {
 });
-DocCollection.service.onDidClose(closed => {
+DocRegistering.service.onDidClose(closed => {
 	ClientSettings.service.delete(closed.document);
 	DocMapping.service.delete(closed.document);
 });
-DocCollection.service.onDidChangeContent(changed => {
+DocRegistering.service.onDidChangeContent(changed => {
 	DocValidation.service.validate(changed.document);
 });
 
 Client.connection.listen(); 				// Listen on the Connection.service
-DocCollection.service.listen(Client.connection); // Make the text document manager listen on the Connection.service (for open, change and close text document events)
+DocRegistering.service.listen(Client.connection); // Make the text document manager listen on the Connection.service (for open, change and close text document events)
