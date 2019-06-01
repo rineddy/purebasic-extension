@@ -2,7 +2,7 @@ import { FormattingOptions, TextDocument } from 'vscode-languageserver';
 
 import { DocSettings } from '../models/DocSettings';
 import { IndentationRule } from '../models/IndentationRule';
-import { ParsedLine } from '../PureBasicDataModels';
+import { LineParser } from './LineParser';
 
 export class DocIndentation {
 	public readonly options: FormattingOptions;
@@ -45,7 +45,7 @@ export class DocIndentation {
 		});
 	}
 
-	public update(parsedLine: ParsedLine) {
+	public update(parsedLine: LineParser) {
 		// reset current indents
 		if (this.next < 0) this.next = 0;
 		this.current = this.next;
@@ -70,7 +70,7 @@ export class DocIndentation {
 		if (this.current < 0) this.current = 0;
 		parsedLine.indents = this.oneIndent.repeat(this.current);
 	}
-	public pick(parsedLine: ParsedLine): boolean {
+	public pick(parsedLine: LineParser): boolean {
 		let isIndentingCurrentLine = true;
 		let isIndentContextPicked = false;
 		this.next = parsedLine.indents.replace(/\t/g, this.tabSpaces).length / this.options.tabSize;
@@ -88,7 +88,7 @@ export class DocIndentation {
 		});
 		return isIndentContextPicked;
 	}
-	private selectIdentRules(parsedLine: ParsedLine, indentRules: IndentationRule[]): IndentationRule[] {
+	private selectIdentRules(parsedLine: LineParser, indentRules: IndentationRule[]): IndentationRule[] {
 		return parsedLine.words.concat(parsedLine.comment)
 			.map(word => indentRules.find(indentRule => word.match(indentRule.regex) != null))
 			.filter(indentRule => indentRule);

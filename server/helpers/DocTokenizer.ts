@@ -18,7 +18,7 @@ export class DocTokenizer {
 	lastIndex: number;
 
 	public constructor(doc: TextDocument) {
-		Object.assign(this, {
+		Object.assign(this, <DocTokenizer>{
 			text: doc.getText(),
 			doc: doc,
 			docLastPos: Position.create(doc.lineCount, 0),

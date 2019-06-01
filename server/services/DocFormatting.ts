@@ -3,8 +3,8 @@ import { DocumentFormattingParams, DocumentOnTypeFormattingParams, DocumentRange
 import { ClientSettings } from './ClientSettings';
 import { DocIndentation } from './../helpers/DocIndentation';
 import { DocRegistering } from './DocRegistering';
+import { LineParser } from '../helpers/LineParser';
 import { RegexReplaceRule } from '../PureBasicDataModels';
-import { pb } from '../PureBasicAPI';
 
 /**
  * Service for code formatting
@@ -48,21 +48,21 @@ export class DocFormatting {
 		const settings = await ClientSettings.service.load(doc);
 		const indentation = new DocIndentation(doc, options, settings);
 		for (let line = startLine - 1; line >= 0; line--) {
-			const parsedLine = pb.line.parseLine(doc, line);
+			const parsedLine = new LineParser(doc, line);
 			if (indentation.pick(parsedLine)) {
 				break;
 			}
 		}
 		for (let line = startLine; line <= endLine; line++) {
-			const parsedLine = pb.line.parseLine(doc, line, line === endLine ? endLineCharacter : undefined);
-			pb.line.updateLine(parsedLine, parsedLine => {
+			const parsedLine = new LineParser(doc, line, line === endLine ? endLineCharacter : undefined);
+			parsedLine.updateLine(parsedLine => {
 				indentation.update(parsedLine);
-				pb.line.beautify(parsedLine, this.beautificationRules);
+				parsedLine.beautify(this.beautificationRules);
 				if (parsedLine.cut) {
-					if (parsedLine.isBlank) { pb.line.trimAfterCutSpaces(parsedLine); }
+					if (parsedLine.isBlank) { parsedLine.trimAfterCutSpaces(); }
 				}
 				else {
-					pb.line.trimEndSpaces(parsedLine);
+					parsedLine.trimEndSpaces();
 				}
 			});
 			if (parsedLine.newText !== parsedLine.text) {
