@@ -17,24 +17,23 @@ export class DocTokenParser {
 
 	public parse(token: DocToken, context: ParsingContext): boolean {
 		const { tokenizer, openedSymbols } = context;
-		let symbolToken: DocToken;
 		if (this.openRegex.test(token.groups.name) && (!this.parentType || (openedSymbols.length > 0 && this.parentType === openedSymbols[0].type))) {
-			symbolToken = token;
-			symbolToken.type = this.type;
-			symbolToken.closure = (this.closeRegex === undefined) ? ClosureStatus.Closed : undefined;
+			token.type = this.type;
+			token.closure = (this.closeRegex === undefined) ? ClosureStatus.Closed : undefined;
 		}
 		else if (this.closeRegex && this.closeRegex.test(token.groups.name)) {
-			symbolToken = token;
-			symbolToken.type = this.type;
-			symbolToken.closure = ClosureStatus.Closing;
+			token.type = this.type;
+			token.closure = ClosureStatus.Closing;
 		}
-		if (symbolToken) {
-			if (symbolToken.closure === ClosureStatus.Closing) {
-				this.closeSymbol(symbolToken, context);
-			} else if (symbolToken.closure === ClosureStatus.Closed) {
-				this.openSymbol(symbolToken, context);
-			} else if (symbolToken.type) {
-				for (const token of tokenizer.extendToken(symbolToken, this.contentRegex)) {
+		if (token.type) {
+			if (token.closure === ClosureStatus.Closing) {
+				this.closeSymbol(token, context);
+			} else {
+				if (this.contentRegex) {
+					for (const extendedToken of tokenizer.extendToken(token, this.contentRegex)) {
+						this.openSymbol(extendedToken, context);
+					}
+				} else {
 					this.openSymbol(token, context);
 				}
 			}

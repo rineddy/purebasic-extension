@@ -37,8 +37,12 @@ export class DocMapping {
 			closeRegex: /^EndStructure$/i
 		}),
 		new DocTokenParser({
-			openRegex: /^[*]?.+?/, type: DocSymbolType.Field,
+			openRegex: /^(Map|List|Array)$/, type: DocSymbolType.Field,
 			contentRegex: DocTokenRegex.Name,
+			parentType: DocSymbolType.Structure,
+		}),
+		new DocTokenParser({
+			openRegex: /^[*]?.+?/, type: DocSymbolType.Field,
 			parentType: DocSymbolType.Structure,
 		}),
 		new DocTokenParser({
@@ -58,12 +62,10 @@ export class DocMapping {
 		}),
 		new DocTokenParser({
 			openRegex: /^#.+?/, type: DocSymbolType.EnumMember,
-			contentRegex: DocTokenRegex.Name,
 			parentType: DocSymbolType.Enum,
 		}),
 		new DocTokenParser({
 			openRegex: /^#.+?/, type: DocSymbolType.Constant,
-			contentRegex: DocTokenRegex.Name,
 		}),
 	];
 

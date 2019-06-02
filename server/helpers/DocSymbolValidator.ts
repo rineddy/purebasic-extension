@@ -72,7 +72,7 @@ export namespace DocSymbolValidator {
 		createDiagnostic: s => /^[*].+?[$]$/i.test(s.name) ?
 			<Diagnostic>{
 				severity: DiagnosticSeverity.Error, range: s.nameRange,
-				source: 'PB1004', message: `The field '${s.name}' is non-supported pointer using a native type.`,
+				source: 'PB1004', message: `The field '${s.name}' is a non-supported pointer using a native type.`,
 			} : <Diagnostic>{
 				severity: DiagnosticSeverity.Error, range: s.nameRange,
 				source: 'PB1005', message: `The field name '${s.name}' contains some unexpected characters.`,
