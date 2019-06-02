@@ -30,6 +30,10 @@ export namespace DocSymbolType {
 		icon: SymbolKind.Struct,
 		validator: DocSymbolValidator.ValidName,
 	};
+	export const Field = <DocSymbolType>{
+		icon: SymbolKind.Field,
+		validator: DocSymbolValidator.ValidFieldName$,
+	};
 	export const Enum = <DocSymbolType>{
 		icon: SymbolKind.Enum,
 		validator: DocSymbolValidator.ValidName$,

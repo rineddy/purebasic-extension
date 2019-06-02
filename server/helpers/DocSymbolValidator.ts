@@ -67,4 +67,15 @@ export namespace DocSymbolValidator {
 			source: 'PB1003', message: `The string '${s.name}' is not well-formed.`,
 		}
 	});
+	export const ValidFieldName$ = new DocSymbolValidationRule({
+		isValidSymbol: s => /^(?:[*]?[a-z_]\w*|[a-z_]\w*[$]?)$/i.test(s.name),
+		createDiagnostic: s => /^[*].+?[$]$/i.test(s.name) ?
+			<Diagnostic>{
+				severity: DiagnosticSeverity.Error, range: s.nameRange,
+				source: 'PB1004', message: `The field '${s.name}' is non-supported pointer using a native type.`,
+			} : <Diagnostic>{
+				severity: DiagnosticSeverity.Error, range: s.nameRange,
+				source: 'PB1005', message: `The field name '${s.name}' contains some unexpected characters.`,
+			}
+	});
 }

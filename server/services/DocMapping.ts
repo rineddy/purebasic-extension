@@ -37,6 +37,11 @@ export class DocMapping {
 			closeRegex: /^EndStructure$/i
 		}),
 		new DocTokenParser({
+			openRegex: /^[*]?.+?/, type: DocSymbolType.Field,
+			contentRegex: DocTokenRegex.Name,
+			parentType: DocSymbolType.Structure,
+		}),
+		new DocTokenParser({
 			openRegex: /^Import(C)?$/i, type: DocSymbolType.Import,
 			contentRegex: DocTokenRegex.Path,
 			closeRegex: /^EndImport$/i
@@ -67,7 +72,7 @@ export class DocMapping {
 	public async load(doc: TextDocument): Promise<DocSymbol[]> {
 		const tokenizer = new DocTokenizer(doc);
 		const context = <ParsingContext>{ symbols: [], openedSymbols: [], tokenizer };
-		for (const token of tokenizer.nextToken(/(?<beforeName>(?:^|:)[ \t]*)(?<name>[#]?[\w\u00C0-\u017F]+[$]?)|"(?:[^"\r\n\\]|\\.)*"?|'[^\r\n']*'?|;.*?$/gm)) {
+		for (const token of tokenizer.nextToken(/(?<beforeName>(?:^|:)[ \t]*)(?<name>[#*]?[\w\u00C0-\u017F]+[$]?)|"(?:[^"\r\n\\]|\\.)*"?|'[^\r\n']*'?|;.*?$/gm)) {
 			const { index, groups: { beforeName } } = token;
 			if (beforeName === undefined) continue;
 			token.startIndex = index + beforeName.length;
