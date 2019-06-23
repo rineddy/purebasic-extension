@@ -1,5 +1,11 @@
-import { Client, CodeCompletion, DocFormatting, DocHandling, DocMapping, DocSettings, DocValidation } from './services';
 import { DidChangeConfigurationNotification, InitializeParams, TextDocumentSyncKind } from 'vscode-languageserver';
+import { ClientConnection } from './ClientConnection';
+import { DocSettings } from './DocSettings';
+import { DocHandler } from './DocHandler';
+import { DocValidation } from './DocValidation';
+import { CodeCompletion } from './CodeCompletion';
+import { DocFormatter } from './DocFormatter';
+import { DocSymbolMapper } from './DocSymbolMapper';
 
 /* --------------------------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -7,8 +13,8 @@ import { DidChangeConfigurationNotification, InitializeParams, TextDocumentSyncK
  * ------------------------------------------------------------------------------------------ */
 'use strict';
 
-Client.connection.onInitialize((params: InitializeParams) => {
-	DocSettings.service.initialize(params);
+ClientConnection.instance.onInitialize((params: InitializeParams) => {
+	DocSettings.instance.initialize(params);
 	return {
 		capabilities: {
 			textDocumentSync: TextDocumentSyncKind.Full,
@@ -37,45 +43,45 @@ Client.connection.onInitialize((params: InitializeParams) => {
 	};
 });
 
-Client.connection.onInitialized(() => {
-	if (DocSettings.service.hasWorkspaceConfigCapability) {
+ClientConnection.instance.onInitialized(() => {
+	if (DocSettings.instance.hasWorkspaceConfigCapability) {
 		// Register for all configuration changes.
-		Client.connection.client.register(DidChangeConfigurationNotification.type);
+		ClientConnection.instance.client.register(DidChangeConfigurationNotification.type);
 	}
-	if (DocSettings.service.hasWorkspaceFolderCapability) {
-		Client.connection.workspace.getWorkspaceFolders().then(folders => folders.forEach(folder => {
-			Client.connection.console.log(folder.uri);
+	if (DocSettings.instance.hasWorkspaceFolderCapability) {
+		ClientConnection.instance.workspace.getWorkspaceFolders().then(folders => folders.forEach(folder => {
+			ClientConnection.instance.console.log(folder.uri);
 		}));
-		Client.connection.workspace.onDidChangeWorkspaceFolders(changed => {
-			Client.connection.console.log('Workspace folder change event received.' + changed);
+		ClientConnection.instance.workspace.onDidChangeWorkspaceFolders(changed => {
+			ClientConnection.instance.console.log('Workspace folder change event received.' + changed);
 		});
 	}
 });
 
-Client.connection.onDidChangeConfiguration(changed => {
-	DocSettings.service.reset(changed);
-	DocHandling.service.all().forEach(DocValidation.service.validate);
+ClientConnection.instance.onDidChangeConfiguration(changed => {
+	DocSettings.instance.reset(changed);
+	DocHandler.instance.all().forEach(DocValidation.instance.validate);
 });
-Client.connection.onDidChangeWatchedFiles(() => {
-	Client.connection.console.log('We received an file change event');
+ClientConnection.instance.onDidChangeWatchedFiles(() => {
+	ClientConnection.instance.console.log('We received an file change event');
 });
-Client.connection.onCompletion(p => CodeCompletion.service.getCompletionItems(p));
-Client.connection.onCompletionResolve(p => CodeCompletion.service.getCompletionDescription(p));
-Client.connection.onDocumentFormatting(p => DocFormatting.service.formatAll(p));
-Client.connection.onDocumentRangeFormatting(p => DocFormatting.service.formatRange(p));
-Client.connection.onDocumentOnTypeFormatting(p => DocFormatting.service.formatOnType(p));
-Client.connection.onDocumentSymbol(p => DocMapping.service.getDocSymbols(p));
-Client.connection.onWorkspaceSymbol(p => DocMapping.service.getDocSymbolsFromWorkspace(p));
+ClientConnection.instance.onCompletion(p => CodeCompletion.instance.getCompletionItems(p));
+ClientConnection.instance.onCompletionResolve(p => CodeCompletion.instance.getCompletionDescription(p));
+ClientConnection.instance.onDocumentFormatting(p => DocFormatter.instance.formatAll(p));
+ClientConnection.instance.onDocumentRangeFormatting(p => DocFormatter.instance.formatRange(p));
+ClientConnection.instance.onDocumentOnTypeFormatting(p => DocFormatter.instance.formatOnType(p));
+ClientConnection.instance.onDocumentSymbol(p => DocSymbolMapper.instance.getDocSymbols(p));
+ClientConnection.instance.onWorkspaceSymbol(p => DocSymbolMapper.instance.getDocSymbolsFromWorkspace(p));
 
-DocHandling.service.onDidOpen(() => {
+DocHandler.instance.onDidOpen(() => {
 });
-DocHandling.service.onDidClose(closed => {
-	DocSettings.service.delete(closed.document);
-	DocMapping.service.delete(closed.document);
+DocHandler.instance.onDidClose(closed => {
+	DocSettings.instance.delete(closed.document);
+	DocSymbolMapper.instance.delete(closed.document);
 });
-DocHandling.service.onDidChangeContent(changed => {
-	DocValidation.service.validate(changed.document);
+DocHandler.instance.onDidChangeContent(changed => {
+	DocValidation.instance.validate(changed.document);
 });
 
-Client.connection.listen(); 				// Listen on the Connection.service
-DocHandling.service.listen(Client.connection); // Make the text document manager listen on the Connection.service (for open, change and close text document events)
+ClientConnection.instance.listen(); 					// Listen on the Connection.service
+DocHandler.instance.listen(ClientConnection.instance); // Make the text document manager listen on the Connection.service (for open, change and close text document events)

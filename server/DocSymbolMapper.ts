@@ -1,14 +1,14 @@
 import { TextDocument, DocumentSymbolParams, WorkspaceSymbolParams, SymbolInformation } from 'vscode-languageserver';
-import { DocSymbol, DocSymbolType, DocTokenRegex, ParsingContext } from '../models';
-import { DocTokenParser, DocTokenizer } from '../helpers';
-import { DocHandling } from '.';
+import { DocSymbol, DocSymbolType, DocTokenRegex, ParsingContext } from './models';
+import { DocTokenParser, DocTokenizer } from './helpers';
+import { DocHandler } from './DocHandler';
 
 
 /**
  * Service for document symbol mapping
  */
-export class DocMapping {
-	public static service = new DocMapping();
+export class DocSymbolMapper {
+	public static instance = new DocSymbolMapper();
 	private readonly cachedDocSymbols: Map<string, DocSymbol[]> = new Map();
 	private readonly parsers: DocTokenParser[] = [
 		new DocTokenParser({
@@ -88,7 +88,7 @@ export class DocMapping {
 	}
 	public async getDocSymbols(params: DocumentSymbolParams): Promise<DocSymbol[]> {
 		if (!this.cachedDocSymbols.has(params.textDocument.uri)) {
-			const doc = await DocHandling.service.find(params.textDocument);
+			const doc = await DocHandler.instance.find(params.textDocument);
 			await this.load(doc);
 		}
 		return this.cachedDocSymbols.get(params.textDocument.uri).filter(s => s.isRootSymbol);

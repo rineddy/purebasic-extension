@@ -1,12 +1,12 @@
 import { ClientCapabilities, DidChangeConfigurationParams, InitializeParams, TextDocument } from 'vscode-languageserver';
-import { PurebasicSettings } from '../models';
-import { Client } from '.';
+import { PurebasicSettings } from './models';
+import { ClientConnection } from './ClientConnection';
 
 /**
  * Service for doc user settings
  */
 export class DocSettings {
-	public static service = new DocSettings();
+	public static instance = new DocSettings();
 	public initParams?: InitializeParams;
 	public clientCapabilities?: ClientCapabilities;
 	public hasWorkspaceConfigCapability: boolean = false;
@@ -42,7 +42,7 @@ export class DocSettings {
 	public load(doc: TextDocument): Thenable<PurebasicSettings> {
 		let settings = this.cachedDocSettings.get(this.hasWorkspaceConfigCapability ? doc.uri : '');
 		if (!settings) {
-			settings = Client.connection.workspace.getConfiguration({ scopeUri: doc.uri, section: 'purebasicLanguage' });
+			settings = ClientConnection.instance.workspace.getConfiguration({ scopeUri: doc.uri, section: 'purebasicLanguage' });
 			this.cachedDocSettings.set(doc.uri, settings.then(this.loadIndentationRules));
 		}
 		return settings;

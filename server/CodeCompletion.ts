@@ -4,7 +4,7 @@ import { CompletionItem, CompletionItemKind, TextDocumentPositionParams } from '
  * Service for code completion
  */
 export class CodeCompletion {
-	public static service = new CodeCompletion();
+	public static instance = new CodeCompletion();
 
 	private constructor() { }
 

@@ -3,8 +3,8 @@ import { TextDocument, TextDocumentIdentifier, TextDocuments, } from 'vscode-lan
 /**
  * Service for document handling (register doc / search doc / doc events)
  */
-export class DocHandling extends TextDocuments {
-	public static service = new DocHandling();
+export class DocHandler extends TextDocuments {
+	public static instance = new DocHandler();
 
 	private constructor() {
 		super();
