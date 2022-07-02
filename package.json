@@ -31,7 +31,7 @@
 				"editor.formatOnSave": true,
 				"editor.formatOnType": true,
 				"editor.detectIndentation": false,
-				"editor.autoIndent": true
+				"editor.autoIndent": "full"
 			}
 		},
 		"configuration": {
@@ -94,11 +94,10 @@
 		"package": "rimraf \"*.vsix\" \"**/out\" && vsce package"
 	},
 	"devDependencies": {
-		"@types/mocha": "^5.2.5",
-		"@types/node": "^8.10.38",
-		"rimraf": "^2.6.2",
-		"tslint": "^5.11.0",
-		"tslint-etc": "^1.5.2",
-		"typescript": "^3.2.2"
+		"@types/mocha": "^9.1.1",
+		"@types/node": "^18.0.0",
+		"eslint": "^8.19.0",
+		"rimraf": "^3.0.2",
+		"typescript": "^4.7.4"
 	}
 }
